@@ -4,8 +4,8 @@ import Navbar from './components/Navbar/Navbar.jsx';
 function App() {
   return (
     <div>
-      <h1>Hello From Raman</h1>
- <div>
+     
+ <div className='app'>
 
       <Navbar />
  </div>
