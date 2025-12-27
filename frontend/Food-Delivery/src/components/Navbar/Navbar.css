@@ -1,4 +1,4 @@
-.navbar{
+/* .navbar{
     padding:20px 0px;
     display:flex;
     justify-content: space-between;
@@ -33,11 +33,11 @@
 }
 .navbar button:hover {
     background: #bd5757;
-    color: white; /* Change text color */
-    transform: translateY(-2px); /* Slight lift effect */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Add shadow */
+    color: white; 
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
 }
-/* OPTION 2: Underline Active State (Modern) */
+
 .navbar .active {
     color: #bd5757 !important;
     font-weight: 700 !important;
@@ -59,4 +59,168 @@
     border-radius: 5px;
     top: -8px;
     right: -8px;
+} */
+
+
+
+
+
+
+
+
+
+
+
+/* ---------- NAVBAR CONTAINER ---------- */
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1px 80px;
+    background: #ffffff;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    border-radius: 0 0 20px 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+
+/* ---------- LOGO ---------- */
+.navbar .logo {
+    width: 130px;
+    height: auto;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.navbar .logo:hover {
+    transform: scale(1.1) rotate(-2deg);
+}
+
+/* ---------- MENU LIST ---------- */
+.navbar-menu {
+    display: flex;
+    list-style: none;
+    gap: clamp(25px, 5vw, 60px);
+}
+
+.navbar-menu li {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    position: relative;
+    padding: 8px 0;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.navbar-menu li:hover {
+    color: #ff4c24;
+    transform: translateY(-2px);
+}
+
+/* ---------- ACTIVE MENU ---------- */
+.navbar-menu li.active::after {
+    content: "";
+    position: absolute;
+    bottom: -6px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #ff4c24, #ff7f50);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* ---------- RIGHT ICONS ---------- */
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.navbar-right img {
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    transition: transform 0.3s ease;
+}
+
+.navbar-right img:hover {
+    transform: scale(1.15);
+}
+
+/* ---------- BASKET ICON WITH DOT ---------- */
+.navbar-search-icon {
+    position: relative;
+}
+
+.navbar-search-icon .dot {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    width: 12px;
+    height: 12px;
+    background: #ff4c24;
+    border-radius: 50%;
+    border: 2px solid #fff;
+    animation: pulse 1.2s infinite;
+}
+
+/* ---------- DOT PULSE ANIMATION ---------- */
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.3); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
+}
+
+/* ---------- SIGN-IN BUTTON ---------- */
+.navbar button {
+    margin-left: 16px;
+    padding: 10px 28px;
+    background: linear-gradient(135deg, #ff4c24, #ff7f50);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(255, 76, 36, 0.3);
+    transition: all 0.3s ease;
+}
+
+.navbar button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 20px rgba(255, 76, 36, 0.5);
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+    .navbar {
+        padding: 12px 40px;
+    }
+
+    .navbar-menu {
+        gap: clamp(15px, 5vw, 40px);
+    }
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        flex-wrap: wrap;
+        padding: 12px 20px;
+    }
+
+    .navbar-menu {
+        width: 100%;
+        justify-content: space-around;
+        margin-top: 12px;
+    }
+
+    .navbar-right {
+        margin-top: 12px;
+        width: 100%;
+        justify-content: space-between;
+    }
 }

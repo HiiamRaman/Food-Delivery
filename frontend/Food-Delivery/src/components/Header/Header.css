@@ -1,4 +1,4 @@
-.header{
+/* .header{
     height:37vw;
   
     margin: 0px auto;
@@ -40,4 +40,107 @@
     background-color: white;
     font-size: max(1vw ,13px);
     border-radius: 50px;
+} */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ---------- HEADER SECTION ---------- */
+.header {
+    height: min(90vh, 700px);
+    background: 
+        linear-gradient(
+            rgba(0, 0, 0, 0.12),
+            rgba(0, 0, 0, 0.55)
+        ),
+        url("/header_img.png") center / cover no-repeat;
+    display: flex;
+    align-items: center;
+    padding: 0 clamp(16px, 8vw, 120px);
+}
+
+/* ---------- CONTENT WRAPPER ---------- */
+.header-content {
+    max-width: 520px;
+    color: #ffffff;
+    animation: fadeUp 0.8s ease-out;
+}
+
+/* ---------- TITLE ---------- */
+.header-content h2 {
+    font-size: clamp(32px, 4vw, 48px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 20px;
+}
+
+/* ---------- DESCRIPTION ---------- */
+.header-content p {
+    font-size: 15px;
+    line-height: 1.7;
+    color: #e5e7eb;
+    margin-bottom: 32px;
+}
+
+/* ---------- CTA BUTTON ---------- */
+.header-content button {
+    background: #ff4c24;
+    color: #ffffff;
+    border: none;
+    padding: 14px 36px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* ---------- BUTTON HOVER ---------- */
+.header-content button:hover {
+    background: #e8431f;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 76, 36, 0.4);
+}
+
+/* ---------- MOBILE OPTIMIZATION ---------- */
+@media (max-width: 768px) {
+    .header {
+        height: 75vh;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .header-content {
+        max-width: 90%;
+    }
+}
+
+/* ---------- ANIMATION ---------- */
+@keyframes fadeUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
