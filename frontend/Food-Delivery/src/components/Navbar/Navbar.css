@@ -71,13 +71,27 @@
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ---------- NAVBAR CONTAINER ---------- */
 .navbar {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 1px 80px;
-    background: #ffffff;
+    background: #fff; /* cleaner modern background */
     box-shadow: 0 8px 20px rgba(0,0,0,0.08);
     border-radius: 0 0 20px 20px;
     position: sticky;
@@ -88,7 +102,7 @@
 
 /* ---------- LOGO ---------- */
 .navbar .logo {
-    width: 130px;
+    width: 120px;
     height: auto;
     cursor: pointer;
     transition: transform 0.3s ease;
@@ -105,7 +119,7 @@
     gap: clamp(25px, 5vw, 60px);
 }
 
-.navbar-menu li {
+.navbar-menu a {
     cursor: pointer;
     font-weight: 600;
     font-size: 16px;
@@ -115,13 +129,19 @@
     transition: all 0.3s ease;
 }
 
-.navbar-menu li:hover {
+/* Hover effect */
+.navbar-menu a:hover {
     color: #ff4c24;
     transform: translateY(-2px);
 }
 
 /* ---------- ACTIVE MENU ---------- */
-.navbar-menu li.active::after {
+.navbar-menu a.active {
+    color: #ff4c24; /* active text color */
+    font-weight: 700;
+}
+
+.navbar-menu a.active::after {
     content: "";
     position: absolute;
     bottom: -6px;
@@ -130,7 +150,7 @@
     height: 3px;
     background: linear-gradient(90deg, #ff4c24, #ff7f50);
     border-radius: 3px;
-    transition: width 0.3s ease;
+    transition: all 0.3s ease;
 }
 
 /* ---------- RIGHT ICONS ---------- */
@@ -218,9 +238,19 @@
         margin-top: 12px;
     }
 
+    .navbar-menu li {
+        font-size: 14px;
+        padding: 6px 0;
+    }
+
     .navbar-right {
         margin-top: 12px;
         width: 100%;
         justify-content: space-between;
+    }
+
+    .navbar button {
+        width: 100%;
+        margin: 10px 0 0 0;
     }
 }

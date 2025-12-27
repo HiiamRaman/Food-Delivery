@@ -27,7 +27,7 @@ function Footer() {
                  <h2>Get in Touch </h2>
                  <ul>
                     <li>+977 9826518530</li>
-                    <li>contact@gmail.com</li>
+                    <li>contact_myfriend_aarav_chaulagain@gmail.com</li>
                  </ul>
             </div>
 
