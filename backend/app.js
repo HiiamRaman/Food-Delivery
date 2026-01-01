@@ -21,21 +21,11 @@ app.use(
 
 // import the routes
 
-import healthCheckrouter from './src/routes/healthCheck.routes.js'
-import addFoodRouter from './src/routes/food.routes.js'
-
-
+import healthCheckrouter from "./src/routes/healthCheck.routes.js";
+import addFoodRouter from "./src/routes/food.routes.js";
 
 app.use("/api/v1/healthcheck", healthCheckrouter);
-app.use("/api/v1/add-food",addFoodRouter);
-
-
-
-
-
-
-
-
+app.use("/api/v1/add-food", addFoodRouter);
 
 //Global Error handler and 404 handler
 

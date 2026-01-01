@@ -1,8 +1,55 @@
 import { Food } from "../models/food.model.js";
-import fs from "fs";
+
 import { asyncHandler } from "../utils/asyncHandler.js";
 
+import { uploadOnCloudinary } from "../utils/cloudinary.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
-export const addFood = asyncHandler(async(req,res)=>{
+export const addFood = asyncHandler(async (req, res) => {
+  /*
+MENTAL FLOW – addFood Controller
 
-})
+ Multer handles file upload (req.file)
+Extract name, price, description, category from req.body
+ Validate required fields (file, name, price, category)
+ Upload file to Cloudinary
+ Prepare food object with details + Cloudinary URL
+ Save food in database
+ Send success response (ApiResponse)
+ Catch any errors (ApiError)
+*/
+  // Multer handles file upload (req.file)
+  const file = req.file;
+  if (!file) {
+    throw new ApiError(400, "Image is required!!");
+  }
+  // Extract name, price, description, category from req.body
+  const { name, price, description, category } = req.body;
+
+  //  Validate required fields
+  if (!name || !price  || !category) {
+    throw new ApiError(400, "All Fields are required!!");
+  }
+  //  Upload file to Cloudinary
+  const uploaded = await uploadOnCloudinary(file.path);
+  if (!uploaded) {
+    throw new ApiError(400, "Failed to upload image");
+  }
+
+  //  Save food in database
+
+  const foodData = {
+    name,
+    price,
+    description: description || "",
+    category,
+    image: uploaded.secure_url,
+  };
+
+  const newFood = await Food.create(foodData);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { newFood }, "Food added Successfully!!"));
+});
