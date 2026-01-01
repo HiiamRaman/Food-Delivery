@@ -22,6 +22,10 @@ export const uploadOnCloudinary = async (localFilePath) => {
     });
 
     console.log("File Uploaded Successfully!!", result.secure_url);
+    // Delete temp file after success  (no images will be saved in your public/temp )
+    if (fs.existsSync(localFilePath)) {
+      fs.unlinkSync(localFilePath);
+    }
     return result;
   } catch (error) {
     // now we have to ctach the failed files while uploading and delete it from our server which is stored temporarily
