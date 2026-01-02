@@ -28,7 +28,7 @@ Extract name, price, description, category from req.body
   const { name, price, description, category } = req.body;
 
   //  Validate required fields
-  if (!name || !price  || !category) {
+  if (!name || !price || !category) {
     throw new ApiError(400, "All Fields are required!!");
   }
   //  Upload file to Cloudinary
@@ -52,4 +52,26 @@ Extract name, price, description, category from req.body
   return res
     .status(200)
     .json(new ApiResponse(200, { newFood }, "Food added Successfully!!"));
+});
+
+export const listFood = asyncHandler(async (req, res) => {
+  /*
+  Mental Flow:
+  1. Request hits the listFood route
+  2. Fetch all food items from the database
+  3. Store the result in a variable
+  4. Send success response with food data
+  */
+
+  const foods = await Food.find();
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { count: foods.length,foods },
+        "Food fetched successfully!!"
+      )
+    );
 });

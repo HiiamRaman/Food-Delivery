@@ -23,10 +23,10 @@ app.use(
 
 import healthCheckrouter from "./src/routes/healthCheck.routes.js";
 import addFoodRouter from "./src/routes/food.routes.js";
-
+import foodListRouter from './src/routes/food.routes.js';
 app.use("/api/v1/healthcheck", healthCheckrouter);
 app.use("/api/v1/add-food", addFoodRouter);
-
+app.use('/api/v1/allfoods',foodListRouter);
 //Global Error handler and 404 handler
 
 // 404 handler
