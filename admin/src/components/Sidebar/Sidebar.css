@@ -1,0 +1,78 @@
+/* ===== Sidebar Container ===== */
+.sidebar {
+  width: 240px;
+  min-height: 100vh;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  padding: 20px 16px;
+  box-sizing: border-box;
+}
+
+/* ===== Options Wrapper ===== */
+.sidebar-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ===== Single Option ===== */
+.sidebar-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ===== Icon ===== */
+.sidebar-option img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  opacity: 0.85;
+}
+
+/* ===== Text ===== */
+.sidebar-option p {
+  font-size: 15px;
+  font-weight: 500;
+  color: #374151;
+  margin: 0;
+  white-space: nowrap;
+}
+
+/* ===== Hover Effect ===== */
+.sidebar-option:hover {
+  background-color: #d7c4a1;
+}
+
+/* ===== Active State (future-ready) ===== */
+.sidebar-option.active {
+  background-color: #f5694a;
+}
+
+.sidebar-option.active p {
+  color: black;
+}
+
+.sidebar-option.active img {
+  opacity: 1;
+}
+
+/* ===== Responsive (Mobile) ===== */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 70px;
+    padding: 16px 10px;
+  }
+
+  .sidebar-option {
+    justify-content: center;
+  }
+
+  .sidebar-option p {
+    display: none;
+  }
+}

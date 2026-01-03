@@ -70,8 +70,37 @@ export const listFood = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { count: foods.length,foods },
+        { count: foods.length, foods },
         "Food fetched successfully!!"
       )
     );
+});
+
+export const removeFoodItem = asyncHandler(async (req, res) => {
+  /*
+  Mental Flow:
+  1. Request hits the removeFoodItem route
+  2. Extract food ID from request parameters
+  3. Find food item by ID and delete it
+  4. If food does not exist, throw error
+  5. Return success response after deletion
+  */
+
+  const  id  = req.body.id;
+  if(!id){
+    throw new ApiError(400,"Invalid id or id is required");
+    
+  }
+
+  // 2. Extract food ID from request parameters
+
+  const food = await Food.findByIdAndDelete(id);
+
+  if (!food) {
+    throw new ApiError(404, "Food item not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "FoodItem successfully deleted!!"));
 });

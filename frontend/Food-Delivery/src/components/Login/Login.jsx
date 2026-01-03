@@ -28,7 +28,7 @@ function Login({ setShowLogin }) {
         <button> {currState === "Signup" ? "Create account" : "Login"} </button>
         <div className="login-condition">
           <input type="checkbox" required />
-          <p>Fuck!! Terms and Conditions</p>
+          <p>!! Terms and Conditions</p>
         </div>
         {currState === "Login" ? (
           <p>

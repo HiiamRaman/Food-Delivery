@@ -1,0 +1,53 @@
+/* ===== Navbar Container ===== */
+.navbar {
+  height: 64px;
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid #e5e7eb;
+  box-sizing: border-box;
+}
+
+/* ===== Logo ===== */
+.navbar .logo {
+  height: 36px;
+  width: auto;
+  cursor: pointer;
+  object-fit: contain;
+}
+
+/* ===== Profile Image ===== */
+.navbar .profile {
+  height: 40px;
+  width: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid #e5e7eb;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+/* ===== Hover Effect ===== */
+.navbar .profile:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: scale(1.05);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0 16px;
+  }
+
+  .navbar .logo {
+    height: 32px;
+  }
+
+  .navbar .profile {
+    height: 36px;
+    width: 36px;
+  }
+}
