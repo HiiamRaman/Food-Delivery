@@ -1,0 +1,198 @@
+/* ==================================================
+   MODERN ADD PRODUCT – ADMIN PANEL (SINGLE FILE)
+   ================================================== */
+
+:root {
+  --primary: #f5694a;
+  --primary-dark: #f5694a;
+  --bg: #f4f6fb;
+  --card-bg: #ffffff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --radius: 10px;
+}
+
+/* -----------------------------
+   PAGE CONTAINER
+------------------------------ */
+.add {
+  width: 100%;
+  min-height: 100vh;
+  padding: 40px;
+  background: linear-gradient(135deg,#f59b4ad4, #f8fafc);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  box-sizing: border-box;
+}
+
+/* -----------------------------
+   FLEX COLUMN UTILITY
+------------------------------ */
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* -----------------------------
+   FORM CARD
+------------------------------ */
+.add form {
+  width: 100%;
+  max-width: 640px;
+  background: var(--card-bg);
+  padding: 32px;
+  border-radius: var(--radius);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+  animation: fadeUp 0.5s ease;
+}
+
+/* -----------------------------
+   SECTION LABELS
+------------------------------ */
+.add p {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* -----------------------------
+   IMAGE UPLOAD
+------------------------------ */
+.add-image-upload label {
+  width: 160px;
+  height: 160px;
+  border-radius: var(--radius);
+  border: 2px dashed var(--border);
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.add-image-upload label:hover {
+  border-color: var(--primary);
+  background: #eef2ff;
+}
+
+.add-image-upload img {
+  width: 56px;
+  opacity: 0.65;
+}
+
+/* -----------------------------
+   INPUTS / SELECT / TEXTAREA
+------------------------------ */
+.product-name input,
+.add-product-description textarea,
+.add-category-price input,
+.add-category-price select {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text);
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.product-name input::placeholder,
+.add-product-description textarea::placeholder {
+  color: var(--muted);
+}
+
+.product-name input:focus,
+.add-product-description textarea:focus,
+.add-category-price input:focus,
+.add-category-price select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  outline: none;
+}
+
+/* -----------------------------
+   TEXTAREA
+------------------------------ */
+.add-product-description textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* -----------------------------
+   CATEGORY & PRICE ROW
+------------------------------ */
+.add-category-price {
+  display: flex;
+  gap: 20px;
+  margin-top: 6px;
+}
+
+.add-category-flex-col,
+.add-price-flex-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* -----------------------------
+   SUBMIT BUTTON
+------------------------------ */
+.add-btn {
+  margin-top: 24px;
+  padding: 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.add-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(240, 220, 182, 0.35);
+}
+
+.add-btn:active {
+  transform: translateY(0);
+}
+
+/* -----------------------------
+   RESPONSIVE
+------------------------------ */
+@media (max-width: 640px) {
+  .add {
+    padding: 20px;
+  }
+
+  .add form {
+    padding: 24px;
+  }
+
+  .add-category-price {
+    flex-direction: column;
+  }
+}
+
+/* -----------------------------
+   ANIMATION
+------------------------------ */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
