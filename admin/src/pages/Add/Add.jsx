@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { assets } from "../../assets/assets.js";
 import "./Add.css";
 import axios from "axios";
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 function Add() {
   const url = "http://localhost:3000";
   const [image, setImage] = useState(false);
@@ -17,21 +20,31 @@ function Add() {
     setData((data) => ({ ...data, [name]: value }));
   };
   const onSubmitHandler = async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    formData.append("price", Number(data.price));
-    formData.append("category", data.catgory);
-    formData.append("image", image);
-    const response = await axios.post(`${url}/api/v1/add-food/add`, formData);
-    if (response.data.success) {
-      console.log(" Food Added  successfully!!")
-      setData({ name: "", description: "", price: "", catgory: "Cake" });
-    }
-    else{
-      setImage(false)
+    try {
+      event.preventDefault();
+  
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("price", Number(data.price));
+      formData.append("category", data.category);
+      formData.append("image", image);
+      const response = await axios.post(`${url}/api/v1/add-food/add`, formData);
+      if (response.data.success) {
+        console.log(" Food Added  successfully!!")
+        setData({ name: "", description: "", price: "", category: "Cake" });
+         setImage(false)
+         toast.success(response.data.message)
+      }
+      
+    } catch (error) {
+      // Axios error for 400 or 500 status
+  const message =
+    error.response?.data?.data ||    // e.g., "All Fields are required!!"
+    error.response?.data?.message || // fallback message
+    "Something went wrong!";
+  
+  toast.error(message); // This will now show the toast
     }
   };
 
@@ -80,7 +93,7 @@ function Add() {
             <p>Product Category</p>
             <select
               onChange={onChangeHandler}
-              value={data.catgory}
+              value={data.category}
               name="category"
               id=""
             >
