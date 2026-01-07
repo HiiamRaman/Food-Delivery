@@ -1,0 +1,104 @@
+/* Root container */
+.list {
+  width: 100%;
+  padding: 24px;
+  background-color: #f9fafb;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* Title */
+.list > p {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* Table wrapper */
+.list-table {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+/* Header row */
+.list-table-format-title {
+  display: grid;
+  grid-template-columns: 100px 1.5fr 1fr 1fr 0.7fr;
+  align-items: center;
+  padding: 14px 18px;
+  background-color: #f3f4f6;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Data rows */
+.list-table-format {
+  display: grid;
+  grid-template-columns: 100px 1.5fr 1fr 1fr 0.7fr;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 14px;
+  color: #374151;
+  transition: background-color 0.2s ease;
+}
+
+/* Hover effect */
+.list-table-format:hover {
+  background-color: #f9fafb;
+}
+
+/* Image */
+.list-table-format img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* Name */
+.list-table-format p:nth-child(2) {
+  font-weight: 500;
+  color: #111827;
+}
+
+/* Price */
+.list-table-format p:nth-child(4) {
+  font-weight: 600;
+  color: #16a34a;
+}
+
+/* Action (X button) */
+.list-table-format p:last-child {
+  color: #dc2626;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.list-table-format p:last-child:hover {
+  color: #b91c1c;
+  transform: scale(1.1);
+  transition: all 0.15s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .list-table-format-title,
+  .list-table-format {
+    grid-template-columns: 80px 1fr 1fr;
+    gap: 8px;
+  }
+
+  .list-table-format-title b:nth-child(4),
+  .list-table-format-title b:nth-child(5),
+  .list-table-format p:nth-child(4),
+  .list-table-format p:nth-child(5) {
+    display: none;
+  }
+}
