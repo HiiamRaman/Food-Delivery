@@ -86,7 +86,7 @@ export const removeFoodItem = asyncHandler(async (req, res) => {
   5. Return success response after deletion
   */
 
-  const  id  = req.body.id;
+  const  {id}  = req.params
   if(!id){
     throw new ApiError(400,"Invalid id or id is required");
     

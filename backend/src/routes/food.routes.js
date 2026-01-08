@@ -5,6 +5,6 @@ import { upload } from '../middleware/multer.middleware.js';
 const router = Router()
 router.route('/add').post(upload.single("image"),addFood);
 router.route('/').get(listFood);
-router.route('/').delete(removeFoodItem)
+router.route('/:id').delete(removeFoodItem)
 
 export default router;
