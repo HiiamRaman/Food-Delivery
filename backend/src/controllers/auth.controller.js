@@ -18,10 +18,10 @@ MENTAL FLOW (High level)
 7. Send safe response (never send password)
 */
   // 1. Extract required fields from request body
-  const { name, fullname, email, password } = req.body;
+  const { username, fullname, email, password } = req.body;
 
   // Validate input (basic safety checks)
-  if (!name || !fullname || !email || !password) {
+  if (!username || !fullname || !email || !password) {
     throw new ApiError(400, "All Fields are Required");
   }
   // 3. Check if user already exists
@@ -32,7 +32,7 @@ MENTAL FLOW (High level)
 
   // 5. Create user instance (cartdata initialized automatically)
   const user = new User({
-    name,
+    username,
     fullname,
     email,
     password,

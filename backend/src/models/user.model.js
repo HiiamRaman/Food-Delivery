@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    username: {
       type: String,
       required: true,
       trim: true,
@@ -21,7 +21,6 @@ const userSchema = new mongoose.Schema(
     },
     phone: {
       type: String,
-      required: true,
     },
     role: {
       type: String,
@@ -61,20 +60,16 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    accessToken: {
-      type: String,
-      default: null,
-    },
+    
   },
   { timestamps: true }
 );
 
 //The purpose we want to hash the password before saving to the database so plain texts are never stored in database
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function () {
   //basically  this method will keep changing the password if a user makes any changes to prevent this we have to add a condition so encrypt the password only if the password is updated
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password")) return;
   this.password = await bcrypt.hash(this.password, 10);
-  next();
 });
 // You can make password comparison easier by adding a custom method inside your schema:
 
@@ -89,7 +84,6 @@ userSchema.methods.generateAccessToken = function () {
       _id: this._id,
       email: this.email,
       username: this.username,
-      fullname: this.fullname,
     },
 
     process.env.ACCESS_TOKEN_SECRET,
