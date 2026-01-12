@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
+import './List.css';
 function List() {
   const [list, setList] = useState([]);
   const url = "http://localhost:3000";
@@ -13,6 +14,19 @@ function List() {
       toast.error("Erorr!!");
     }
   };
+
+  const removeFood = async (id)=>{
+    console.log("id",id);
+    const response = await axios.delete(`${url}/api/v1/remove-food/${id}`)
+    
+    if (response.data.success) {
+      toast.success("Food removed successfully");
+      await fetchList(); // refresh the list
+    } else {
+      toast.error(response.data.message || "Delete failed");
+    }
+   
+  }
   useEffect(() => {
     fetchList();
   }, []);
@@ -28,7 +42,7 @@ function List() {
           <b>Action</b>
         </div>
         {list.map((item, index) => {
-          console.log(item.image);
+       
           return (
             <div key={index} className="list-table-format">
               <img
@@ -41,7 +55,7 @@ function List() {
               <p>{item.name}</p>
               <p>${item.price}</p>
               <p>{item.category}</p>
-              <p>X</p>
+              <p onClick={()=>removeFood(item._id)}>X</p>
             </div>
           );
         })}
