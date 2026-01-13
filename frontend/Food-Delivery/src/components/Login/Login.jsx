@@ -11,6 +11,7 @@ function Login({ setShowLogin }) {
   const[data,setData]= useState({
     username:"",
     email:"",
+    fullname:'',
     password:""
   });
   const onChangeHandler =   (event)=>{
@@ -28,6 +29,8 @@ setData(data=>({...data,[name]:value}))
  }else{
    newUrl+='/api/v1/user/register'
  }
+
+
  const response = await axios.post(newUrl,data)
 
 if(response.data.success){
@@ -54,8 +57,11 @@ if(response.data.success){
         <div className="login-inputs">
           {currState === "Login" ? (
             <></>
-          ) : (
-            <input name="username" onChange={onChangeHandler} value={data.username} type="text" placeholder="Enter Your name" required />
+          ) : ( <div>
+
+            <input name="username" onChange={onChangeHandler} value={data.username} type="text" placeholder="Enter Your  username" required />
+            <input name="fullname" onChange={onChangeHandler} value={data.fullname} type="text" placeholder="Enter Your full name" required />
+          </div>
           )}
 
           <input  name = 'email' onChange={onChangeHandler} value={data.email} type="email" placeholder="Enter Your Email" required />

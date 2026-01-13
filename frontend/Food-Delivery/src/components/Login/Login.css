@@ -59,6 +59,13 @@
     gap: 15px;
 }
 
+/* 🔴 IMPORTANT FIX: style the Signup-only wrapper div */
+.login-inputs > div {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
 .login-inputs input {
     padding: 12px 15px;
     border-radius: 8px;
@@ -141,7 +148,7 @@
     }
 
     .login-container button {
-        font-size: 14px; 
+        font-size: 14px;
         padding: 10px;
     }
 
