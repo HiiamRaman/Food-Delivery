@@ -21,7 +21,7 @@ setData(data=>({...data,[name]:value}))
   }
   const onLogIn = async(event)=>{
  event.preventDefault();
- console.log("Base URL from context:", url);
+
  let newUrl = url;
  if(currState==='Login'){
   newUrl+='/api/v1/user/login'
@@ -34,8 +34,8 @@ setData(data=>({...data,[name]:value}))
  const response = await axios.post(newUrl,data)
 
 if(response.data.success){
-    setToken(response.data.token);
-    localStorage.setItem("token",response.data.token);
+    setToken(response.data.data.accessToken);
+    localStorage.setItem("accessToken",response.data.data.accessToken);
     setShowLogin(false)
 }else{
   alert(response.data.message)
