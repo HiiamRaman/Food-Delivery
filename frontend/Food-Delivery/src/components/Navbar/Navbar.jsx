@@ -1,15 +1,17 @@
 import React, { useContext, useState } from "react";
 import { assets } from "../../assets/assets";
 import "./Navbar.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { StoreContext } from "../../Context/StoreContext";
 function Navbar({ setShowLogin }) {
   const [menu, setMenu] = useState("Home");
 
   const { getCartTotal, token, setToken } = useContext(StoreContext);
+  const navigate = useNavigate()
   const handlleLogout = ()=>{
     localStorage.removeItem("accessToken");
-    setToken(null)
+    setToken(null);
+    navigate("/")
   }
 
   return (

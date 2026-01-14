@@ -37,6 +37,14 @@ const StoreContextProvider = (props) => {
 
   const url = "http://localhost:3000";
 
+  //when we relaod the page the loggedin user gets logout to fix this we have to do
+
+  useEffect(() => {
+    if (localStorage.getItem("accessToken")) {
+      setToken(localStorage.getItem("accessToken"));
+    }
+  }, []);
+
   const contextValue = {
     food_list,
     cartItems,
