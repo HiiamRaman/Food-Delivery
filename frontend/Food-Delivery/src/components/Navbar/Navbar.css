@@ -1,256 +1,168 @@
-/* .navbar{
-    padding:20px 0px;
-    display:flex;
-    justify-content: space-between;
-    align-items: center;
-    
-}
-.navbar .logo{
-    width: 100px;
-}
-.navbar-menu{
-    display: flex;
-    list-style: none;
-    gap: 20px;
-    color: #49557e;
-    font-size: 18px
-}
-.navbar-right{
-    display: flex;
-    align-items: center;
-    gap:40px
-}
-.navbar button{
-    background: transparent ;
-    font-size: 16px;
-    color: #49557e;
-    border:1px solid 49557e;
-    padding:10px 30px;
-    border-radius: 50px;
-    cursor:pointer;
-    transition: 0.3s;
-
-}
-.navbar button:hover {
-    background: #bd5757;
-    color: white; 
-    transform: translateY(-2px); 
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); 
-}
-
-.navbar .active {
-    color: #bd5757 !important;
-    font-weight: 700 !important;
-    padding-bottom: 2px;
-    border-bottom: 2px solid #49557e;
-}
-.navbar li{
-    cursor: pointer;
-}
-.navbar-search-icon{
-    position: relative;
-   
-}
-.navbar-search-icon .dot {
-    position: absolute;
-    min-width: 10px;
-    min-height: 10px;
-    background-color: #bd5757;
-    border-radius: 5px;
-    top: -8px;
-    right: -8px;
-} */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* ---------- NAVBAR CONTAINER ---------- */
 .navbar {
+    padding: 20px 80px;
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 1px 80px;
-    background: #fff; /* cleaner modern background */
-    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    border-radius: 0 0 20px 20px;
+    align-items: center;
+    background: #ffffff;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     position: sticky;
     top: 0;
     z-index: 1000;
-    transition: all 0.3s ease;
 }
 
 /* ---------- LOGO ---------- */
 .navbar .logo {
-    width: 120px;
-    height: auto;
+    width: 100px;
     cursor: pointer;
-    transition: transform 0.3s ease;
 }
 
-.navbar .logo:hover {
-    transform: scale(1.1) rotate(-2deg);
-}
-
-/* ---------- MENU LIST ---------- */
+/* ---------- MENU ---------- */
 .navbar-menu {
     display: flex;
     list-style: none;
-    gap: clamp(25px, 5vw, 60px);
+    gap: 30px;
+    font-size: 18px;
 }
 
 .navbar-menu a {
+    text-decoration: none;
+    color: #49557e;
+    font-weight: 500;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 16px;
-    position: relative;
-    padding: 8px 0;
-    color: #333;
-    transition: all 0.3s ease;
 }
 
-/* Hover effect */
-.navbar-menu a:hover {
-    color: #ff4c24;
-    transform: translateY(-2px);
-}
-
-/* ---------- ACTIVE MENU ---------- */
-.navbar-menu a.active {
-    color: #ff4c24; /* active text color */
+/* ACTIVE MENU */
+.navbar-menu .active {
+    color: #bd5757;
     font-weight: 700;
+    padding-bottom: 4px;
+    border-bottom: 2px solid #bd5757;
 }
 
-.navbar-menu a.active::after {
-    content: "";
-    position: absolute;
-    bottom: -6px;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, #ff4c24, #ff7f50);
-    border-radius: 3px;
-    transition: all 0.3s ease;
-}
-
-/* ---------- RIGHT ICONS ---------- */
+/* ---------- RIGHT SECTION ---------- */
 .navbar-right {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 30px;
 }
 
-.navbar-right img {
-    width: 28px;
-    height: 28px;
-    cursor: pointer;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
-    transition: transform 0.3s ease;
-}
-
-.navbar-right img:hover {
-    transform: scale(1.15);
-}
-
-/* ---------- BASKET ICON WITH DOT ---------- */
+/* ---------- SEARCH & CART ---------- */
 .navbar-search-icon {
     position: relative;
 }
 
+.navbar-search-icon img {
+    width: 26px;
+    cursor: pointer;
+}
+
+/* CART DOT */
 .navbar-search-icon .dot {
     position: absolute;
     top: -6px;
     right: -6px;
-    width: 12px;
-    height: 12px;
-    background: #ff4c24;
+    min-width: 10px;
+    min-height: 10px;
+    background-color: #bd5757;
     border-radius: 50%;
-    border: 2px solid #fff;
-    animation: pulse 1.2s infinite;
 }
 
-/* ---------- DOT PULSE ANIMATION ---------- */
-@keyframes pulse {
-    0% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.3); opacity: 1; }
-    100% { transform: scale(1); opacity: 0.8; }
-}
-
-/* ---------- SIGN-IN BUTTON ---------- */
+/* ---------- SIGN IN BUTTON ---------- */
 .navbar button {
-    margin-left: 16px;
+    background: transparent;
+    font-size: 16px;
+    color: #49557e;
+    border: 1px solid #49557e;
     padding: 10px 28px;
-    background: linear-gradient(135deg, #ff4c24, #ff7f50);
-    color: #fff;
-    border: none;
-    border-radius: 30px;
-    font-weight: 600;
+    border-radius: 50px;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(255, 76, 36, 0.3);
-    transition: all 0.3s ease;
+    transition: 0.3s;
 }
 
 .navbar button:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 12px 20px rgba(255, 76, 36, 0.5);
+    background: #bd5757;
+    color: white;
+}
+
+/* ===================================================== */
+/* =============== PROFILE DROPDOWN FIX ================= */
+/* ===================================================== */
+
+/* PROFILE WRAPPER */
+.nav-bar-profile {
+    position: relative;              /* 🔴 REQUIRED */
+    cursor: pointer;
+}
+
+/* PROFILE ICON */
+.nav-bar-profile img {
+    width: 32px;
+}
+
+/* DROPDOWN MENU */
+.nav-bar-dropdown {
+    position: absolute;
+    top: 42px;
+    right: 0;
+    width: 160px;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    display: none;                   /* 🔴 HIDDEN BY DEFAULT */
+    z-index: 200;
+}
+
+/* SHOW DROPDOWN ON HOVER */
+.nav-bar-profile:hover .nav-bar-dropdown {
+    display: block;                  /* 🔴 FIX */
+}
+
+/* DROPDOWN ITEMS */
+.nav-bar-dropdown li {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 15px;
+    color: #333;
+}
+
+.nav-bar-dropdown li img {
+    width: 18px;
+}
+
+/* HOVER EFFECT */
+.nav-bar-dropdown li:hover {
+    background-color: #f5f5f5;
+}
+
+/* SEPARATOR */
+.nav-bar-dropdown hr {
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    margin: 4px 0;
 }
 
 /* ---------- RESPONSIVE ---------- */
-@media (max-width: 1024px) {
-    .navbar {
-        padding: 12px 40px;
-    }
-
-    .navbar-menu {
-        gap: clamp(15px, 5vw, 40px);
-    }
-}
-
 @media (max-width: 768px) {
     .navbar {
+        padding: 15px 20px;
         flex-wrap: wrap;
-        padding: 12px 20px;
     }
 
     .navbar-menu {
         width: 100%;
-        justify-content: space-around;
-        margin-top: 12px;
-    }
-
-    .navbar-menu li {
-        font-size: 14px;
-        padding: 6px 0;
+        justify-content: center;
+        margin-top: 10px;
+        gap: 20px;
     }
 
     .navbar-right {
-        margin-top: 12px;
         width: 100%;
         justify-content: space-between;
-    }
-
-    .navbar button {
-        width: 100%;
-        margin: 10px 0 0 0;
+        margin-top: 10px;
     }
 }
