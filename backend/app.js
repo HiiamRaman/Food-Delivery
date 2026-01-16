@@ -27,13 +27,13 @@ import addFoodRouter from "./src/routes/food.routes.js";
 import foodListRouter from './src/routes/food.routes.js';
 import removeFoodRouter from './src/routes/food.routes.js'
 import authRouter from './src/routes/user.route.js'
-
+import cartRouter from './src/routes/cart.routes.js'
 app.use("/api/v1/healthcheck", healthCheckrouter);
 app.use("/api/v1/add-food", addFoodRouter);
 app.use('/api/v1/allfoods',foodListRouter);
 app.use('/api/v1/remove-food',removeFoodRouter);
 app.use('/api/v1/user',authRouter);
-
+app.use('/api/v1/cart',cartRouter);
 
 
 //Global Error handler and 404 handler

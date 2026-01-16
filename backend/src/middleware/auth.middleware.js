@@ -1,4 +1,4 @@
-import { verify } from "jsonwebtoken";
+
 import { asyncHandler } from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
@@ -31,7 +31,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
   // 3️ Verify token
 
-  const decodedToken = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+  const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
 
   // 4. Validate userId from token
 

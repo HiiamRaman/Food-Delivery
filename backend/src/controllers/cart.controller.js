@@ -1,9 +1,9 @@
 import { Cart } from "../models/cart.model.js";
-import User from "../models/user.model.js";
-import asynchandler from "../utils/asyncHandler.js";
-import ApiError from "../utils/apiError.js";
-import ApiResponse from "../utils/apiResponse.js";
-export const addToCart = asynchandler(async (req, res) => {
+import {User} from "../models/user.model.js";
+import {asyncHandler} from "../utils/asyncHandler.js";
+import {ApiError} from "../utils/apiError.js";
+import {ApiResponse} from "../utils/apiResponse.js";
+export const addToCart = asyncHandler(async (req, res) => {
   /**
    *  Mental Flow:
    * 1. Get authenticated user from req.user (from JWT middleware)
@@ -66,7 +66,7 @@ export const addToCart = asynchandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, { cart }, "Item added to new cart "));
 });
-export const removeCart = asynchandler(async (req, res) => {
+export const removeCart = asyncHandler(async (req, res) => {
   /**
    *  Mental Flow:
    * 1. Get authenticated user from req.user
