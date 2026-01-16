@@ -53,7 +53,7 @@ export const addToCart = asynchandler(async (req, res) => {
 
   if (itemIndex > -1) {
     // 6b) Food exists → increase quantity
-    cart.item[itemIndex].quantity += quantity;
+     cart.item[itemIndex].quantity += quantity;
   } else {
     // 6c) Food does not exist → push new item
 
@@ -67,7 +67,7 @@ export const addToCart = asynchandler(async (req, res) => {
     .json(new ApiResponse(200, { cart }, "Item added to new cart "));
 });
 export const removeCart = asynchandler(async (req, res) => {
-/**
+  /**
    *  Mental Flow:
    * 1. Get authenticated user from req.user
    * 2. Get foodId from request body or params
@@ -79,7 +79,37 @@ export const removeCart = asynchandler(async (req, res) => {
    * 8. Save updated cart
    * 9. Return updated cart in response
    */
+  const userId = req.user._id;
+  const { foodId } = req.params;
+  // Validate foodId
+  if (!foodId) {
+    throw new ApiError(400, "FoodId is required !!");
+  }
+  // Find active cart for the user
+  const cart = await Cart.findOne({ user: userId, isActive: true });
+  if (!cart) {
+    throw new ApiError(404, "No active cart is found for this User");
+  }
 
+  //  Check if the item exists in cart
 
+  const itemIndex = cart.item.findIndex((item) => {
+    return item.food.toString() === foodId;
+  });
+  // If item does not exist → return error
 
+  if (itemIndex === -1) {
+    throw new ApiError(404, "Food item not found in  cart");
+  }
+
+  //Remove Item
+  cart.item.splice(itemIndex, 1); //remove 1 element at index
+                                //   array.splice(startIndex, deleteCount)
+                                // startIndex → where to start
+                                // deleteCount → how many items to remove
+  await cart.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { cart }, "Item removed from cart"));
 });
