@@ -4,6 +4,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { decode, verify } from "jsonwebtoken";
+import { Coupon } from "../models/coupon.model.js";
 export const addToCart = asyncHandler(async (req, res) => {
   /**
    *  Mental Flow:
@@ -159,7 +160,7 @@ export const getCart = asyncHandler(async (req, res) => {
     );
 });
 
-export const updateCartItem = async (req, res) => {
+export const updateCartItem = asyncHandler(async (req, res) => {
   /**
    * Mental Flow:
    * 1. Get authenticated user ID from req.user
@@ -222,9 +223,9 @@ export const updateCartItem = async (req, res) => {
         "cart updated successfully",
       ),
     );
-};
+});
 
-export const clearCart = async (req, res) => {
+export const clearCart = asyncHandler( async (req, res) => {
   /**
    * MENTAL FLOW:
    * 1. Get authenticated user from req
@@ -251,6 +252,100 @@ export const clearCart = async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Cart cleared successfully"));
-};
-export const applyCoupon = async (req, res) => {};
-export const removeCoupon = async (req, res) => {};
+});
+export const applyCoupon = asyncHandler(async (req, res) => {
+  /**
+   * MENTAL FLOW:
+   * 1. Extract coupon code and cart total from request body
+   * 2. Validate required input
+   * 3. Fetch coupon from database
+   * 4. Validate coupon status (exists, active, not expired)
+   * 5. Validate minimum cart value
+   * 6. Calculate discount amount
+   * 7. Store applied coupon for the user
+   * 8. Return updated cart pricing
+   */
+
+  const { code, cartTotal } = req.body;
+  if (!code || cartTotal === undefined) {   //we  cannot do !cartTotal because cartTotal = 0 is vallid
+    throw new ApiError(400, "code and cartTotal are required!!!");
+  }
+  // Fetch coupon from database
+
+  const coupon = await Coupon.findOne({ code: code.toUpperCase() });
+
+  // Validate coupon existence and active status
+  if (!coupon || !coupon.isActive) {
+    throw new ApiError(404, "Invalid or inactive coupon");
+  }
+  // Check coupon expiration
+  if (coupon.expiresAt < new Date()) {
+    throw new ApiError(400, "Coupon is Expired");
+  }
+  //  Validate minimum cart value condition
+  if (cartTotal < coupon.minCartValue) {
+    throw new ApiError(
+      400,
+      `Min Cart Value of ${coupon.minCartValue} required `,
+    );
+  }
+  let discount = 0;
+  if (coupon.discountType === "PERCENT") {
+    // Percentage-based discount
+    discount = (cartTotal * coupon.discountValue) / 100;
+  } else {
+    // Flat amount discount
+    discount = coupon.discountValue;
+  }
+  // Ensure final amount never goes below zero
+  const finalAmount = Math.max(cartTotal - discount, 0);
+
+  // Store applied coupon on user
+  await User.findByIdAndUpdate(req.user._id, {
+    appliedCoupon: coupon.code,
+  });
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { cartTotal, discount, finalAmount, coupon: coupon.code },
+        "Coupon applied successfully!!",
+      ),
+    );
+});
+export const removeCoupon = asyncHandler(async (req, res) => {
+  /**
+   * MENTAL FLOW (INDUSTRY STANDARD):
+   * 1. Get authenticated user from req (set by verifyJWT)
+   * 2. Fetch user from database
+   * 3. Check if a coupon is applied
+   * 4. Remove applied coupon
+   * 5. Save user
+   * 6. Return success response
+   */
+
+  const userId  = req.user._id;
+  if (!userId) {
+    throw new ApiError(400, "Unauthorized request");
+  }
+  // Fetch user from database
+  const user = await User.findById(userId);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+  // Check if a coupon is applied
+
+  if (!user.appliedCoupon) {
+    throw new ApiError(400, "No coupon is  applied to remove ");
+  }
+  // Remove applied coupon
+  user.appliedCoupon = null;
+  //save user
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Coupon removed successfully"));
+});
