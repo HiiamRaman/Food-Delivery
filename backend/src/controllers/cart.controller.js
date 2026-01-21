@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { decode, verify } from "jsonwebtoken";
 export const addToCart = asyncHandler(async (req, res) => {
   /**
    *  Mental Flow:
@@ -181,45 +182,75 @@ export const updateCartItem = async (req, res) => {
 
   const { quantity } = req.body;
 
-
-  if(!mongoose.Types.ObjectId.isValid(foodId)){
-    throw new ApiError (400,"Invalid Foodid")
+  if (!mongoose.Types.ObjectId.isValid(foodId)) {
+    throw new ApiError(400, "Invalid Foodid");
   }
-  if(!quantity || quantity < 1){
-    throw new ApiError(400,"Quanity must be atleast 1")
+  if (!quantity || quantity < 1) {
+    throw new ApiError(400, "Quanity must be atleast 1");
   }
 
-
-  const cart = await Cart.findOne({user:userId,isActive:true})
-  if(!cart){
-   throw new ApiError(404,"cart not found!!")
+  const cart = await Cart.findOne({ user: userId, isActive: true });
+  if (!cart) {
+    throw new ApiError(404, "cart not found!!");
   }
   // Find the item in cart
 
-    const itemIndex = cart.item.findIndex(
-      (item)=>item.food.toString() === foodId
-    )
-if(itemIndex===-1){
-  throw new ApiError(404,"Fooditem not found in the cart")
-}
+  const itemIndex = cart.item.findIndex(
+    (item) => item.food.toString() === foodId,
+  );
+  if (itemIndex === -1) {
+    throw new ApiError(404, "Fooditem not found in the cart");
+  }
 
   // Update quantity
   cart.item[itemIndex].quantity = quantity;
 
-  await cart.save()
+  await cart.save();
 
-   // Calculate totalAmount
+  // Calculate totalAmount
   const totalAmount = cart.item.reduce(
     (sum, cartItem) => sum + cartItem.price * cartItem.quantity,
-    0
+    0,
   );
 
-
-  return res.status(200).json(new ApiResponse(200,{items:cart.item,totalAmount},"cart updated successfully"));
-
-
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { items: cart.item, totalAmount },
+        "cart updated successfully",
+      ),
+    );
 };
 
-export const clearCart = async (req, res) => {};
+export const clearCart = async (req, res) => {
+  /**
+   * MENTAL FLOW:
+   * 1. Get authenticated user from req
+   * 2. Fetch user from DB
+   * 3. Clear cart field
+   * 4. Save user
+   * 5. Return success response
+   */
+
+  const userId = req.user._id;
+  if (!userId) {
+    throw new ApiError(401, "unauthorized  request");
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "user not Found");
+  }
+  //  Clear cart field
+  user.cart = {};
+
+  await user.save();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Cart cleared successfully"));
+};
 export const applyCoupon = async (req, res) => {};
 export const removeCoupon = async (req, res) => {};
