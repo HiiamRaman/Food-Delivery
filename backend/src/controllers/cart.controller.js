@@ -1,73 +1,166 @@
 import { Cart } from "../models/cart.model.js";
 import { User } from "../models/user.model.js";
+import { Food } from "../models/food.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-import { decode, verify } from "jsonwebtoken";
+
 import { Coupon } from "../models/coupon.model.js";
+// export const addToCart = asyncHandler(async (req, res) => {
+//   /**
+//    * Mental Flow:
+//    * 1. Get authenticated user from req.user
+//    * 2. Get foodId and quantity from request body
+//    * 3. Validate inputs
+//    * 4. Find active cart for the user
+//    * 5. If no cart → create new cart
+//    * 6. If cart exists:
+//    *    a) Check if item exists → increase quantity
+//    *    b) Else → push new item
+//    * 7. Save updated cart
+//    * 8. Calculate totalAmount
+//    * 9. Return updated cart + totalAmount
+//    */
+
+//   //   Get authenticated user from req.user
+//   const userId = req.user._id;
+//   //  2. Get foodId and quantity from request body
+
+//   const { foodId, quantity = 1 } = req.body;
+
+//   // 3️⃣ Validate input
+//   if (!foodId) {
+//     throw new ApiError(400, "foodId is requried !!");
+//   }
+
+//   if (quantity < 1) {
+//     throw new ApiError(400, "Quantity must be at least 1");
+//   }
+//   const food = await Food.findById(foodId);
+//   if (!food) throw new ApiError(404, "Food not found");
+
+//   // 4️⃣ Find active cart for the user
+
+//   let cart = await Cart.findOne({ user: userId, isActive: true }).populate(
+//     "item.food",
+//   );
+//   // 5️⃣ If no cart exists → create new
+
+//   if (!cart) {
+//     cart = await Cart.create({
+//       user: userId,
+//       item: [{ food: foodId, quantity, price: food.price }],
+//     });
+
+//     await cart.populate("item.food"); // populate food details
+//     const totalAmount = cart.item.reduce(
+//       (sum, cartItem) => sum + cartItem.food.price * cartItem.quantity,0
+//     );
+//     return res
+//       .status(200)
+//       .json(new ApiResponse(200, { cart, totalAmount }, "item added to cart"));
+//   }
+//   // 6️⃣ Cart exists → check if food already exists in cart
+
+//   const itemIndex = cart.item.findIndex((item) => {
+//     return item.food._id.toString() === foodId.toString();
+//   });
+
+//   if (itemIndex > -1) {
+//     // 6b) Food exists → increase quantity
+//     cart.item[itemIndex].quantity += quantity;
+//   } else {
+//     // 6c) Food does not exist → push new item
+
+//     cart.item.push({ food: foodId, quantity, price: food.price });
+//   }
+//   // 7️⃣ Save updated cart
+//   await cart.save();
+//   await cart.populate("item.food");
+//   // 8️⃣ Calculate totalAmount
+//   const totalAmount = cart.item.reduce(
+//     (sum, i) => sum + i.food.price * i.quantity,
+//     0,
+//   );
+
+//   return res
+//     .status(200)
+//     .json(new ApiResponse(200, { cart, totalAmount }, "Item added to  cart "));
+// });
+
+
 export const addToCart = asyncHandler(async (req, res) => {
-  /**
-   *  Mental Flow:
-   * 1. Get authenticated user from req.user (from JWT middleware)
-   * 2. Get foodId and quantity from request body
-   * 3. Validate foodId
-   * 4. Check if user already has an active cart
-   * 5. If no cart → create new cart with the item
-   * 6. If cart exists:
-   *    a) Check if item already exists in cart
-   *    b) If exists → increase quantity
-   *    c) If not → push new item
-   * 7. Save cart
-   * 8. Return updated cart in response
-   */
-
-  //   Get authenticated user from req.user
   const userId = req.user._id;
-  //  2. Get foodId and quantity from request body
+  const { foodId } = req.body;
+  let { quantity = 1 } = req.body;
 
-  const { foodId, quantity = 1 } = req.body;
+  // ✅ Validate inputs
+  if (!foodId) throw new ApiError(400, "foodId is required");
+  quantity = Number(quantity);
+  if (isNaN(quantity) || quantity < 1) throw new ApiError(400, "Quantity must be at least 1");
 
-  // 3️⃣ Validate input
-  if (!foodId) {
-    throw new ApiError(400, "foodId is requried !!");
-  }
+  // ✅ Fetch food and ensure price is valid
+  const food = await Food.findById(foodId);
+  if (!food) throw new ApiError(404, "Food not found");
 
-  if (quantity < 1) {
-    throw new ApiError(400, "Quantity must be at least 1");
-  }
+  const price = food.price != null ? Number(food.price) : 0;
+  if (isNaN(price)) throw new ApiError(500, "Invalid food price in database");
 
-  // 4️⃣ Find active cart for the user
-
+  // ✅ Find active cart
   let cart = await Cart.findOne({ user: userId, isActive: true });
-  // 5️⃣ If no cart exists → create new
 
   if (!cart) {
+    // 🆕 Create new cart
     cart = await Cart.create({
       user: userId,
-      item: [{ food: foodId, quantity }],
+      item: [
+        {
+          food: food._id,
+          quantity,
+          price,
+        },
+      ],
     });
-  }
-  // 6️⃣ Cart exists → check if food already exists in cart
-
-  const itemIndex = cart.item.findIndex((item) => {
-    return item.food.toString() === foodId;
-  });
-
-  if (itemIndex > -1) {
-    // 6b) Food exists → increase quantity
-    cart.item[itemIndex].quantity += quantity;
   } else {
-    // 6c) Food does not exist → push new item
+    // 🔁 Repair old items missing price
+    cart.item = await Promise.all(
+      cart.item.map(async (i) => {
+        if (i.price == null) {
+          const f = await Food.findById(i.food);
+          i.price = f ? Number(f.price) : 0;
+        }
+        return i;
+      })
+    );
 
-    cart.item.push({ food: foodId, quantity });
+    // ✅ Check if current food already exists in cart
+    const itemIndex = cart.item.findIndex((i) => i.food.toString() === foodId.toString());
+    if (itemIndex > -1) {
+      cart.item[itemIndex].quantity += quantity;
+    } else {
+      cart.item.push({
+        food: food._id,
+        quantity,
+        price,
+      });
+    }
+
+    await cart.save();
   }
-  // 7️⃣ Save updated cart
-  await cart.save();
 
-  return res
-    .status(200)
-    .json(new ApiResponse(200, { cart }, "Item added to new cart "));
+  // ✅ Populate food details
+  await cart.populate("item.food");
+
+  // ✅ Calculate total amount
+  const totalAmount = cart.item.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+  return res.status(200).json(
+    new ApiResponse(200, { cart, totalAmount }, "Item added to cart successfully")
+  );
 });
+
+
+
 export const removeCart = asyncHandler(async (req, res) => {
   /**
    *  Mental Flow:
@@ -225,7 +318,7 @@ export const updateCartItem = asyncHandler(async (req, res) => {
     );
 });
 
-export const clearCart = asyncHandler( async (req, res) => {
+export const clearCart = asyncHandler(async (req, res) => {
   /**
    * MENTAL FLOW:
    * 1. Get authenticated user from req
@@ -267,7 +360,8 @@ export const applyCoupon = asyncHandler(async (req, res) => {
    */
 
   const { code, cartTotal } = req.body;
-  if (!code || cartTotal === undefined) {   //we  cannot do !cartTotal because cartTotal = 0 is vallid
+  if (!code || cartTotal === undefined) {
+    //we  cannot do !cartTotal because cartTotal = 0 is vallid
     throw new ApiError(400, "code and cartTotal are required!!!");
   }
   // Fetch coupon from database
@@ -325,7 +419,7 @@ export const removeCoupon = asyncHandler(async (req, res) => {
    * 6. Return success response
    */
 
-  const userId  = req.user._id;
+  const userId = req.user._id;
   if (!userId) {
     throw new ApiError(400, "Unauthorized request");
   }
