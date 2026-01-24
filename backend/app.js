@@ -35,7 +35,8 @@ app.use("/api/v1/user", authRouter);
 
 app.use("/api/v1/getCart", cartRouter);
 app.use("/api/v1/deleteCart", cartRouter);
-app.use("/api/v1/cart",cartRouter)
+app.use("/api/v1/cart",cartRouter);
+
 //Global Error handler and 404 handler
 
 // 404 handler

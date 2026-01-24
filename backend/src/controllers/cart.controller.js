@@ -4,7 +4,7 @@ import { Food } from "../models/food.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-
+import mongoose from "mongoose";
 import { Coupon } from "../models/coupon.model.js";
 // export const addToCart = asyncHandler(async (req, res) => {
 //   /**
@@ -211,7 +211,7 @@ export const removeCart = asyncHandler(async (req, res) => {
 
 export const getCart = asyncHandler(async (req, res) => {
   /**
-   * 🧠 Mental Flow:
+   *  Mental Flow:
    * 1. Get logged-in user ID from req.user (JWT middleware)
    * 2. Find the user's active cart
    * 3. Populate food details inside cart items
@@ -332,20 +332,27 @@ export const clearCart = asyncHandler(async (req, res) => {
   if (!userId) {
     throw new ApiError(401, "unauthorized  request");
   }
-
-  const user = await User.findById(userId);
-  if (!user) {
-    throw new ApiError(404, "user not Found");
+ //fetch users cart
+  const cart = await Cart.findOne({user:userId});
+  if (!cart) {
+    throw new ApiError(404, "cart not Found");
   }
   //  Clear cart field
-  user.cart = {};
+  cart.item = []
 
-  await user.save();
+
+  await cart.save();
 
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Cart cleared successfully"));
 });
+
+
+
+
+
+
 export const applyCoupon = asyncHandler(async (req, res) => {
   /**
    * MENTAL FLOW:
