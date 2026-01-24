@@ -35,8 +35,8 @@ function Cart() {
         {food_list
           .filter((item) => cartItems[item._id] > 0)
           .map((item) => (
-            <div>
-              <div key={item._id} className="cart-items-selected">
+            <div  key={item._id} >
+              <div  className="cart-items-selected">
                 <img src={item.image} alt="" />
                 <p>
                   {item.name} × {cartItems[item._id]}
