@@ -88,7 +88,6 @@ import { Coupon } from "../models/coupon.model.js";
 //     .json(new ApiResponse(200, { cart, totalAmount }, "Item added to  cart "));
 // });
 
-
 export const addToCart = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { foodId } = req.body;
@@ -97,7 +96,8 @@ export const addToCart = asyncHandler(async (req, res) => {
   // ✅ Validate inputs
   if (!foodId) throw new ApiError(400, "foodId is required");
   quantity = Number(quantity);
-  if (isNaN(quantity) || quantity < 1) throw new ApiError(400, "Quantity must be at least 1");
+  if (isNaN(quantity) || quantity < 1)
+    throw new ApiError(400, "Quantity must be at least 1");
 
   // ✅ Fetch food and ensure price is valid
   const food = await Food.findById(foodId);
@@ -130,11 +130,13 @@ export const addToCart = asyncHandler(async (req, res) => {
           i.price = f ? Number(f.price) : 0;
         }
         return i;
-      })
+      }),
     );
 
     // ✅ Check if current food already exists in cart
-    const itemIndex = cart.item.findIndex((i) => i.food.toString() === foodId.toString());
+    const itemIndex = cart.item.findIndex(
+      (i) => i.food.toString() === foodId.toString(),
+    );
     if (itemIndex > -1) {
       cart.item[itemIndex].quantity += quantity;
     } else {
@@ -152,14 +154,21 @@ export const addToCart = asyncHandler(async (req, res) => {
   await cart.populate("item.food");
 
   // ✅ Calculate total amount
-  const totalAmount = cart.item.reduce((sum, i) => sum + i.price * i.quantity, 0);
-
-  return res.status(200).json(
-    new ApiResponse(200, { cart, totalAmount }, "Item added to cart successfully")
+  const totalAmount = cart.item.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0,
   );
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { cart, totalAmount },
+        "Item added to cart successfully",
+      ),
+    );
 });
-
-
 
 export const removeCart = asyncHandler(async (req, res) => {
   /**
@@ -209,50 +218,49 @@ export const removeCart = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { cart }, "Item removed from cart"));
 });
 
+
+
 export const getCart = asyncHandler(async (req, res) => {
   /**
-   *  Mental Flow:
-   * 1. Get logged-in user ID from req.user (JWT middleware)
-   * 2. Find the user's active cart
-   * 3. Populate food details inside cart items
-   * 4. If no active cart exists or cart is empty, return empty response
+   * Mental Flow:
+   * 1. Get logged-in user ID from JWT middleware (req.user)
+   * 2. Find active cart for user and populate food details
+   * 3. If cart is empty or missing items, return empty array
+   * 4. Filter out any invalid items (missing food or price)
    * 5. Calculate total cart amount
-   * 6. Send cart data with total amount
+   * 6. Return valid items and total amount in response
    */
 
-  //  1. Get logged-in user ID from req.user (JWT middleware)
-
+  // 1. Get logged-in user ID
   const userId = req.user._id;
-  //  Find the user's active cart
 
-  const cart = await Cart.findOne({
-    user: userId,
-    isActive: true,
-  }).populate("item.food", "name price image");
-
-  // If no cart OR cart has no items
-  if (!cart || cart.item.length === 0) {
-    return res
-      .status(200)
-      .json(new ApiResponse(200, { items: [] }, "cart is empty"));
-  }
-  // Calculate total cart amount
-  const totalAmount = cart.item.reduce(
-    (sum, cartItem) => sum + cartItem.price * cartItem.quantity,
-    0,
+  // 2. Find user's active cart and populate food info
+  const cart = await Cart.findOne({ user: userId, isActive: true }).populate(
+    "item.food",
+    "name price image"
   );
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        { cart, totalAmount },
-        "cart fetched successfully!!",
-      ),
-    );
-});
+  // 3. If cart is empty or missing items
+  if (!cart || !cart.item || cart.item.length === 0) {
+    return res.status(200).json(new ApiResponse(200, { items: [] }, "Cart is empty"));
+  }
 
+  // 4. Filter out invalid items
+  const validItems = cart.item.filter(
+    cartItem => cartItem.food && typeof cartItem.price !== "undefined"
+  );
+
+  // 5. Calculate total amount
+  const totalAmount = validItems.reduce(
+    (sum, cartItem) => sum + cartItem.price * (cartItem.quantity || 1),
+    0
+  );
+
+  // 6. Send response
+  return res.status(200).json(
+    new ApiResponse(200, { items: validItems, totalAmount }, "Cart fetched successfully")
+  );
+});
 export const updateCartItem = asyncHandler(async (req, res) => {
   /**
    * Mental Flow:
@@ -332,14 +340,13 @@ export const clearCart = asyncHandler(async (req, res) => {
   if (!userId) {
     throw new ApiError(401, "unauthorized  request");
   }
- //fetch users cart
-  const cart = await Cart.findOne({user:userId});
+  //fetch users cart
+  const cart = await Cart.findOne({ user: userId });
   if (!cart) {
     throw new ApiError(404, "cart not Found");
   }
   //  Clear cart field
-  cart.item = []
-
+  cart.item = [];
 
   await cart.save();
 
@@ -347,11 +354,6 @@ export const clearCart = asyncHandler(async (req, res) => {
     .status(200)
     .json(new ApiResponse(200, {}, "Cart cleared successfully"));
 });
-
-
-
-
-
 
 export const applyCoupon = asyncHandler(async (req, res) => {
   /**
