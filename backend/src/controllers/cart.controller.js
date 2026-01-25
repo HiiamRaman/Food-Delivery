@@ -110,7 +110,7 @@ export const addToCart = asyncHandler(async (req, res) => {
   let cart = await Cart.findOne({ user: userId, isActive: true });
 
   if (!cart) {
-    // 🆕 Create new cart
+    //  Create new cart
     cart = await Cart.create({
       user: userId,
       item: [
@@ -122,7 +122,7 @@ export const addToCart = asyncHandler(async (req, res) => {
       ],
     });
   } else {
-    // 🔁 Repair old items missing price
+    //  Repair old items missing price
     cart.item = await Promise.all(
       cart.item.map(async (i) => {
         if (i.price == null) {
