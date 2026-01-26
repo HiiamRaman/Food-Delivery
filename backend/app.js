@@ -5,6 +5,13 @@ import {
 } from "./src/middleware/middleware.error.js";
 import cors from "cors";
 export const app = express();
+
+
+
+
+
+
+
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
@@ -27,6 +34,9 @@ import foodListRouter from "./src/routes/food.routes.js";
 import removeFoodRouter from "./src/routes/food.routes.js";
 import authRouter from "./src/routes/user.route.js";
 import cartRouter from "./src/routes/cart.routes.js";
+import orderRouter from './src/routes/order.routes.js';
+import stripeRouter from './src/routes/stripe.routes.js'
+
 app.use("/api/v1/healthcheck", healthCheckrouter);
 app.use("/api/v1/add-food", addFoodRouter);
 app.use("/api/v1/allfoods", foodListRouter);
@@ -36,6 +46,11 @@ app.use("/api/v1/user", authRouter);
 app.use("/api/v1/getCart", cartRouter);
 app.use("/api/v1/deleteCart", cartRouter);
 app.use("/api/v1/cart",cartRouter);
+
+// Stripe webhook must be registered BEFORE express.json()
+
+app.use("/api/v1/stripe",stripeRouter)
+app.use("/api/v1/order",orderRouter)
 
 //Global Error handler and 404 handler
 
