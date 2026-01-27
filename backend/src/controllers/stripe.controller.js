@@ -21,7 +21,7 @@ export const stripeWebHook = asyncHandler(async (req, res) => {
     event = stripe.webhooks.constructEvent(
       req.body,
       signature,
-      process.env.STRIPE_SECRET_KEY,
+      process.env.STRIPE_WEBHOOK_SECRET,
     );
   } catch (error) {
     console.log("Error", error);

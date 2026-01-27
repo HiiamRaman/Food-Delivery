@@ -8,7 +8,7 @@ export const app = express();
 
 
 
-
+app.use("/api/v1/stripe",stripeRouter);
 
 
 
@@ -19,7 +19,7 @@ app.use(express.static("public"));
 //cors configuration
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5175"],
+    origin: ["http://localhost:5173", "http://localhost:5174"],
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type"],
@@ -49,8 +49,8 @@ app.use("/api/v1/cart",cartRouter);
 
 // Stripe webhook must be registered BEFORE express.json()
 
-app.use("/api/v1/stripe",stripeRouter)
-app.use("/api/v1/order",orderRouter)
+
+app.use("/api/v1/order",orderRouter);
 
 //Global Error handler and 404 handler
 
