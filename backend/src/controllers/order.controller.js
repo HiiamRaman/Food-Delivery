@@ -1,13 +1,11 @@
-import { Order } from "../models/order.model.js";
-import { User } from "../models/user.model.js";
-import Stripe from "stripe";
-import { ApiError } from "../utils/apiError.js";
-import { ApiResponse } from "../utils/apiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { Cart } from "../models/cart.model.js";
+// import { Order } from "../models/order.model.js";
+// import { User } from "../models/user.model.js";
+// import Stripe from "stripe";
+// import { ApiError } from "../utils/apiError.js";
+// import { ApiResponse } from "../utils/apiResponse.js";
+// import { asyncHandler } from "../utils/asyncHandler.js";
+// import { Cart } from "../models/cart.model.js";
 
-// //Intialize stripe with stripe key
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
 // export const createOrder = asyncHandler(async (req,res) => {
@@ -91,50 +89,54 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 
 
+import Stripe from "stripe";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { Order } from "../models/order.model.js";
+import { Cart } from "../models/cart.model.js";
+import { ApiError } from "../utils/apiError.js";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 export const createOrder = asyncHandler(async (req, res) => {
   /**
-   * CREATE ORDER WITH STRIPE
+   * CREATE ORDER + STRIPE CHECKOUT SESSION
    *
-   * MENTAL FLOW:
+   * Flow:
    * 1. Get logged-in user
-   * 2. Get active cart
-   * 3. Convert cart items → order items (snapshot)
-   * 4. Calculate totals
-   * 5. Create order
-   * 6. Create Stripe PaymentIntent
+   * 2. Fetch active cart
+   * 3. Validate cart
+   * 4. Convert cart → order snapshot
+   * 5. Calculate totals
+   * 6. Create order in DB
+   * 7. Create Stripe Checkout Session
+   * 8. Return session URL + orderId to frontend
    */
-
+const FRONTEND_URL = "http://localhost:5173"
   const userId = req.user._id;
 
-  // 1. Get active cart (NO populate)
-  const cart = await Cart.findOne({
-    user: userId,
-    isActive: true,
-  });
-
-  // 2. Validate cart
+  // Fetch active cart
+  const cart = await Cart.findOne({ user: userId, isActive: true });
   if (!cart || cart.item.length === 0) {
     throw new ApiError(400, "Cart is empty");
   }
 
-  // 3. Convert cart → order items (USE SNAPSHOT DATA)
-  const orderItems = cart.item.map((item) => ({
-    food: item.food,          // ObjectId already exists
-    quantity: item.quantity,
-    price: item.price,        // snapshot price (IMPORTANT)
+  // Convert cart items → order snapshot
+  const orderItems = cart.item.map((cartItem) => ({
+    food: cartItem.food,        // ObjectId
+    quantity: cartItem.quantity,
+    price: cartItem.price,
+    name: cartItem.foodName,    // optional snapshot
   }));
 
-  // 4. Calculate totals
+  // Calculate totals
   const subTotal = orderItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+    (sum, orderItem) => sum + orderItem.price * orderItem.quantity,
     0
   );
-
   const deliveryFee = 50;
   const totalAmount = subTotal + deliveryFee;
 
-  // 5. Create order
+  // Create order in DB
   const order = await Order.create({
     user: userId,
     items: orderItems,
@@ -147,19 +149,30 @@ export const createOrder = asyncHandler(async (req, res) => {
     deliveryAddress: req.body.deliveryAddress,
   });
 
-  // 6. Create Stripe PaymentIntent
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: totalAmount * 100,
-    currency: "NPR",
-    metadata: {
-      orderId: order._id.toString(),
-    },
+  // Create Stripe Checkout Session
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: orderItems.map((orderItem) => ({
+      price_data: {
+        currency: "npr",
+        product_data: { name: orderItem.name },
+        unit_amount: orderItem.price * 100,
+      },
+      quantity: orderItem.quantity,
+    })),
+    mode: "payment",
+    success_url: `${process.env.FRONTEND_URL}/success?orderId=${order._id}`,
+    cancel_url: `${FRONTEND_URL}/cancel`,
+    metadata: { orderId: order._id.toString() },
   });
 
-  return res.status(200).json(
-    new ApiResponse(200, {
-      clientSecret: paymentIntent.client_secret,
+  // Return session URL + orderId to frontend
+  res.status(200).json({
+    success: true,
+    data: {
+      url: session.url,
       orderId: order._id,
-    })
-  );
+    },
+    message: "Checkout session created",
+  });
 });

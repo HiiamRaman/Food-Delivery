@@ -4,6 +4,6 @@ import { verifyJWT } from "../middleware/auth.middleware.js";
 //user creates order so we need login
 
 const router = Router();
-router.route("/stripe").post(verifyJWT,createOrder)
+router.route("/create").post(verifyJWT,createOrder)
 
 export default router
