@@ -7,7 +7,7 @@ function List() {
   const url = "http://localhost:3000";
   const fetchList = async () => {
     const response = await axios.get(`${url}/api/v1/allfoods`);
-    console.log(response.data);
+    
     if (response.data.success) {
       setList(response.data.data.foods);
     } else {
@@ -16,7 +16,7 @@ function List() {
   };
 
   const removeFood = async (id)=>{
-    console.log("id",id);
+    ;
     const response = await axios.delete(`${url}/api/v1/remove-food/${id}`)
     
     if (response.data.success) {

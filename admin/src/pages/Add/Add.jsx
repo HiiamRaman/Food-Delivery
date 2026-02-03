@@ -99,7 +99,7 @@ function Add() {
             >
               <option value="Salad">Salad</option>
               <option value="Rolls">Rolls</option>
-              <option value="Desserts">Desserts</option>
+              <option value="Desserts">Deserts</option>
               <option value="Sandwich">Sandwich</option>
               <option value="Cake">Cake</option>
               <option value="Pure Veg">Pure Veg</option>
