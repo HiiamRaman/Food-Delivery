@@ -88,7 +88,6 @@
 
 
 
-
 import Stripe from "stripe";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Order } from "../models/order.model.js";
@@ -96,47 +95,64 @@ import { Cart } from "../models/cart.model.js";
 import { ApiError } from "../utils/apiError.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const FRONTEND_URL = "http://localhost:5173";
 
 export const createOrder = asyncHandler(async (req, res) => {
-  /**
-   * CREATE ORDER + STRIPE CHECKOUT SESSION
-   *
-   * Flow:
-   * 1. Get logged-in user
-   * 2. Fetch active cart
-   * 3. Validate cart
-   * 4. Convert cart → order snapshot
-   * 5. Calculate totals
-   * 6. Create order in DB
-   * 7. Create Stripe Checkout Session
-   * 8. Return session URL + orderId to frontend
-   */
-const FRONTEND_URL = "http://localhost:5173"
-  const userId = req.user._id;
+  console.log("===== CREATE ORDER START =====");
 
-  // Fetch active cart
+  /* ─────────────── 1. USER DEBUG ─────────────── */
+  console.log("USER FROM TOKEN:", req.user);
+
+  const userId = req.user?._id;
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized: user not found in token");
+  }
+  console.log("USER ID:", userId.toString());
+
+  /* ─────────────── 2. REQUEST BODY DEBUG ─────────────── */
+  console.log("REQUEST BODY:", req.body);
+  console.log("DELIVERY ADDRESS:", req.body.deliveryAddress);
+
+  /* ─────────────── 3. FETCH CART ─────────────── */
   const cart = await Cart.findOne({ user: userId, isActive: true });
-  if (!cart || cart.item.length === 0) {
+  console.log("CART FOUND:", cart);
+
+  if (!cart) {
+    throw new ApiError(400, "No active cart found");
+  }
+
+  console.log("CART ITEMS:", cart.item);
+  console.log("CART ITEMS COUNT:", cart.item.length);
+
+  if (cart.item.length === 0) {
     throw new ApiError(400, "Cart is empty");
   }
 
-  // Convert cart items → order snapshot
+  /* ─────────────── 4. CONVERT CART → ORDER ITEMS ─────────────── */
   const orderItems = cart.item.map((cartItem) => ({
-    food: cartItem.food,        // ObjectId
+    food: cartItem.food,
     quantity: cartItem.quantity,
     price: cartItem.price,
-    name: cartItem.foodName,    // optional snapshot
+    name: cartItem.foodName || "Food Item",
   }));
 
-  // Calculate totals
+  console.log("ORDER ITEMS:", orderItems);
+
+  /* ─────────────── 5. CALCULATE TOTALS ─────────────── */
   const subTotal = orderItems.reduce(
-    (sum, orderItem) => sum + orderItem.price * orderItem.quantity,
+    (sum, item) => sum + item.price * item.quantity,
     0
   );
   const deliveryFee = 50;
   const totalAmount = subTotal + deliveryFee;
 
-  // Create order in DB
+  console.log("SUBTOTAL:", subTotal);
+  console.log("DELIVERY FEE:", deliveryFee);
+  console.log("TOTAL AMOUNT:", totalAmount);
+
+  /* ─────────────── 6. CREATE ORDER ─────────────── */
+  console.log("CREATING ORDER IN DB...");
+
   const order = await Order.create({
     user: userId,
     items: orderItems,
@@ -149,24 +165,38 @@ const FRONTEND_URL = "http://localhost:5173"
     deliveryAddress: req.body.deliveryAddress,
   });
 
-  // Create Stripe Checkout Session
+  console.log("ORDER CREATED:", order._id.toString());
+
+  /* ─────────────── 7. STRIPE URL DEBUG ─────────────── */
+  console.log(
+    "STRIPE SUCCESS URL:",
+    `${FRONTEND_URL}/success?orderId=${order._id}`
+  );
+  console.log("STRIPE CANCEL URL:", `${FRONTEND_URL}/cancel`);
+
+  /* ─────────────── 8. CREATE STRIPE SESSION ─────────────── */
+  console.log("CREATING STRIPE SESSION...");
+
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
-    line_items: orderItems.map((orderItem) => ({
+    line_items: orderItems.map((item) => ({
       price_data: {
-        currency: "npr",
-        product_data: { name: orderItem.name },
-        unit_amount: orderItem.price * 100,
+        currency: "inr", // Stripe supported currency
+        product_data: { name: item.name },
+        unit_amount: item.price * 100,
       },
-      quantity: orderItem.quantity,
+      quantity: item.quantity,
     })),
     mode: "payment",
-    success_url: `${process.env.FRONTEND_URL}/success?orderId=${order._id}`,
+    success_url: `${FRONTEND_URL}/success?orderId=${order._id}`,
     cancel_url: `${FRONTEND_URL}/cancel`,
     metadata: { orderId: order._id.toString() },
   });
 
-  // Return session URL + orderId to frontend
+  console.log("STRIPE SESSION URL:", session.url);
+  console.log("===== CREATE ORDER SUCCESS =====");
+
+  /* ─────────────── 9. RESPONSE ─────────────── */
   res.status(200).json({
     success: true,
     data: {
