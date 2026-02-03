@@ -49,39 +49,74 @@ const StoreContextProvider = (props) => {
     }
   };
 
+  // const addToCart = async (foodId) => {
+  //   // 1. Update frontend optimistically
+  //   setCartItems((prev) => ({
+  //     ...prev,
+  //     [foodId]: prev[foodId] ? prev[foodId] + 1 : 1,
+  //   }));
+
+  //   // 2. Persist to backend
+  //   if (token) {
+  //     try {
+  //       const res = await axios.post(
+  //         url + "/api/v1/cart/add",
+  //         { foodId, quantity: 1 }, // Backend expects these keys
+  //         {
+  //           headers: { Authorization: `Bearer ${token}` }, // Correct header
+  //         },
+  //       );
+
+  //       // 3. Sync frontend state with backend response
+  //       const updatedCart = res.data.data.cart.item;
+  //       const newCart = {};
+  //       updatedCart.forEach((item) => {
+  //         newCart[item.food._id] = item.quantity;
+  //       });
+  //       setCartItems(newCart);
+  //     } catch (err) {
+  //       console.error(
+  //         "Failed to add to cart:",
+  //         err.response?.data || err.message,
+  //       );
+  //     }
+  //   }
+  // };
+
+
   const addToCart = async (foodId) => {
-    // 1. Update frontend optimistically
-    setCartItems((prev) => ({
-      ...prev,
-      [foodId]: prev[foodId] ? prev[foodId] + 1 : 1,
-    }));
+  // Optimistic update
+  setCartItems((prev) => ({
+    ...prev,
+    [foodId]: prev[foodId] ? prev[foodId] + 1 : 1,
+  }));
 
-    // 2. Persist to backend
-    if (token) {
-      try {
-        const res = await axios.post(
-          url + "/api/v1/cart/add",
-          { foodId, quantity: 1 }, // Backend expects these keys
-          {
-            headers: { Authorization: `Bearer ${token}` }, // Correct header
-          },
-        );
+  if (!token) return;
 
-        // 3. Sync frontend state with backend response
-        const updatedCart = res.data.data.cart.item;
-        const newCart = {};
-        updatedCart.forEach((item) => {
-          newCart[item.food._id] = item.quantity;
-        });
-        setCartItems(newCart);
-      } catch (err) {
-        console.error(
-          "Failed to add to cart:",
-          err.response?.data || err.message,
-        );
+  try {
+    const res = await axios.post(
+      url + "/api/v1/cart/add",
+      { foodId, quantity: 1 },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const updatedCart = res.data.data.cart.item || [];
+    const newCart = {};
+
+    updatedCart.forEach((item) => {
+      if (item.food && item.food._id) {
+        newCart[item.food._id] = item.quantity;
+      } else {
+        console.warn("Skipped invalid cart item (food=null):", item);
       }
-    }
-  };
+    });
+
+    setCartItems(newCart);
+  } catch (err) {
+    console.error("Failed to add to cart:", err.response?.data || err.message);
+  }
+};
+
 
   const removeFromCart = async (foodId) => {
     if (!cartItems[foodId]) return; // Nothing to remove
