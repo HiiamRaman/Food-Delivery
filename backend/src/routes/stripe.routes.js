@@ -17,12 +17,27 @@
 
 
 // src/routes/stripe.routes.js
+// import express from "express";
+// import { stripeWebHook } from "../controllers/stripe.controller.js";
+
+// const router = express.Router();
+
+// // Must use express.raw() for Stripe signature verification
+// router.post("/", express.raw({ type: "application/json" }), stripeWebHook);
+
+// export default router;
+
+
+
+
+
 import express from "express";
 import { stripeWebHook } from "../controllers/stripe.controller.js";
 
 const router = express.Router();
 
-// Must use express.raw() for Stripe signature verification
-router.post("/", express.raw({ type: "application/json" }), stripeWebHook);
+// Only POST for webhook
+router.post("/", stripeWebHook);
 
 export default router;
+

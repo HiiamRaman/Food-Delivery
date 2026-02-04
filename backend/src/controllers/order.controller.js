@@ -6,8 +6,6 @@
 // import { asyncHandler } from "../utils/asyncHandler.js";
 // import { Cart } from "../models/cart.model.js";
 
-
-
 // export const createOrder = asyncHandler(async (req,res) => {
 //   /**
 //    * CREATE ORDER WITH STRIPE
@@ -22,7 +20,7 @@
 //    */
 //   // 1. Get logged-in user
 //   const userId = req.user._id;
-  
+
 //   console.log(req.user); // test
 //   //get active cart
 
@@ -88,6 +86,132 @@
 
 
 
+
+
+// import Stripe from "stripe";
+// import { asyncHandler } from "../utils/asyncHandler.js";
+// import { Order } from "../models/order.model.js";
+// import { Cart } from "../models/cart.model.js";
+// import { ApiError } from "../utils/apiError.js";
+
+// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+// const FRONTEND_URL = "http://localhost:5173";
+
+// export const createOrder = asyncHandler(async (req, res) => {
+//   // 1️⃣ Get logged-in user
+//   const userId = req.user?._id;
+//   console.log("USER ID from token:", userId);
+
+//   if (!userId) {
+//     console.error("Unauthorized: user not found in token");
+//     throw new ApiError(401, "Unauthorized: user not found in token");
+//   }
+
+//   // 2️⃣ Fetch active cart
+//   const cart = await Cart.findOne({ user: userId, isActive: true });
+//   console.log("Fetched cart:", cart);
+
+//   if (!cart) {
+//     console.error("No active cart found for user:", userId);
+//     throw new ApiError(400, "No active cart found");
+//   }
+
+//   if (!cart.item || cart.item.length === 0) {
+//     console.error("Cart is empty for user:", userId);
+//     throw new ApiError(400, "Cart is empty");
+//   }
+
+//   // 3️⃣ Convert cart → order items
+//   const orderItems = cart.item.map((cartItem, index) => {
+//     console.log(`Cart item #${index + 1}:`, cartItem);
+//     return {
+//       food: cartItem.food,
+//       quantity: cartItem.quantity,
+//       price: cartItem.price,
+//       name: cartItem.foodName || "Food Item",
+//     };
+//   });
+
+//   console.log("Converted order items:", orderItems);
+
+//   // 4️⃣ Calculate totals
+//   const subTotal = orderItems.reduce(
+//     (sum, item) => sum + item.price * item.quantity,
+//     0,
+//   );
+//   const deliveryFee = 50;
+//   const totalAmount = subTotal + deliveryFee;
+
+//   console.log(
+//     "SubTotal:",
+//     subTotal,
+//     "DeliveryFee:",
+//     deliveryFee,
+//     "TotalAmount:",
+//     totalAmount,
+//   );
+
+//   // 5️⃣ Create order in DB
+//   const order = await Order.create({
+//     user: userId,
+//     items: orderItems,
+//     subTotal,
+//     deliveryFee,
+//     totalAmount,
+//     paymentMethod: "CARD",
+//     paymentStatus: "pending",
+//     orderStatus: "placed",
+//     deliveryAddress: req.body.deliveryAddress,
+//   });
+
+//   console.log("Order created with ID:", order._id.toString());
+
+//   // 6️⃣ Stripe URLs
+//   const successUrl = `${FRONTEND_URL}/success?orderId=${order._id}`;
+//   const cancelUrl = `${FRONTEND_URL}/cancel`;
+//   console.log("Stripe success URL:", successUrl);
+//   console.log("Stripe cancel URL:", cancelUrl);
+
+//   // 7️⃣ Create Stripe session
+//   const session = await stripe.checkout.sessions.create({
+//     payment_method_types: ["card"],
+//     line_items: orderItems.map((item, index) => {
+//       console.log(`Stripe line item #${index + 1}:`, item);
+//       return {
+//         price_data: {
+//           currency: "usd",
+//           product_data: { name: item.name },
+//           unit_amount: item.price * 100, // Stripe expects cents
+//         },
+//         quantity: item.quantity,
+//       };
+//     }),
+//     mode: "payment",
+//     success_url: successUrl,
+//     cancel_url: cancelUrl,
+//     metadata: { orderId: order._id.toString() },
+//   });
+
+//   console.log("Stripe session URL:", session.url);
+
+//   // 8️⃣ Return response
+//   res.status(200).json({
+//     success: true,
+//     data: { url: session.url, orderId: order._id },
+//     message: "Checkout session created successfully",
+//   });
+// });
+
+
+
+
+
+
+
+
+
+
+
 import Stripe from "stripe";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { Order } from "../models/order.model.js";
@@ -98,61 +222,72 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const FRONTEND_URL = "http://localhost:5173";
 
 export const createOrder = asyncHandler(async (req, res) => {
-  console.log("===== CREATE ORDER START =====");
-
-  /* ─────────────── 1. USER DEBUG ─────────────── */
-  console.log("USER FROM TOKEN:", req.user);
-
+  console.log("👉 createOrder API HIT");
+  /* ───────────── 1. AUTH CHECK ───────────── */
   const userId = req.user?._id;
   if (!userId) {
-    throw new ApiError(401, "Unauthorized: user not found in token");
+    throw new ApiError(401, "Unauthorized");
   }
-  console.log("USER ID:", userId.toString());
 
-  /* ─────────────── 2. REQUEST BODY DEBUG ─────────────── */
-  console.log("REQUEST BODY:", req.body);
-  console.log("DELIVERY ADDRESS:", req.body.deliveryAddress);
+  /* ───────────── 2. DELIVERY ADDRESS VALIDATION ───────────── */
+  const deliveryAddress = req.body?.deliveryAddress;
 
-  /* ─────────────── 3. FETCH CART ─────────────── */
+  if (!deliveryAddress) {
+    throw new ApiError(
+      400,
+      "Delivery address is required to create an order"
+    );
+  }
+
+  const requiredFields = [
+    "firstName",
+    "lastName",
+    "email",
+    "street",
+    "city",
+    "zipcode",
+    "country",
+    "phone",
+  ];
+
+  for (const field of requiredFields) {
+    if (!deliveryAddress[field]) {
+      throw new ApiError(
+        400,
+        `Delivery address field '${field}' is missing`
+      );
+    }
+  }
+
+  /* ───────────── 3. FETCH ACTIVE CART ───────────── */
   const cart = await Cart.findOne({ user: userId, isActive: true });
-  console.log("CART FOUND:", cart);
 
   if (!cart) {
     throw new ApiError(400, "No active cart found");
   }
 
-  console.log("CART ITEMS:", cart.item);
-  console.log("CART ITEMS COUNT:", cart.item.length);
-
-  if (cart.item.length === 0) {
+  if (!cart.item || cart.item.length === 0) {
     throw new ApiError(400, "Cart is empty");
   }
 
-  /* ─────────────── 4. CONVERT CART → ORDER ITEMS ─────────────── */
-  const orderItems = cart.item.map((cartItem) => ({
-    food: cartItem.food,
-    quantity: cartItem.quantity,
-    price: cartItem.price,
-    name: cartItem.foodName || "Food Item",
+  /* ───────────── 4. CONVERT CART → ORDER ITEMS ───────────── */
+  const orderItems = cart.item.map((item) => ({
+    food: item.food,
+    quantity: item.quantity,
+    price: item.price,
+    name: item.foodName || "Food Item",
   }));
 
-  console.log("ORDER ITEMS:", orderItems);
-
-  /* ─────────────── 5. CALCULATE TOTALS ─────────────── */
+  /* ───────────── 5. CALCULATE TOTALS ───────────── */
   const subTotal = orderItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0
   );
+
   const deliveryFee = 50;
   const totalAmount = subTotal + deliveryFee;
 
-  console.log("SUBTOTAL:", subTotal);
-  console.log("DELIVERY FEE:", deliveryFee);
-  console.log("TOTAL AMOUNT:", totalAmount);
-
-  /* ─────────────── 6. CREATE ORDER ─────────────── */
-  console.log("CREATING ORDER IN DB...");
-
+  /* ───────────── 6. CREATE ORDER ───────────── */
   const order = await Order.create({
     user: userId,
     items: orderItems,
@@ -162,26 +297,15 @@ export const createOrder = asyncHandler(async (req, res) => {
     paymentMethod: "CARD",
     paymentStatus: "pending",
     orderStatus: "placed",
-    deliveryAddress: req.body.deliveryAddress,
+    deliveryAddress,
   });
 
-  console.log("ORDER CREATED:", order._id.toString());
-
-  /* ─────────────── 7. STRIPE URL DEBUG ─────────────── */
-  console.log(
-    "STRIPE SUCCESS URL:",
-    `${FRONTEND_URL}/success?orderId=${order._id}`
-  );
-  console.log("STRIPE CANCEL URL:", `${FRONTEND_URL}/cancel`);
-
-  /* ─────────────── 8. CREATE STRIPE SESSION ─────────────── */
-  console.log("CREATING STRIPE SESSION...");
-
+  /* ───────────── 7. STRIPE SESSION ───────────── */
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: orderItems.map((item) => ({
       price_data: {
-        currency: "inr", // Stripe supported currency
+        currency: "usd",
         product_data: { name: item.name },
         unit_amount: item.price * 100,
       },
@@ -193,10 +317,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     metadata: { orderId: order._id.toString() },
   });
 
-  console.log("STRIPE SESSION URL:", session.url);
-  console.log("===== CREATE ORDER SUCCESS =====");
-
-  /* ─────────────── 9. RESPONSE ─────────────── */
+  /* ───────────── 8. RESPONSE ───────────── */
   res.status(200).json({
     success: true,
     data: {
