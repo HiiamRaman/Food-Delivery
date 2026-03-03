@@ -1,92 +1,168 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import "./Login.css";
 import { assets } from "../../assets/assets";
-import App from "../../App";
 import { StoreContext } from "../../Context/StoreContext";
-import axios from 'axios'
+import axios from "axios";
 
 function Login({ setShowLogin }) {
-  const {url,setToken} = useContext(StoreContext)
-  const [currState, setCurrState] = useState("Signup");
-  const[data,setData]= useState({
-    username:"",
-    email:"",
-    fullname:'',
-    password:""
+  const { url, setToken } = useContext(StoreContext);
+
+  // State to track whether Login or Signup form is active
+  const [currState, setCurrState] = useState("Login");
+
+  // Separate states for Login and Signup
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: ""
   });
-  const onChangeHandler =   (event)=>{
-    const name = event.target.name;
-    const value = event.target.value;
-setData(data=>({...data,[name]:value}))
-  }
-  const onLogIn = async(event)=>{
- event.preventDefault();
 
- let newUrl = url;
- if(currState==='Login'){
-  newUrl+='/api/v1/user/login'
+  const [signupData, setSignupData] = useState({
+    username: "",
+    fullname: "",
+    email: "",
+    password: ""
+  });
 
- }else{
-   newUrl+='/api/v1/user/register'
- }
+  // Input change handler
+  const onChangeHandler = (e) => {
+    const { name, value } = e.target;
+    if (currState === "Login") {
+      setLoginData((prev) => ({ ...prev, [name]: value }));
+    } else {
+      setSignupData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
+  // Submit handler
+  const onSubmit = async (e) => {
+    e.preventDefault();
 
- const response = await axios.post(newUrl,data)
+    const submitData = currState === "Login" ? loginData : signupData;
+    const apiEndpoint =
+      currState === "Login"
+        ? `${url}/api/v1/user/login`
+        : `${url}/api/v1/user/register`;
 
-if(response.data.success){
-    setToken(response.data.data.accessToken);
-    localStorage.setItem("accessToken",response.data.data.accessToken);
-    setShowLogin(false)
-}else{
-  alert(response.data.message)
-}
+    try {
+      const response = await axios.post(apiEndpoint, submitData);
 
-  }
-  
+      if (response.data.success) {
+        const token = response.data.data.accessToken;
+        setToken(token);
+        localStorage.setItem("accessToken", token);
+        setShowLogin(false);
+      } else {
+        alert(response.data.message || "Something went wrong");
+      }
+    } catch (error) {
+      console.error("Auth error:", error);
+      alert(
+        error.response?.data?.message || "Network or server error"
+      );
+    }
+  };
+
+  // Switch between Login and Signup
+  const toggleForm = () => {
+    if (currState === "Login") {
+      setCurrState("Signup");
+      setSignupData({
+        username: "",
+        fullname: "",
+        email: "",
+        password: ""
+      });
+    } else {
+      setCurrState("Login");
+      setLoginData({ email: "", password: "" });
+    }
+  };
+
   return (
     <div className="login">
-      <form onSubmit={onLogIn} className="login-container">
+      <form onSubmit={onSubmit} className="login-container">
+        {/* Title + Close */}
         <div className="login-title">
           <h2>{currState}</h2>
           <img
             onClick={() => setShowLogin(false)}
             src={assets.cross_icon}
-            alt=""
+            alt="Close"
           />
         </div>
-        <div className="login-inputs">
-          {currState === "Login" ? (
-            <></>
-          ) : ( <div>
 
-            <input name="username" onChange={onChangeHandler} value={data.username} type="text" placeholder="Enter Your  username" required />
-            <input name="fullname" onChange={onChangeHandler} value={data.fullname} type="text" placeholder="Enter Your full name" required />
-          </div>
+        {/* Form Inputs */}
+        <div className="login-inputs">
+          {currState === "Signup" && (
+            <>
+              <input
+                name="username"
+                type="text"
+                placeholder="Username"
+                value={signupData.username}
+                onChange={onChangeHandler}
+                required
+              />
+              <input
+                name="fullname"
+                type="text"
+                placeholder="Full Name"
+                value={signupData.fullname}
+                onChange={onChangeHandler}
+                required
+              />
+            </>
           )}
 
-          <input  name = 'email' onChange={onChangeHandler} value={data.email} type="email" placeholder="Enter Your Email" required />
-          <input name = 'password' onChange={onChangeHandler} value={data.password} type="password" placeholder="Enter Your Password" required />
+          <input
+            name="email"
+            type="email"
+            placeholder="Email"
+            value={
+              currState === "Login" ? loginData.email : signupData.email
+            }
+            onChange={onChangeHandler}
+            required
+          />
+          <input
+            name="password"
+            type="password"
+            placeholder="Password"
+            value={
+              currState === "Login"
+                ? loginData.password
+                : signupData.password
+            }
+            onChange={onChangeHandler}
+            required
+          />
         </div>
-        <button type="submit"> {currState === "Signup" ? "Create account" : "Login"} </button>
-        <div className="login-condition">
-          <input type="checkbox" required />
-          <p>!! Terms and Conditions</p>
-        </div>
-        {currState === "Login" ? (
-          <p>
-            Create a new Account{" "}
-            <span onClick={() => setCurrState("Signup")}>Click Me</span>{" "}
-          </p>
-        ) : (
-          <p>
-            Already have an account ?{" "}
-            <span onClick={() => setCurrState("Login")}>Login Here</span>
-          </p>
+
+        {/* Submit Button */}
+        <button type="submit">
+          {currState === "Signup" ? "Create Account" : "Login"}
+        </button>
+
+        {/* Terms Checkbox */}
+        {currState === "Signup" && (
+          <div className="login-condition">
+            <input type="checkbox" required />
+            <p>Accept Terms and Conditions</p>
+          </div>
         )}
+
+        {/* Switch Form Link */}
+        <p>
+          {currState === "Login"
+            ? "Create a new account? "
+            : "Already have an account? "}
+          <span onClick={toggleForm} className="form-switch">
+            {currState === "Login" ? "Sign Up" : "Login"}
+          </span>
+        </p>
       </form>
     </div>
   );
 }
-
 
 export default Login;
