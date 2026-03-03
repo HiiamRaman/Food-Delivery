@@ -1,160 +1,8 @@
-// import express from "express";
-// import {
-//   notFoundHandler,
-//   globalErrorHandler,
-// } from "./src/middleware/middleware.error.js";
-// import cors from "cors";
-// export const app = express();
-
-// import stripeRouter from './src/routes/stripe.routes.js'
-
-// app.use("/api/v1/stripe",stripeRouter);
-
-
-
-// app.use(express.json({ limit: "16kb" }));
-// app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-// app.use(express.static("public"));
-
-// //cors configuration
-// app.use(
-//   cors({
-//     origin: ["http://localhost:5173", "http://localhost:5174"],
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Authorization", "Content-Type"],
-//   }),
-// );
-
-// // import the routes
-
-// import healthCheckrouter from "./src/routes/healthCheck.routes.js";
-// import addFoodRouter from "./src/routes/food.routes.js";
-// import foodListRouter from "./src/routes/food.routes.js";
-// import removeFoodRouter from "./src/routes/food.routes.js";
-// import authRouter from "./src/routes/user.route.js";
-// import cartRouter from "./src/routes/cart.routes.js";
-// import orderRouter from './src/routes/order.routes.js';
-
-
-// app.use("/api/v1/healthcheck", healthCheckrouter);
-// app.use("/api/v1/add-food", addFoodRouter);
-// app.use("/api/v1/allfoods", foodListRouter);
-// app.use("/api/v1/remove-food", removeFoodRouter);
-// app.use("/api/v1/user", authRouter);
-
-// app.use("/api/v1/getCart", cartRouter);
-// app.use("/api/v1/deleteCart", cartRouter);
-// app.use("/api/v1/cart",cartRouter);
-
-// // Stripe webhook must be registered BEFORE express.json()
-
-
-// app.use("/api/v1/order",orderRouter);
-
-// //Global Error handler and 404 handler
-
-// // 404 handler
-// app.use(notFoundHandler);
-
-// // Global error handler (must be last)
-// app.use(globalErrorHandler);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import express from "express";
-// import cors from "cors";
-// import {
-//   notFoundHandler,
-//   globalErrorHandler,
-// } from "./src/middleware/middleware.error.js";
-
-// // Import routes first
-// import stripeRouter from './src/routes/stripe.routes.js';
-// import healthCheckrouter from "./src/routes/healthCheck.routes.js";
-// import addFoodRouter from "./src/routes/food.routes.js";
-// import foodListRouter from "./src/routes/food.routes.js";
-// import removeFoodRouter from "./src/routes/food.routes.js";
-// import authRouter from "./src/routes/user.route.js";
-// import cartRouter from "./src/routes/cart.routes.js";
-// import orderRouter from './src/routes/order.routes.js';
-
-// export const app = express();
-
-// // CORS configuration
-// app.use(
-//   cors({
-//     origin: ["http://localhost:5173", "http://localhost:5174"],
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//     allowedHeaders: ["Authorization", "Content-Type"],
-//   })
-// );
-
-// // ⚠️ Stripe webhook route must be registered BEFORE express.json()
-// app.use("/api/v1/stripe", stripeRouter); // webhook route
-
-// // Body parsers for other routes
-// app.use(express.json({ limit: "16kb" }));
-// app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-// app.use(express.static("public"));
-
-// // Other routes
-// app.use("/api/v1/healthcheck", healthCheckrouter);
-// app.use("/api/v1/add-food", addFoodRouter);
-// app.use("/api/v1/allfoods", foodListRouter);
-// app.use("/api/v1/remove-food", removeFoodRouter);
-// app.use("/api/v1/user", authRouter);
-// app.use("/api/v1/getCart", cartRouter);
-// app.use("/api/v1/deleteCart", cartRouter);
-// app.use("/api/v1/cart", cartRouter);
-// app.use("/api/v1/order", orderRouter);
-
-// // Global error handler and 404
-// app.use(notFoundHandler);
-// app.use(globalErrorHandler);
-
-
-
-
-
-
-
-
-
-
-
 import express from "express";
 import cors from "cors";
 import { notFoundHandler, globalErrorHandler } from "./src/middleware/middleware.error.js";
 
-// Import routes
-import stripeRouter from './src/routes/stripe.routes.js';
+// Routes
 import healthCheckrouter from "./src/routes/healthCheck.routes.js";
 import addFoodRouter from "./src/routes/food.routes.js";
 import foodListRouter from "./src/routes/food.routes.js";
@@ -162,48 +10,50 @@ import removeFoodRouter from "./src/routes/food.routes.js";
 import authRouter from "./src/routes/user.route.js";
 import cartRouter from "./src/routes/cart.routes.js";
 import orderRouter from './src/routes/order.routes.js';
-
-console.log("🔥 BACKEND STARTED");
+import stripeRouter from './src/routes/stripe.routes.js';
 
 export const app = express();
 
-// CORS configuration
-app.use(
-  cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Authorization", "Content-Type"],
-  })
-);
+// ----------------- STRIPE WEBHOOK -----------------
+// Must be raw parser for Stripe signature verification
+app.use("/api/v1/stripe/webhook", express.raw({ type: "application/json" }));
 
-// ⚠️ Body parser for Stripe webhook must be raw
-app.use(
-  "/api/v1/stripe/webhook",
-  express.raw({ type: "application/json" }), // <- important!
-  stripeRouter
-);
-
-// Body parsers for all other routes
+// ----------------- BODY PARSERS -----------------
 app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
-app.use(express.static("public"));
 
-// Other application routes
+// ----------------- CORS -----------------
+app.use(cors({
+  origin: ["http://localhost:5173", "http://localhost:5174"], // frontend URLs
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Authorization", "Content-Type"]
+}));
+
+
+
+// ----------------- ROUTES -----------------
 app.use("/api/v1/healthcheck", healthCheckrouter);
+
+// Food routes
 app.use("/api/v1/add-food", addFoodRouter);
 app.use("/api/v1/allfoods", foodListRouter);
 app.use("/api/v1/remove-food", removeFoodRouter);
+
+// User auth routes
 app.use("/api/v1/user", authRouter);
-app.use("/api/v1/getCart", cartRouter);
-app.use("/api/v1/deleteCart", cartRouter);
-app.use("/api/v1/cart", cartRouter);
+
+// Cart routes
+app.use("/api/v1/cart", cartRouter);         // get, add, delete, etc.
+app.use("/api/v1/getCart", cartRouter);      // optional duplicate if needed
+app.use("/api/v1/deleteCart", cartRouter);   // optional duplicate if needed
+
+// Order routes
 app.use("/api/v1/order", orderRouter);
 
-// 404 handler
+// Stripe routes
+app.use("/api/v1/stripe", stripeRouter);
+
+// ----------------- ERROR HANDLERS -----------------
 app.use(notFoundHandler);
-
-// Global error handler (must be last)
 app.use(globalErrorHandler);
-
-

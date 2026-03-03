@@ -1,216 +1,111 @@
-/**
- * STRIPE WEBHOOK
- *
- * MENTAL FLOW:
- * 1. Stripe sends event
- * 2. Verify event
- * 3. If payment succeeded
- * 4. Update order as PAID
- */
-
-// import { asyncHandler } from "../utils/asyncHandler.js";
-// import Stripe from "stripe";
-// import { Order } from "../models/order.model.js";
-// import { ApiError } from "../utils/apiError.js";
-// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-// export const stripeWebHook = asyncHandler(async (req, res) => {
-//   const signature = req.headers["stripe-signature"];
-//   let event;
-//   try {
-//     //verify request really came from Stripe
-//     event = stripe.webhooks.constructEvent(
-//       req.body,
-//       signature,
-//       process.env.STRIPE_WEBHOOK_SECRET,
-//     );
-//   } catch (error) {
-//     console.log("Error", error);
-//     throw new ApiError(400, "Webhook Error");
-//   }
-
-//   // 1. Check event type sent by Stripe
-//   if (event.type === "payment_intent.succeeded") {
-//     // 2. Get payment details
-//     const paymentIntent = event.data.object;
-//     // 3. Extract orderId saved earlier
-//     const orderId = paymentIntent.metadata.orderId;
-//     // 4. Update order as paid and confirmed
-//     await Order.findByIdAndUpdate(orderId, {
-//       paymentStatus: "paid",
-//       orderStatus: "confirmed",
-//     });
-//   }
-//   // 5. Inform Stripe that webhook was received successfully
-//   res.json({ received: true });
-// });
-
-
-
-
-
-
-
-
-
-// import Stripe from "stripe";
-// import { Order } from "../models/order.model.js";
-
-// const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-// export const stripeWebHook = async (req, res) => {
-//   console.log("🔔 Stripe webhook endpoint hit");
-
-//   const signature = req.headers["stripe-signature"];
-//   console.log("🧾 Stripe signature header:", signature ? "FOUND" : "MISSING");
-
-//   let event;
-
-//   try {
-//     console.log("🔐 Verifying Stripe signature...");
-
-//     event = stripe.webhooks.constructEvent(
-//       req.body,
-//       signature,
-//       process.env.STRIPE_WEBHOOK_SECRET
-//     );
-
-   
-//   } catch (error) {
-//     console.error("❌ Signature verification failed");
-//     console.error("❌ Error message:", error.message);
-//     return res.status(400).send("Webhook Error");
-//   }
-
-//   try {
-
-
-//     if (event.type === "payment_intent.succeeded") {
-//       console.log("💰 Payment intent succeeded event received");
-
-//       const paymentIntent = event.data.object;
-//       console.log("📄 PaymentIntent ID:", paymentIntent.id);
-
-//       const metadata = paymentIntent.metadata;
-//       console.log("🧷 Payment metadata:", metadata);
-
-//       const orderId = metadata?.orderId;
-//       console.log("🆔 Extracted orderId:", orderId);
-
-//       if (!orderId) {
-//         console.warn("⚠️ orderId not found in metadata — skipping DB update");
-//         return res.json({ received: true });
-//       }
-
-//       console.log("🛠 Updating order in database...");
-
-//       const updatedOrder = await Order.findByIdAndUpdate(
-//         orderId,
-//         {
-//           paymentStatus: "paid",
-//           orderStatus: "confirmed",
-//         },
-//         { new: true }
-//       );
-
-//       console.log("✅ Order updated successfully:", updatedOrder?._id);
-//     } else {
-//       console.log("ℹ️ Event ignored (not payment_intent.succeeded)");
-//     }
-
-//     console.log("📨 Sending success response to Stripe");
-//     return res.json({ received: true });
-
-//   } catch (err) {
-//     console.error("❌ Error while processing webhook event");
-//     console.error(err);
-//     console.log("📨 Sending 200 OK to prevent Stripe retry");
-//     return res.json({ received: true });
-//   }
-// };
-
-
-
-
-
-
 import Stripe from "stripe";
+import { Cart } from "../models/cart.model.js";
 import { Order } from "../models/order.model.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-/**
- * STRIPE WEBHOOK
- * Mental flow:
- * 1. Stripe sends an event
- * 2. Verify the signature
- * 3. If payment succeeded:
- *    - Extract orderId from metadata
- *    - Update order status in DB
- * 4. Respond to Stripe
- */
-export const stripeWebHook = async (req, res) => {
-  console.log("🔔 Stripe webhook endpoint hit");
-
-  const signature = req.headers["stripe-signature"];
-  console.log("🧾 Stripe signature header:", signature ? "FOUND" : "MISSING");
-
-  let event;
-
+export const createStripeSession = async (req, res) => {
   try {
-    console.log("🔐 Verifying Stripe signature...");
-    event = stripe.webhooks.constructEvent(
-      req.body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
-    console.log("✅ Stripe signature verified successfully");
-  } catch (err) {
-    console.error("❌ Signature verification failed");
-    console.error("❌ Error:", err.message);
-    return res.status(400).send("Webhook Error: Invalid signature");
-  }
+    console.log("🚀 Reached createStripeSession");
 
-  try {
-    console.log("📦 Handling Stripe event type:", event.type);
-
-    if (event.type === "payment_intent.succeeded") {
-      console.log("💰 Payment succeeded event received");
-
-      const paymentIntent = event.data.object;
-      console.log("📄 PaymentIntent ID:", paymentIntent.id);
-      console.log("💳 Amount received:", paymentIntent.amount_received);
-
-      const metadata = paymentIntent.metadata;
-      console.log("🧷 Payment metadata:", metadata);
-
-      const orderId = metadata?.orderId;
-      if (!orderId) {
-        console.warn("⚠️ orderId not found in metadata — skipping DB update");
-        return res.json({ received: true });
-      }
-
-      console.log("🆔 Updating order with ID:", orderId);
-
-      const updatedOrder = await Order.findByIdAndUpdate(
-        orderId,
-        { paymentStatus: "paid", orderStatus: "confirmed" },
-        { new: true }
-      );
-
-      if (!updatedOrder) {
-        console.error("❌ Order not found in DB:", orderId);
-      } else {
-        console.log("✅ Order updated successfully:", updatedOrder._id);
-      }
-    } else {
-      console.log("ℹ️ Event ignored (not payment_intent.succeeded)");
+    // ✅ Check Stripe Key
+    if (!process.env.STRIPE_SECRET_KEY) {
+      console.error("❌ STRIPE_SECRET_KEY is missing!");
+      return res.status(500).json({ message: "Stripe key missing" });
     }
 
-    console.log("📨 Sending 200 OK to Stripe");
-    return res.json({ received: true });
-  } catch (err) {
-    console.error("❌ Error processing webhook event:", err);
-    console.log("📨 Sending 200 OK to prevent Stripe retry");
-    return res.json({ received: true });
+    const userId = req.user?._id;
+    if (!userId) {
+      console.error("❌ JWT user not found!");
+      return res.status(401).json({ message: "Unauthorized: No user" });
+    }
+    console.log("👤 User ID:", userId);
+
+    const FRONTEND_URL = "http://localhost:5173";
+
+    // =======================
+    // 1️⃣ Get User Cart
+    // =======================
+    const cart = await Cart.findOne({ user: userId }).populate("item.food");
+    console.log("🛒 User Cart:", cart);
+
+    if (!cart || cart.item.length === 0) {
+      console.log("❌ Cart is empty");
+      return res.status(400).json({ message: "Cart is empty" });
+    }
+
+    // =======================
+    // 2️⃣ Prepare Order Items
+    // =======================
+    const orderItems = cart.item
+      .filter(ci => ci.food)
+      .map(ci => ({
+        food: ci.food._id,
+        name: ci.food.name,
+        quantity: ci.quantity,
+        price: ci.food.price,
+      }));
+
+    console.log("📦 Order Items Snapshot:", orderItems);
+
+    const subTotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const deliveryFee = 50; // static delivery fee
+    const totalAmount = subTotal + deliveryFee;
+    console.log("💰 Pricing:", { subTotal, deliveryFee, totalAmount });
+
+    // =======================
+    // 3️⃣ Create Order in DB (Pending Payment)
+    // =======================
+    const newOrder = await Order.create({
+      user: userId,
+      items: orderItems,
+      pricing: { subTotal, deliveryFee, totalAmount },
+      payment: { method: "CARD", status: "pending" },
+      deliveryAddress: req.body.deliveryAddress || {}, // frontend sends this
+    });
+    console.log("✅ New Order Created:", newOrder._id);
+
+    // =======================
+    // 4️⃣ Prepare Stripe Line Items
+    // =======================
+    const line_items = orderItems.map(i => ({
+      price_data: {
+        currency: "usd",
+        product_data: { name: i.name },
+        unit_amount: Math.round(i.price * 100), // cents
+      },
+      quantity: i.quantity,
+    }));
+    console.log("💳 Stripe Line Items:", line_items);
+
+    // =======================
+    // 5️⃣ Create Stripe Session
+    // =======================
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "payment",
+      line_items,
+      success_url: `${FRONTEND_URL}/success?orderId=${newOrder._id}`,
+      cancel_url: `${FRONTEND_URL}/cart`,
+      metadata: { orderId: newOrder._id.toString() },
+    });
+    console.log("🔗 Stripe Session URL:", session.url);
+
+    // =======================
+    // 6️⃣ Return session URL
+    // =======================
+    return res.status(200).json({
+      statusCode: 200,
+      success: true,
+      data: { url: session.url },
+      message: "Stripe session created",
+    });
+  } catch (error) {
+    console.error("❌ Error in createStripeSession:", error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong",
+      error: error,
+    });
   }
 };

@@ -88,7 +88,25 @@ import { Coupon } from "../models/coupon.model.js";
 //     .json(new ApiResponse(200, { cart, totalAmount }, "Item added to  cart "));
 // });
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 export const addToCart = asyncHandler(async (req, res) => {
+  
   const userId = req.user._id;
   const { foodId } = req.body;
   let { quantity = 1 } = req.body;
@@ -326,33 +344,18 @@ export const updateCartItem = asyncHandler(async (req, res) => {
     );
 });
 
+
+
 export const clearCart = asyncHandler(async (req, res) => {
-  /**
-   * MENTAL FLOW:
-   * 1. Get authenticated user from req
-   * 2. Fetch user from DB
-   * 3. Clear cart field
-   * 4. Save user
-   * 5. Return success response
-   */
+  const userId = req.user?._id;
+  if (!userId) throw new ApiError(401, "Unauthorized");
 
-  const userId = req.user._id;
-  if (!userId) {
-    throw new ApiError(401, "unauthorized  request");
-  }
-  //fetch users cart
-  const cart = await Cart.findOne({ user: userId });
-  if (!cart) {
-    throw new ApiError(404, "cart not Found");
-  }
-  //  Clear cart field
-  cart.item = [];
+  await Cart.findOneAndUpdate(
+    { user: userId, isActive: true },
+    { isActive: false }
+  );
 
-  await cart.save();
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, {}, "Cart cleared successfully"));
+  res.status(200).json({ success: true, message: "Cart cleared" });
 });
 
 export const applyCoupon = asyncHandler(async (req, res) => {

@@ -1,43 +1,13 @@
-// import { Router } from "express";
-// import express from "express";
-// import { stripeWebHook } from "../controllers/stripe.controller.js";
-// const router = Router();
-
-// router
-//   .route("/")
-//   .post(express.raw({ type: "application/json" }), stripeWebHook);
-
-// export default router;
-
-
-
-
-
-
-
-
 // src/routes/stripe.routes.js
-// import express from "express";
-// import { stripeWebHook } from "../controllers/stripe.controller.js";
-
-// const router = express.Router();
-
-// // Must use express.raw() for Stripe signature verification
-// router.post("/", express.raw({ type: "application/json" }), stripeWebHook);
-
-// export default router;
-
-
-
-
-
 import express from "express";
-import { stripeWebHook } from "../controllers/stripe.controller.js";
+import { createStripeSession } from "../controllers/stripe.controller.js";
+import { verifyJWT } from "../middleware/auth.middleware.js";
+import { stripeWebhook } from "../controllers/webhook.controller.js";
 
 const router = express.Router();
 
-// Only POST for webhook
-router.post("/", stripeWebHook);
-
+// Protected route: user must be logged in
+router.post("/create-session", verifyJWT, createStripeSession);
+// Stripe webhook (raw body!)
+router.post("/webhook", express.raw({ type: "application/json" }), stripeWebhook);
 export default router;
-
