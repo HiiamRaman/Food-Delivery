@@ -10,8 +10,13 @@ const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [food_list, setFoodList] = useState([]);
   const fetchFoodList = async () => {
-    const response = await axios.get(url + "/api/v1/allfoods");
-    setFoodList(response.data.data.foods);
+    try {
+      const response = await axios.get(url + "/api/v1/allfoods");
+      
+      setFoodList(response.data.data.foods);
+    } catch (error) {
+      console.error("Failed to fetch food list:", err);
+    }
   };
 
   // const loadCartData = async (token) => {
@@ -83,40 +88,41 @@ const StoreContextProvider = (props) => {
   //   }
   // };
 
-
   const addToCart = async (foodId) => {
-  // Optimistic update
-  setCartItems((prev) => ({
-    ...prev,
-    [foodId]: prev[foodId] ? prev[foodId] + 1 : 1,
-  }));
+    // Optimistic update
+    setCartItems((prev) => ({
+      ...prev,
+      [foodId]: prev[foodId] ? prev[foodId] + 1 : 1,
+    }));
 
-  if (!token) return;
+    if (!token) return;
 
-  try {
-    const res = await axios.post(
-      url + "/api/v1/cart/add",
-      { foodId, quantity: 1 },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+    try {
+      const res = await axios.post(
+        url + "/api/v1/cart/add",
+        { foodId, quantity: 1 },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
 
-    const updatedCart = res.data.data.cart.item || [];
-    const newCart = {};
+      const updatedCart = res.data.data.cart.item || [];
+      const newCart = {};
 
-    updatedCart.forEach((item) => {
-      if (item.food && item.food._id) {
-        newCart[item.food._id] = item.quantity;
-      } else {
-        console.warn("Skipped invalid cart item (food=null):", item);
-      }
-    });
+      updatedCart.forEach((item) => {
+        if (item.food && item.food._id) {
+          newCart[item.food._id] = item.quantity;
+        } else {
+          console.warn("Skipped invalid cart item (food=null):", item);
+        }
+      });
 
-    setCartItems(newCart);
-  } catch (err) {
-    console.error("Failed to add to cart:", err.response?.data || err.message);
-  }
-};
-
+      setCartItems(newCart);
+    } catch (err) {
+      console.error(
+        "Failed to add to cart:",
+        err.response?.data || err.message,
+      );
+    }
+  };
 
   const removeFromCart = async (foodId) => {
     if (!cartItems[foodId]) return; // Nothing to remove

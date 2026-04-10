@@ -37,6 +37,7 @@ import FoodItem from "../FoodItem/Fooditem.jsx";
 
  function FoodDisplay() {
   const { food_list, category } = useContext(StoreContext);
+  
 
   // 1. Add a safety check. If food_list isn't an array, use an empty one.
   const currentList = Array.isArray(food_list) ? food_list : [];
