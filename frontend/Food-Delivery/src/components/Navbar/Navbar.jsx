@@ -3,12 +3,14 @@ import { assets } from "../../assets/assets";
 import "./Navbar.css";
 import { Link, useNavigate } from "react-router-dom";
 import { StoreContext } from "../../Context/StoreContext";
+import { toast } from "react-toastify";
 function Navbar({ setShowLogin }) {
   const [menu, setMenu] = useState("Home");
 
   const { getCartTotal, token, setToken } = useContext(StoreContext);
   const navigate = useNavigate()
   const handlleLogout = ()=>{
+    toast.success("Logged Out Successfull")
     localStorage.removeItem("accessToken");
     setToken(null);
     navigate("/")

@@ -41,7 +41,7 @@
 }
 
 .success-button {
-  background-color: #4BB543;
+  background-color: #ff6b6b;
   color: #fff;
   border: none;
   padding: 12px 28px;
@@ -52,7 +52,7 @@
 }
 
 .success-button:hover {
-  background-color: #3da237;
+  background-color: #f17e2c;
 }
 
 @keyframes fadeIn {

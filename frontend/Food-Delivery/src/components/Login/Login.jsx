@@ -3,6 +3,7 @@ import "./Login.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../Context/StoreContext";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 function Login({ setShowLogin }) {
   const { url, setToken } = useContext(StoreContext);
@@ -46,17 +47,21 @@ function Login({ setShowLogin }) {
     try {
       const response = await axios.post(apiEndpoint, submitData);
 
-      if (response.data.success) {
+      if (response.data.statusCode==200) {
+        console.log(response.data);
         const token = response.data.data.accessToken;
+        if(token){
         setToken(token);
         localStorage.setItem("accessToken", token);
         setShowLogin(false);
+        toast.success(response.data.message || "Login successful");}
+
       } else {
-        alert(response.data.message || "Something went wrong");
+        toast.error(  response.data.message || "Login Failed ");
       }
     } catch (error) {
       console.error("Auth error:", error);
-      alert(
+     toast.error(
         error.response?.data?.message || "Network or server error"
       );
     }
