@@ -48,7 +48,7 @@ function Login({ setShowLogin }) {
       const response = await axios.post(apiEndpoint, submitData);
 
       if (response.data.statusCode==200) {
-        console.log(response.data);
+       
         const token = response.data.data.accessToken;
         if(token){
         setToken(token);

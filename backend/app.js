@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import { notFoundHandler, globalErrorHandler } from "./src/middleware/middleware.error.js";
 
+
 // Routes
 import healthCheckrouter from "./src/routes/healthCheck.routes.js";
 import addFoodRouter from "./src/routes/food.routes.js";
@@ -11,6 +12,7 @@ import authRouter from "./src/routes/user.route.js";
 import cartRouter from "./src/routes/cart.routes.js";
 import orderRouter from './src/routes/order.routes.js';
 import stripeRouter from './src/routes/stripe.routes.js';
+
 
 export const app = express();
 
@@ -46,7 +48,8 @@ app.use("/api/v1/user", authRouter);
 // Cart routes
 app.use("/api/v1/cart", cartRouter);         // get, add, delete, etc.
 app.use("/api/v1/getCart", cartRouter);      // optional duplicate if needed
-app.use("/api/v1/deleteCart", cartRouter);   // optional duplicate if needed
+app.use("/api/v1/deleteCart", cartRouter); 
+console.log("DELETE CART ROUTE MOUNTED");  // optional duplicate if needed
 
 // Order routes
 app.use("/api/v1/order", orderRouter);

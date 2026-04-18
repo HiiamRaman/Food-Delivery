@@ -88,25 +88,7 @@ import { Coupon } from "../models/coupon.model.js";
 //     .json(new ApiResponse(200, { cart, totalAmount }, "Item added to  cart "));
 // });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export const addToCart = asyncHandler(async (req, res) => {
-  
   const userId = req.user._id;
   const { foodId } = req.body;
   let { quantity = 1 } = req.body;
@@ -125,8 +107,11 @@ export const addToCart = asyncHandler(async (req, res) => {
   if (isNaN(price)) throw new ApiError(500, "Invalid food price in database");
 
   // ✅ Find active cart
-  let cart = await Cart.findOne({ user: userId, isActive: true });
-
+ let cart = await Cart.findOneAndUpdate(
+  { user: userId },
+  { $setOnInsert: { user: userId } },
+  { new: true, upsert: true }
+);
   if (!cart) {
     //  Create new cart
     cart = await Cart.create({
@@ -236,8 +221,6 @@ export const removeCart = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, { cart }, "Item removed from cart"));
 });
 
-
-
 export const getCart = asyncHandler(async (req, res) => {
   /**
    * Mental Flow:
@@ -255,29 +238,37 @@ export const getCart = asyncHandler(async (req, res) => {
   // 2. Find user's active cart and populate food info
   const cart = await Cart.findOne({ user: userId, isActive: true }).populate(
     "item.food",
-    "name price image"
+    "name price image",
   );
 
   // 3. If cart is empty or missing items
   if (!cart || !cart.item || cart.item.length === 0) {
-    return res.status(200).json(new ApiResponse(200, { items: [] }, "Cart is empty"));
+    return res
+      .status(200)
+      .json(new ApiResponse(200, { items: [] }, "Cart is empty"));
   }
 
   // 4. Filter out invalid items
   const validItems = cart.item.filter(
-    cartItem => cartItem.food && typeof cartItem.price !== "undefined"
+    (cartItem) => cartItem.food && typeof cartItem.price !== "undefined",
   );
 
   // 5. Calculate total amount
   const totalAmount = validItems.reduce(
     (sum, cartItem) => sum + cartItem.price * (cartItem.quantity || 1),
-    0
+    0,
   );
 
   // 6. Send response
-  return res.status(200).json(
-    new ApiResponse(200, { items: validItems, totalAmount }, "Cart fetched successfully")
-  );
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { items: validItems, totalAmount },
+        "Cart fetched successfully",
+      ),
+    );
 });
 export const updateCartItem = asyncHandler(async (req, res) => {
   /**
@@ -344,15 +335,13 @@ export const updateCartItem = asyncHandler(async (req, res) => {
     );
 });
 
-
-
 export const clearCart = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
   if (!userId) throw new ApiError(401, "Unauthorized");
 
   await Cart.findOneAndUpdate(
     { user: userId, isActive: true },
-    { isActive: false }
+    { isActive: false },
   );
 
   res.status(200).json({ success: true, message: "Cart cleared" });
