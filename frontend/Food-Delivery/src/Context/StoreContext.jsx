@@ -15,7 +15,7 @@ const StoreContextProvider = (props) => {
       
       setFoodList(response.data.data.foods);
     } catch (error) {
-      console.error("Failed to fetch food list:", err);
+      console.error("Failed to fetch food list:", error);
     }
   };
 

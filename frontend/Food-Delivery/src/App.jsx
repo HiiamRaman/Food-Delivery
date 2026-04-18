@@ -11,6 +11,7 @@ import Login from "./components/Login/Login.jsx";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Success from "./pages/Success/Success.jsx";
+import Map from "./socket/Map.jsx";
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -39,6 +40,7 @@ function App() {
         <ToastContainer position="top-right" autoClose={3000} />
 
         <Footer />
+        <Map/>
       </div>
     </>
   );
