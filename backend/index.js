@@ -33,7 +33,7 @@ connectDb()
   .then(() => {
     server.listen(port, () => {
       console.log(` app listening on port http://localhost:${port}`);
-      console.log("DB NAME:", mongoose.connection.name);
+     
     });
   })
   .catch((error) => {
