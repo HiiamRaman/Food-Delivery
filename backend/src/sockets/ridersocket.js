@@ -27,3 +27,22 @@ export const riderSocket = (io) => {
   });
 
 };
+
+
+
+
+
+
+// thoery
+
+// Frontend sends route
+//         ↓
+// Backend starts timer
+//         ↓
+// Every 4 seconds:
+//     → pick next location
+//     → send to frontend
+//         ↓
+// Frontend updates marker on map
+//         ↓
+// Rider looks like moving 🚚

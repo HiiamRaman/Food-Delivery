@@ -22,12 +22,10 @@ io.on("connection", (socket) => {
   });
 });
 
-
-export {io,server};
+export { io, server };
 
 //
 riderSocket(io);
-
 
 // mongodb connection
 connectDb()
