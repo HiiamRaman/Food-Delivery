@@ -1,0 +1,68 @@
+.tracking-container {
+  padding: 20px;
+  background: #f6f7fb;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Header */
+.tracking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.tracking-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #222;
+}
+
+.tracking-status {
+  background: #ff9800;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+/* Map wrapper */
+.map-wrapper {
+  background: white;
+  padding: 10px;
+  border-radius: 12px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+}
+
+/* Info box */
+.tracking-info {
+  margin-top: 15px;
+  background: white;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.tracking-info p {
+  margin: 6px 0;
+  color: #444;
+  font-size: 14px;
+}
+
+/* Delivered button */
+.delivered-btn {
+  margin-top: 15px;
+  padding: 10px 18px;
+  background: #de7c0c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.2s;
+}
+
+.delivered-btn:hover {
+  background: #c96c1b;
+}

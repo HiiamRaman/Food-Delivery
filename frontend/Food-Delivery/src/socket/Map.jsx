@@ -1,77 +1,42 @@
-import { MapContainer, TileLayer, Marker, useMap } from "react-leaflet";
-import { Polyline } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMap, Polyline } from "react-leaflet";
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { bikeIcon } from "./MapIcon";
-import { resturantIcon } from "./MapIcon";
-import { homeIcon } from "./MapIcon";
-// 1. Connect once. Using 'websocket' transport makes it much more stable.
-const socket = io("http://localhost:3000", { transports: ["websocket"] });
+import { bikeIcon, resturantIcon, homeIcon } from "./MapIcon";
+import {socket} from '../socket/socket'
 
-// 2. HELPER: This component "grabs" the map and moves it to the new position
+// Move map smoothly
 function RecenterMap({ position }) {
   const map = useMap();
+
   useEffect(() => {
     map.setView(position);
-  }, [position]); // Only runs when position changes
+  }, [position]);
+
   return null;
 }
 
 function LiveMap() {
   const [position, setPosition] = useState([27.7172, 85.324]);
   const [route, setRoute] = useState([]);
-  const startPoint = [27.7172, 85.324]; // Restaurant 🏪
-  const endPoint = [27.729, 85.339]; // Customer 🏠
+
+  const startPoint = [27.7172, 85.324];
+  const endPoint = [27.729, 85.339];
+
   useEffect(() => {
-    // Listen for the update from the DJ (Backend)
     socket.on("rider_location_update", (data) => {
-      console.log("Rider is at:", data);
-      // Backend sends {lat, lng}, so we set it as an array for Leaflet
+      console.log("📍 Rider:", data);
+
       setPosition([data.lat, data.lng]);
+
+      // optional: only for trail
+      setRoute((prev) => [...prev, data]);
     });
 
-    return () => {
-      socket.off("rider_location_update");
-    };
+    return () => socket.off("rider_location_update");
   }, []);
-
-  // const startDemo = () => {
-  //   const path = [
-  //     { lat: 27.7172, lng: 85.324 },
-  //     { lat: 27.721, lng: 85.325 },
-  //     { lat: 27.725, lng: 85.33 },
-  //     { lat: 27.727, lng: 85.336 },
-  //     { lat: 27.729, lng: 85.339 },
-  //   ];
-  //   setRoute(path);
-  //   socket.emit("start_demo_route", path);
-  // };
-
-  const startOrderTracking = () => {
-    const routeData = [
-     { lat: 27.7172, lng: 85.324 },
-    { lat: 27.721, lng: 85.325 },
-    { lat: 27.725, lng: 85.33 },
-    { lat: 27.727, lng: 85.336 },
-    { lat: 27.729, lng: 85.339 },
-    ];
-    setRoute(routeData);
-    socket.emit("start_order_tracking", {
-      route: routeData,
-    });
-  };
 
   return (
     <div style={{ padding: "20px" }}>
-      {/* <button
-        onClick={startOrderTracking}
-        style={{ marginBottom: "10px", padding: "10px", cursor: "pointer" }}
-      >
-        🚀 Start Delivery Demo
-      </button> */}
-
       <MapContainer
         center={position}
         zoom={15}
@@ -79,17 +44,18 @@ function LiveMap() {
       >
         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
-        {/* Moves the Map View */}
         <RecenterMap position={position} />
 
-        {/* Moves the Blue Icon */}
+        {/* Rider */}
         <Marker position={position} icon={bikeIcon} />
 
-        {/* Restaurant (Start) */}
+        {/* Start & End */}
         <Marker position={startPoint} icon={resturantIcon} />
         <Marker position={endPoint} icon={homeIcon} />
+
+        {/* Route line */}
         <Polyline
-          positions={route.map((point) => [point.lat, point.lng])}
+          positions={route.map((p) => [p.lat, p.lng])}
           color="blue"
         />
       </MapContainer>
