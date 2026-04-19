@@ -65,12 +65,12 @@ function LiveMap() {
 
   return (
     <div style={{ padding: "20px" }}>
-      <button
+      {/* <button
         onClick={startOrderTracking}
         style={{ marginBottom: "10px", padding: "10px", cursor: "pointer" }}
       >
         🚀 Start Delivery Demo
-      </button>
+      </button> */}
 
       <MapContainer
         center={position}
