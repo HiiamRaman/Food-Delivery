@@ -1,37 +1,27 @@
 export const riderSocket = (io) => {
-
   io.on("connection", (socket) => {
     console.log("Rider Connected", socket.id);
 
-    socket.on("start_demo_route", (route) => {
-      // route = array of lat/lng points from frontend or backend
-      let index = 0;
-
+    socket.on("start_order_tracking", (order) => {
+      console.log("Order received", order);
+      const route = order.route;
+      let i = 0;
       const interval = setInterval(() => {
-        if (index >= route.length) {
+        if (i >= route.length) {
           clearInterval(interval);
+          console.log("Rider Reached Destination");
           return;
         }
-
-        const currentPosition = route[index];
-
-        io.emit("rider_location_update", currentPosition);
-
-        index++;
-      }, 4000); // smooth movement speed
+        socket.emit("rider_location_update", route[i]);
+        i++;
+      }, 3000);
     });
 
     socket.on("disconnect", () => {
       console.log("Rider Disconnected", socket.id);
     });
   });
-
 };
-
-
-
-
-
 
 // thoery
 
