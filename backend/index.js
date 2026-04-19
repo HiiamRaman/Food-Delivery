@@ -21,6 +21,7 @@ io.on("connection", (socket) => {
     console.log("Client disconnected:", socket.id);
   });
 });
+app.set("io",io);
 
 export { io, server };
 

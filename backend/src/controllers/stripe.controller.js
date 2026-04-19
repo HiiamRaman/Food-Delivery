@@ -7,6 +7,13 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export const createStripeSession = async (req, res) => {
   try {
     console.log("🚀 Reached createStripeSession");
+    const demoRoute = [
+      { lat: 27.7172, lng: 85.324 },
+      { lat: 27.721, lng: 85.325 },
+      { lat: 27.725, lng: 85.33 },
+      { lat: 27.727, lng: 85.336 },
+      { lat: 27.729, lng: 85.339 },
+    ];
 
     // ✅ Check Stripe Key
     if (!process.env.STRIPE_SECRET_KEY) {
@@ -38,8 +45,8 @@ export const createStripeSession = async (req, res) => {
     // 2️⃣ Prepare Order Items
     // =======================
     const orderItems = cart.item
-      .filter(ci => ci.food)
-      .map(ci => ({
+      .filter((ci) => ci.food)
+      .map((ci) => ({
         food: ci.food._id,
         name: ci.food.name,
         quantity: ci.quantity,
@@ -48,7 +55,10 @@ export const createStripeSession = async (req, res) => {
 
     console.log("📦 Order Items Snapshot:", orderItems);
 
-    const subTotal = orderItems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+    const subTotal = orderItems.reduce(
+      (sum, i) => sum + i.price * i.quantity,
+      0,
+    );
     const deliveryFee = 50; // static delivery fee
     const totalAmount = subTotal + deliveryFee;
     console.log("💰 Pricing:", { subTotal, deliveryFee, totalAmount });
@@ -58,6 +68,7 @@ export const createStripeSession = async (req, res) => {
     // =======================
     const newOrder = await Order.create({
       user: userId,
+      route:demoRoute,
       items: orderItems,
       pricing: { subTotal, deliveryFee, totalAmount },
       payment: { method: "CARD", status: "pending" },
@@ -68,7 +79,7 @@ export const createStripeSession = async (req, res) => {
     // =======================
     // 4️⃣ Prepare Stripe Line Items
     // =======================
-    const line_items = orderItems.map(i => ({
+    const line_items = orderItems.map((i) => ({
       price_data: {
         currency: "usd",
         product_data: { name: i.name },

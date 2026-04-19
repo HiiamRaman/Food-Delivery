@@ -75,6 +75,12 @@ const orderSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
+    route:[
+      {
+      lat: Number,
+      lng: Number,
+    },
+    ],
 
     items: {
       type: [orderItemSchema],
