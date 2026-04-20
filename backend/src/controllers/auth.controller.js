@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { generateTokensForUser } from "../utils/service.tokens.js";
+import { Cart } from "../models/cart.model.js";
 //register user
 export const registerUser = asyncHandler(async (req, res) => {
   /*
@@ -82,7 +83,11 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   //  5. Generate JWT access token
   const { accessToken, refreshToken } = await generateTokensForUser(user._id);
-
+ await Cart.findOneAndUpdate(
+    { user: user._id },
+    { $set: { item: [] } },   // clears cart items
+    { new: true, upsert: true }
+  );
   const userData = user.toObject(); //converts it to a plain JavaScript object
   delete userData.password;
   delete userData.refreshToken;
@@ -92,6 +97,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     secure: true,
   };
   res.cookie("refreshToken", refreshToken, cookieOptions);
+ 
   //  Build safe user object (exclude password)
 
   return res

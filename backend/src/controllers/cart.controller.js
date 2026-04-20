@@ -93,84 +93,57 @@ export const addToCart = asyncHandler(async (req, res) => {
   const { foodId } = req.body;
   let { quantity = 1 } = req.body;
 
-  // ✅ Validate inputs
   if (!foodId) throw new ApiError(400, "foodId is required");
+
   quantity = Number(quantity);
   if (isNaN(quantity) || quantity < 1)
     throw new ApiError(400, "Quantity must be at least 1");
 
-  // ✅ Fetch food and ensure price is valid
   const food = await Food.findById(foodId);
   if (!food) throw new ApiError(404, "Food not found");
 
-  const price = food.price != null ? Number(food.price) : 0;
-  if (isNaN(price)) throw new ApiError(500, "Invalid food price in database");
+  const price = Number(food.price || 0);
 
-  // ✅ Find active cart
- let cart = await Cart.findOneAndUpdate(
-  { user: userId },
-  { $setOnInsert: { user: userId } },
-  { new: true, upsert: true }
-);
+  // ✅ ALWAYS GET OR CREATE CART CLEANLY
+  let cart = await Cart.findOne({ user: userId });
+
   if (!cart) {
-    //  Create new cart
-    cart = await Cart.create({
+    cart = new Cart({
       user: userId,
-      item: [
-        {
-          food: food._id,
-          quantity,
-          price,
-        },
-      ],
+      item: [],
     });
-  } else {
-    //  Repair old items missing price
-    cart.item = await Promise.all(
-      cart.item.map(async (i) => {
-        if (i.price == null) {
-          const f = await Food.findById(i.food);
-          i.price = f ? Number(f.price) : 0;
-        }
-        return i;
-      }),
-    );
-
-    // ✅ Check if current food already exists in cart
-    const itemIndex = cart.item.findIndex(
-      (i) => i.food.toString() === foodId.toString(),
-    );
-    if (itemIndex > -1) {
-      cart.item[itemIndex].quantity += quantity;
-    } else {
-      cart.item.push({
-        food: food._id,
-        quantity,
-        price,
-      });
-    }
-
-    await cart.save();
   }
 
-  // ✅ Populate food details
-  await cart.populate("item.food");
+  // 🧠 REMOVE INVALID ITEMS (VERY IMPORTANT FIX)
+  cart.item = cart.item.filter(i => i.food && i.quantity > 0);
 
-  // ✅ Calculate total amount
-  const totalAmount = cart.item.reduce(
-    (sum, i) => sum + i.price * i.quantity,
-    0,
+  // ✅ CHECK EXISTING ITEM
+  const index = cart.item.findIndex(
+    (i) => i.food.toString() === foodId.toString()
   );
 
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        { cart, totalAmount },
-        "Item added to cart successfully",
-      ),
-    );
+  if (index > -1) {
+    cart.item[index].quantity += quantity;
+  } else {
+    cart.item.push({
+      food: food._id,
+      quantity,
+      price,
+    });
+  }
+
+  await cart.save();
+  await cart.populate("item.food");
+
+  const totalAmount = cart.item.reduce(
+    (sum, i) => sum + i.price * i.quantity,
+    0
+  );
+
+  return res.status(200).json({
+    success: true,
+    data: { cart, totalAmount },
+  });
 });
 
 export const removeCart = asyncHandler(async (req, res) => {
