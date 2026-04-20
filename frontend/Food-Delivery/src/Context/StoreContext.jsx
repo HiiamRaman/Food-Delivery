@@ -54,41 +54,9 @@ const StoreContextProvider = (props) => {
     }
   };
 
-  // const addToCart = async (foodId) => {
-  //   // 1. Update frontend optimistically
-  //   setCartItems((prev) => ({
-  //     ...prev,
-  //     [foodId]: prev[foodId] ? prev[foodId] + 1 : 1,
-  //   }));
-
-  //   // 2. Persist to backend
-  //   if (token) {
-  //     try {
-  //       const res = await axios.post(
-  //         url + "/api/v1/cart/add",
-  //         { foodId, quantity: 1 }, // Backend expects these keys
-  //         {
-  //           headers: { Authorization: `Bearer ${token}` }, // Correct header
-  //         },
-  //       );
-
-  //       // 3. Sync frontend state with backend response
-  //       const updatedCart = res.data.data.cart.item;
-  //       const newCart = {};
-  //       updatedCart.forEach((item) => {
-  //         newCart[item.food._id] = item.quantity;
-  //       });
-  //       setCartItems(newCart);
-  //     } catch (err) {
-  //       console.error(
-  //         "Failed to add to cart:",
-  //         err.response?.data || err.message,
-  //       );
-  //     }
-  //   }
-  // };
 
   const addToCart = async (foodId) => {
+    
     // Optimistic update
     setCartItems((prev) => ({
       ...prev,
@@ -103,7 +71,7 @@ const StoreContextProvider = (props) => {
         { foodId, quantity: 1 },
         { headers: { Authorization: `Bearer ${token}` } },
       );
-
+      
       const updatedCart = res.data.data.cart.item || [];
       const newCart = {};
 
@@ -166,36 +134,27 @@ const StoreContextProvider = (props) => {
   //when we relaod the page the loggedin user gets logout to fix this we have to do
 
   useEffect(() => {
-    async function loadData() {
-      await fetchFoodList();
-      if (localStorage.getItem("accessToken")) {
-        setToken(localStorage.getItem("accessToken"));
-        await loadCartData(localStorage.getItem("accessToken"));
-      }
+  async function loadData() {
+    await fetchFoodList();
+
+    const savedToken = localStorage.getItem("accessToken");
+
+    if (savedToken) {
+      setToken(savedToken);
+
+      // ❌ DO NOT load old cart
+      setCartItems({}); // force clean cart on refresh
     }
-    loadData();
-  }, []);
-  // useEffect(() => {
-  //   async function loadData() {
-  //     try {
-  //       await fetchFoodList();
+  }
 
-  //       const storedToken = localStorage.getItem("accessToken");
-  //       if (storedToken) {
-  //         setToken(storedToken);
-  //         await loadCartData(storedToken); // use the same token
-  //       }
-  //     } catch (err) {
-  //       console.error("Error loading data:", err.response?.data || err.message);
-  //     }
-  //   }
-
-  //   loadData();
-  // }, []);
+  loadData();
+}, []);
+  
 
   const contextValue = {
     food_list,
     cartItems,
+    loadCartData,
     setCartItems,
     addToCart,
     removeFromCart,
@@ -215,3 +174,25 @@ const StoreContextProvider = (props) => {
   );
 };
 export default StoreContextProvider;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

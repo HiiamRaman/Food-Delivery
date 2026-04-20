@@ -6,7 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 function Login({ setShowLogin }) {
-  const { url, setToken } = useContext(StoreContext);
+  const { url, setToken, loadCartData } = useContext(StoreContext);
 
   // State to track whether Login or Signup form is active
   const [currState, setCurrState] = useState("Login");
@@ -14,14 +14,14 @@ function Login({ setShowLogin }) {
   // Separate states for Login and Signup
   const [loginData, setLoginData] = useState({
     email: "",
-    password: ""
+    password: "",
   });
 
   const [signupData, setSignupData] = useState({
     username: "",
     fullname: "",
     email: "",
-    password: ""
+    password: "",
   });
 
   // Input change handler
@@ -47,23 +47,24 @@ function Login({ setShowLogin }) {
     try {
       const response = await axios.post(apiEndpoint, submitData);
 
-      if (response.data.statusCode==200) {
-       
+      if (response.data.statusCode == 200) {
         const token = response.data.data.accessToken;
-        if(token){
-        setToken(token);
-        localStorage.setItem("accessToken", token);
-        setShowLogin(false);
-        toast.success(response.data.message || "Login successful");}
-
+        if (token) {
+          setToken(token);
+          localStorage.setItem("accessToken", token);
+          setTimeout(() => {
+            loadCartData(token);
+          }, 0);
+          
+          setShowLogin(false);
+          toast.success(response.data.message || "Login successful");
+        }
       } else {
-        toast.error(  response.data.message || "Login Failed ");
+        toast.error(response.data.message || "Login Failed ");
       }
     } catch (error) {
       console.error("Auth error:", error);
-     toast.error(
-        error.response?.data?.message || "Network or server error"
-      );
+      toast.error(error.response?.data?.message || "Network or server error");
     }
   };
 
@@ -75,7 +76,7 @@ function Login({ setShowLogin }) {
         username: "",
         fullname: "",
         email: "",
-        password: ""
+        password: "",
       });
     } else {
       setCurrState("Login");
@@ -123,9 +124,7 @@ function Login({ setShowLogin }) {
             name="email"
             type="email"
             placeholder="Email"
-            value={
-              currState === "Login" ? loginData.email : signupData.email
-            }
+            value={currState === "Login" ? loginData.email : signupData.email}
             onChange={onChangeHandler}
             required
           />
@@ -134,9 +133,7 @@ function Login({ setShowLogin }) {
             type="password"
             placeholder="Password"
             value={
-              currState === "Login"
-                ? loginData.password
-                : signupData.password
+              currState === "Login" ? loginData.password : signupData.password
             }
             onChange={onChangeHandler}
             required
@@ -171,3 +168,13 @@ function Login({ setShowLogin }) {
 }
 
 export default Login;
+
+
+
+
+
+
+
+
+
+

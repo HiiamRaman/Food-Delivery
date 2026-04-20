@@ -14,9 +14,7 @@ socket.on("connect", () => {
   console.log("🟢 Socket connected:", socket.id);
 });
 
-socket.on("disconnect", () => {
-  
-});
+socket.on("disconnect", () => {});
 
 function Success() {
   const { url, token, setCartItems } = useContext(StoreContext);
@@ -41,17 +39,12 @@ function Success() {
 
     socket.emit("start_order_tracking", { route });
 
-
-
-
     setTrackingStarted(true);
 
-     navigate(`/tracking/${orderId}`);
+    navigate(`/tracking/${orderId}`);
   };
 
   useEffect(() => {
-   
-
     if (!orderId || !token || hasCalled.current) {
       console.log("⛔ Skipping execution", {
         orderId,
@@ -73,21 +66,13 @@ function Success() {
           paymentId: "stripe_session_completed",
         });
 
-       
-
         if (paymentRes.data.success) {
-          
-
-       
           await axios.delete(`${url}/api/v1/deleteCart/clear`, {
             headers: { Authorization: `Bearer ${token}` },
           });
 
-        
-
           // 3. Clear Frontend Cart
           setCartItems({});
-          
 
           // 4. Emit socket event
           const routeData = [
@@ -97,8 +82,6 @@ function Success() {
             { lat: 27.727, lng: 85.336 },
             { lat: 27.729, lng: 85.339 },
           ];
-
-         
         } else {
           console.log("❌ Payment not successful:", paymentRes.data);
         }
@@ -113,12 +96,10 @@ function Success() {
     processPostPayment();
 
     const timer = setTimeout(() => {
-     
       navigate("/myorders");
     }, 10000);
 
     return () => {
-     
       clearTimeout(timer);
     };
   }, [orderId, token, url, navigate, setCartItems]);
@@ -166,10 +147,3 @@ function Success() {
 }
 
 export default Success;
-
-
-
-
-
-
-

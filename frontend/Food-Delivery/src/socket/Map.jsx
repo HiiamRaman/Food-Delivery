@@ -18,6 +18,7 @@ function RecenterMap({ position }) {
 function LiveMap() {
   const [position, setPosition] = useState([27.7172, 85.324]);
   const [route, setRoute] = useState([]);
+  
 
   const startPoint = [27.7172, 85.324];
   const endPoint = [27.729, 85.339];
