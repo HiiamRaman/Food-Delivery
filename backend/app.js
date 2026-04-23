@@ -12,7 +12,8 @@ import authRouter from "./src/routes/user.route.js";
 import cartRouter from "./src/routes/cart.routes.js";
 import orderRouter from './src/routes/order.routes.js';
 import stripeRouter from './src/routes/stripe.routes.js';
-import successRouter from './src/routes/payment.routes.js'
+import successRouter from './src/routes/payment.routes.js';
+
 
 export const app = express();
 
