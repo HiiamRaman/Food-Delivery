@@ -13,7 +13,7 @@ import cartRouter from "./src/routes/cart.routes.js";
 import orderRouter from './src/routes/order.routes.js';
 import stripeRouter from './src/routes/stripe.routes.js';
 import successRouter from './src/routes/payment.routes.js';
-
+import deliveryRouter from './src/routes/delivery.routes.js'
 
 export const app = express();
 
@@ -59,7 +59,11 @@ app.use("/api/v1/order", orderRouter);
 app.use("/api/v1/stripe", stripeRouter);
 
 // paymentRoutes
-app.use("/api/v1/payment",successRouter)
+app.use("/api/v1/payment",successRouter);
+
+//deliveryRoute
+app.use('/api/v1/delivery',deliveryRouter);
+
 
 // ----------------- ERROR HANDLERS -----------------
 app.use(notFoundHandler);
