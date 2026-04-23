@@ -1,45 +1,39 @@
-import { MapContainer, TileLayer, Marker, useMap, Polyline } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  useMap,
+  Polyline,
+} from "react-leaflet";
 import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { bikeIcon, resturantIcon, homeIcon } from "./MapIcon";
-import {socket} from '../socket/socket'
+import { socket } from "../socket/socket.js";
 
 // Move map smoothly
 function RecenterMap({ position }) {
   const map = useMap();
 
   useEffect(() => {
-    map.setView(position);
-  }, [position]);
+    if (!position || position[0] == null || position[1] == null) return;
+
+    map.flyTo(position, map.getZoom(), {
+      duration: 0.5,
+    });
+  }, [position, map]);
 
   return null;
 }
 
-function LiveMap() {
-  const [position, setPosition] = useState([27.7172, 85.324]);
-  const [route, setRoute] = useState([]);
-  
-
-  const startPoint = [27.7172, 85.324];
-  const endPoint = [27.729, 85.339];
-
-  useEffect(() => {
-    socket.on("rider_location_update", (data) => {
-      console.log("📍 Rider:", data);
-
-      setPosition([data.lat, data.lng]);
-
-      // optional: only for trail
-      setRoute((prev) => [...prev, data]);
-    });
-
-    return () => socket.off("rider_location_update");
-  }, []);
-
+function LiveMap({ position, route, startPoint, endPoint }) {
   return (
     <div style={{ padding: "20px" }}>
       <MapContainer
-        center={position}
+        center={
+          position && position[0] != null && position[1] != null
+            ? position
+            : [27.7172, 85.324]
+        }
         zoom={15}
         style={{ height: "500px", width: "100%", borderRadius: "12px" }}
       >
@@ -48,15 +42,24 @@ function LiveMap() {
         <RecenterMap position={position} />
 
         {/* Rider */}
-        <Marker position={position} icon={bikeIcon} />
+        {/* <Marker position={position} icon={bikeIcon} /> */}
+        {position && position[0] != null && position[1] != null && (
+          <Marker position={position} icon={bikeIcon} />
+        )}
 
         {/* Start & End */}
         <Marker position={startPoint} icon={resturantIcon} />
         <Marker position={endPoint} icon={homeIcon} />
 
         {/* Route line */}
+        {/* <Polyline positions={route.map((p) => [p.lat, p.lng])} color="blue" /> */}
         <Polyline
-          positions={route.map((p) => [p.lat, p.lng])}
+          positions={(route || [])
+            .filter(
+              (p) =>
+                p && typeof p.lat === "number" && typeof p.lng === "number",
+            )
+            .map((p) => [p.lat, p.lng])}
           color="blue"
         />
       </MapContainer>

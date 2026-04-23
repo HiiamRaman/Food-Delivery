@@ -11,10 +11,24 @@ function Tracking() {
   const [position, setPosition] = useState([27.7172, 85.324]);
   const [route, setRoute] = useState([]);
   const [isDelivered, setIsDelivered] = useState(false);
-  useEffect(() => {
-    console.log("🚀 Tracking order ID:", id);
+  const [startPoint] = useState([27.7172, 85.324]); // Restaurant coords
+  const [endPoint] = useState([27.729, 85.339]); // Customer coords
 
+  // Reset the route when the order changes
+
+  useEffect(() => {
+    setRoute([]);
+  }, [id]);
+
+  useEffect(() => {
     socket.on("rider_location_update", (data) => {
+      if (
+        !data ||
+        typeof data.lat !== "number" ||
+        typeof data.lng !== "number"
+      ) {
+        return; // ignore bad data
+      }
       setPosition([data.lat, data.lng]);
       setRoute((prev) => [...prev, data]);
     });
@@ -23,7 +37,10 @@ function Tracking() {
       setIsDelivered(true);
     });
 
-    return () => socket.off("rider_location_update");
+    return () => {
+      socket.off("rider_location_update");
+      socket.off("delivery_completed");
+    };
   }, [id]);
 
   return (
@@ -36,7 +53,12 @@ function Tracking() {
 
       {/* Map */}
       <div className="map-wrapper">
-        <LiveMap position={position} route={route} />
+        <LiveMap
+          position={position}
+          startPoint={startPoint}
+          endPoint={endPoint}
+          route={route}
+        />
         {isDelivered && (
           <button onClick={() => navigate("/")} className="delivered-btn">
             🏠 Go to Home
