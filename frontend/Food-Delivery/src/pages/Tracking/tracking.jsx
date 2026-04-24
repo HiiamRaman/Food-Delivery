@@ -1,144 +1,159 @@
-import { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
-import LiveMap from "../../socket/Map";
-import "./Tracking.css";
-import { useNavigate } from "react-router-dom";
-import { getRoute } from "../../Api/route.api.js";
-import polyline from "@mapbox/polyline";
+// import { useEffect, useState, useRef } from "react";
+// import { useParams } from "react-router-dom";
+// import LiveMap from "../../socket/Map";
+// import "./Tracking.css";
+// import { useNavigate } from "react-router-dom";
+// import { getRoute } from "../../Api/route.api.js";
+// import polyline from "@mapbox/polyline";
 
-function Tracking() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+// function Tracking() {
+//   const { id } = useParams();
+//   const navigate = useNavigate();
 
-  // ---------------- STATE ----------------
-  const [route, setRoute] = useState([]);
-  const [position, setPosition] = useState([27.7172, 85.324]);
-  const [trail, setTrail] = useState([]);
-  const [eta, setEta] = useState(null);
-  const [isDelivered, setIsDelivered] = useState(false);
+//   // ---------------- STATE ----------------
+//   const [route, setRoute] = useState([]);
+//   const [position, setPosition] = useState([27.7172, 85.324]);
+//   const [trail, setTrail] = useState([]);
+//   const [eta, setEta] = useState(null);
+//   const [isDelivered, setIsDelivered] = useState(false);
 
-  const [startPoint] = useState([27.7172, 85.324]);
-  const [endPoint, setEndPoint] = useState([27.729, 85.339]);
+//   const [startPoint] = useState([27.7172, 85.324]);
+//   const [endPoint, setEndPoint] = useState([27.729, 85.339]);
 
-  const [riderIndex, setRiderIndex] = useState(0);
+//   const [riderIndex, setRiderIndex] = useState(0);
 
-  const intervalRef = useRef(null);
+//   const intervalRef = useRef(null);
 
-  // ---------------- RESET ON ORDER CHANGE ----------------
-  useEffect(() => {
-    setRoute([]);
-    setTrail([]);
-    setRiderIndex(0);
-    setIsDelivered(false);
-  }, [id]);
+//   // ---------------- RESET ON ORDER CHANGE ----------------
+//   useEffect(() => {
+//     setRoute([]);
+//     setTrail([]);
+//     setRiderIndex(0);
+//     setIsDelivered(false);
+//   }, [id]);
 
-  // ---------------- FETCH ROUTE ----------------
-  useEffect(() => {
-    const fetchRoute = async () => {
-      try {
-        const start = { lat: startPoint[0], lng: startPoint[1] };
-        const end = { lat: endPoint[0], lng: endPoint[1] };
+//   // ---------------- FETCH ROUTE ----------------
+//   useEffect(() => {
+//     const fetchRoute = async () => {
+//       try {
+//         const start = { lat: startPoint[0], lng: startPoint[1] };
+//         const end = { lat: endPoint[0], lng: endPoint[1] };
 
-        const data = await getRoute(start, end);
+//         const data = await getRoute(start, end);
 
-        const decoded = polyline.decode(data.geometry);
+//         const decoded = polyline.decode(data.geometry);
 
-        const formattedRoute = decoded.map(([lat, lng]) => ({
-          lat,
-          lng,
-        }));
+//         const formattedRoute = decoded.map(([lat, lng]) => ({
+//           lat,
+//           lng,
+//         }));
 
-        setRoute(formattedRoute);
-        setEta(Math.ceil(data.duration / 60));
-      } catch (err) {
-        console.log("Route fetch error:", err);
-      }
-    };
+//         setRoute(formattedRoute);
+//         setEta(Math.ceil(data.duration / 60));
+//       } catch (err) {
+//         console.log("Route fetch error:", err);
+//       }
+//     };
 
-    fetchRoute();
-  }, [id, endPoint]);
+//     fetchRoute();
+//   }, [id, endPoint]);
 
-  // ---------------- RIDER MOVEMENT ENGINE ----------------
-  useEffect(() => {
-    if (!route.length) return;
+//   // ---------------- RIDER MOVEMENT ENGINE ----------------
+//   useEffect(() => {
+//     if (!route.length) return;
 
-    if (intervalRef.current) clearInterval(intervalRef.current);
+//     if (intervalRef.current) clearInterval(intervalRef.current);
 
-    intervalRef.current = setInterval(() => {
-      setRiderIndex((prev) => {
-        if (prev >= route.length - 1) {
-          clearInterval(intervalRef.current);
-          setIsDelivered(true);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 1000);
+//     intervalRef.current = setInterval(() => {
+//       setRiderIndex((prev) => {
+//         if (prev >= route.length - 1) {
+//           clearInterval(intervalRef.current);
+//           setIsDelivered(true);
+//           return prev;
+//         }
+//         return prev + 1;
+//       });
+//     }, 1000);
 
-    return () => clearInterval(intervalRef.current);
-  }, [route]);
+//     return () => clearInterval(intervalRef.current);
+//   }, [route]);
 
-  // ---------------- POSITION UPDATE ----------------
-  useEffect(() => {
-    if (!route.length) return;
+//   // ---------------- POSITION UPDATE ----------------
+//   useEffect(() => {
+//     if (!route.length) return;
 
-    const current = route[riderIndex];
-    if (!current) return;
+//     const current = route[riderIndex];
+//     if (!current) return;
 
-    setPosition([current.lat, current.lng]);
-    setTrail((prev) => [...prev, current]);
-  }, [riderIndex, route]);
+//     setPosition([current.lat, current.lng]);
+//     setTrail((prev) => [...prev, current]);
+//   }, [riderIndex, route]);
 
-  // ---------------- ACTION ----------------
-  const changeDestination = () => {
-    setEndPoint([27.735, 85.345]);
-  };
+//   // ---------------- ACTION ----------------
+//   const changeDestination = () => {
+//     setEndPoint([27.735, 85.345]);
+//   };
 
-  // ---------------- UI ----------------
-  return (
-    <div className="tracking-container">
+//   // ---------------- UI ----------------
+//   return (
+//     <div className="tracking-container">
 
-      <div className="tracking-header">
-        <div className="tracking-title">🚴 Live Order Tracking</div>
-        <div className="tracking-status">On the way</div>
+//       <div className="tracking-header">
+//         <div className="tracking-title">🚴 Live Order Tracking</div>
+//         <div className="tracking-status">On the way</div>
 
-        <button onClick={changeDestination}>
-          Change Destination
-        </button>
-      </div>
+//         <button onClick={changeDestination}>
+//           Change Destination
+//         </button>
+//       </div>
 
-      <div className="map-wrapper">
-        <LiveMap
-          position={position}
-          startPoint={startPoint}
-          endPoint={endPoint}
-          route={route}
-          trail={trail}
-        />
+//       <div className="map-wrapper">
+//         <LiveMap
+//           position={position}
+//           startPoint={startPoint}
+//           endPoint={endPoint}
+//           route={route}
+//           trail={trail}
+//         />
 
-        {isDelivered && (
-          <button
-            onClick={() => navigate("/")}
-            className="delivered-btn"
-          >
-            🏠 Go to Home
-          </button>
-        )}
-      </div>
+//         {isDelivered && (
+//           <button
+//             onClick={() => navigate("/")}
+//             className="delivered-btn"
+//           >
+//             🏠 Go to Home
+//           </button>
+//         )}
+//       </div>
 
-      <div className="tracking-info">
-        <p><b>Order ID:</b> {id}</p>
-        <p>
-          <b>Rider Status:</b> Moving
-          <b> ETA:</b> {eta ? `${eta} mins` : "Calculating..."}
-        </p>
-        <p><b>Live Updates:</b> Active</p>
-      </div>
-    </div>
-  );
-}
+//       <div className="tracking-info">
+//   <p>
+//     <b>Order ID</b>
+//     <span>{id}</span>
+//   </p>
 
-export default Tracking;
+//   <p>
+//     <b>Status</b>
+//     <span>Moving</span>
+//   </p>
+
+//   <p>
+//     <b>ETA</b>
+//     <span className="eta">
+//       {eta ? `${eta} mins` : "Calculating..."}
+//     </span>
+//   </p>
+
+//   <p>
+//     <b>Updates</b>
+//     <span>Live</span>
+//   </p>
+// </div>
+//     </div>
+//   );
+// }
+
+// export default Tracking;
 
 
 
@@ -167,138 +182,140 @@ export default Tracking;
 
 
 // IF U WANT SOCKET EXAMPLE UNCOMMENT THIS
-// import { useEffect, useState } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import LiveMap from "../../socket/Map";
-// import { socket } from "../../socket/socket";
-// import "./Tracking.css";
-// import { getRoute } from "../../Api/route.api.js";
-// import polyline from "@mapbox/polyline";
 
-// function Tracking() {
-//   const { id } = useParams();
-//   const navigate = useNavigate();
 
-//   const [trail, setTrail] = useState([]);
-//   const [eta, setEta] = useState(null);
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import LiveMap from "../../socket/Map";
+import { socket } from "../../socket/socket";
+import "./Tracking.css";
+import { getRoute } from "../../Api/route.api.js";
+import polyline from "@mapbox/polyline";
 
-//   const [position, setPosition] = useState([27.7172, 85.324]);
+function Tracking() {
+  const { id } = useParams();
+  const navigate = useNavigate();
 
-//   const [route, setRoute] = useState([]);
-//   const [isDelivered, setIsDelivered] = useState(false);
+  const [trail, setTrail] = useState([]);
+  const [eta, setEta] = useState(null);
 
-//   const [startPoint] = useState([27.7172, 85.324]);
+  const [position, setPosition] = useState([27.7172, 85.324]);
 
-//   // ✅ FIXED: endpoint is now dynamic
-//   const [endPoint, setEndPoint] = useState([27.729, 85.339]);
+  const [route, setRoute] = useState([]);
+  const [isDelivered, setIsDelivered] = useState(false);
 
-//   // Reset route when order changes
-//   useEffect(() => {
-//     setRoute([]);
-//     setTrail([]);
-//   }, [id]);
+  const [startPoint] = useState([27.7172, 85.324]);
 
-//   // 🔷 ROUTE FETCH (REACTS TO ENDPOINT CHANGE)
-//   useEffect(() => {
-//     const fetchRoute = async () => {
-//       try {
-//         const start = { lat: startPoint[0], lng: startPoint[1] };
-//         const end = { lat: endPoint[0], lng: endPoint[1] };
+  // ✅ FIXED: endpoint is now dynamic
+  const [endPoint, setEndPoint] = useState([27.729, 85.339]);
 
-//         const data = await getRoute(start, end);
+  // Reset route when order changes
+  useEffect(() => {
+    setRoute([]);
+    setTrail([]);
+  }, [id]);
 
-//         const decoded = polyline.decode(data.geometry);
+  // 🔷 ROUTE FETCH (REACTS TO ENDPOINT CHANGE)
+  useEffect(() => {
+    const fetchRoute = async () => {
+      try {
+        const start = { lat: startPoint[0], lng: startPoint[1] };
+        const end = { lat: endPoint[0], lng: endPoint[1] };
 
-//         const routeCoords = decoded.map(([lat, lng]) => ({
-//           lat,
-//           lng,
-//         }));
+        const data = await getRoute(start, end);
 
-//         setRoute(routeCoords);
-//         setEta(Math.ceil(data.duration / 60));
-//       } catch (err) {
-//         console.log("Route fetch error:", err);
-//       }
-//     };
+        const decoded = polyline.decode(data.geometry);
 
-//     fetchRoute();
-//   }, [id, endPoint]);
+        const routeCoords = decoded.map(([lat, lng]) => ({
+          lat,
+          lng,
+        }));
 
-//   // 🔷 SOCKET: rider live location
-//   useEffect(() => {
-//     socket.on("rider_location_update", (data) => {
-//       if (
-//         !data ||
-//         typeof data.lat !== "number" ||
-//         typeof data.lng !== "number"
-//       ) {
-//         return;
-//       }
+        setRoute(routeCoords);
+        setEta(Math.ceil(data.duration / 60));
+      } catch (err) {
+        console.log("Route fetch error:", err);
+      }
+    };
 
-//       setPosition([data.lat, data.lng]);
-//       setTrail((prev) => [...prev, data]);
-//     });
+    fetchRoute();
+  }, [id, endPoint]);
 
-//     socket.on("delivery_completed", () => {
-//       console.log("✅ Delivered");
-//       setIsDelivered(true);
-//     });
+  // 🔷 SOCKET: rider live location
+  useEffect(() => {
+    socket.on("rider_location_update", (data) => {
+      if (
+        !data ||
+        typeof data.lat !== "number" ||
+        typeof data.lng !== "number"
+      ) {
+        return;
+      }
 
-//     return () => {
-//       socket.off("rider_location_update");
-//       socket.off("delivery_completed");
-//     };
-//   }, [id]);
+      setPosition([data.lat, data.lng]);
+      setTrail((prev) => [...prev, data]);
+    });
 
-//   // 🔷 CHANGE DESTINATION (TEST FUNCTION)
-//   const changeDestination = () => {
-//     setEndPoint([27.735, 85.345]);
-//   };
+    socket.on("delivery_completed", () => {
+      console.log("✅ Delivered");
+      setIsDelivered(true);
+    });
 
-//   return (
-//     <div className="tracking-container">
-//       {/* Header */}
-//       <div className="tracking-header">
-//         <div className="tracking-title">🚴 Live Order Tracking</div>
-//         <div className="tracking-status">On the way</div>
+    return () => {
+      socket.off("rider_location_update");
+      socket.off("delivery_completed");
+    };
+  }, [id]);
 
-//         <button onClick={changeDestination}>Change Destination</button>
-//       </div>
+  // 🔷 CHANGE DESTINATION (TEST FUNCTION)
+  const changeDestination = () => {
+    setEndPoint([27.735, 85.345]);
+  };
 
-//       {/* Map */}
-//       <div className="map-wrapper">
-//         <LiveMap
-//           position={position}
-//           startPoint={startPoint}
-//           endPoint={endPoint}
-//           route={route}
-//           trail={trail}
-//         />
+  return (
+    <div className="tracking-container">
+      {/* Header */}
+      <div className="tracking-header">
+        <div className="tracking-title">🚴 Live Order Tracking</div>
+        <div className="tracking-status">On the way</div>
 
-//         {isDelivered && (
-//           <button onClick={() => navigate("/")} className="delivered-btn">
-//             🏠 Go to Home
-//           </button>
-//         )}
-//       </div>
+        <button onClick={changeDestination}>Change Destination</button>
+      </div>
 
-//       {/* Info */}
-//       <div className="tracking-info">
-//         <p>
-//           <b>Order ID:</b> {id}
-//         </p>
+      {/* Map */}
+      <div className="map-wrapper">
+        <LiveMap
+          position={position}
+          startPoint={startPoint}
+          endPoint={endPoint}
+          route={route}
+          trail={trail}
+        />
 
-//         <p>
-//           <b>Rider Status:</b> Moving to destination <br />
-//           <b>ETA:</b> {eta ? `${eta} mins` : "Calculating..."}
-//         </p>
+        {isDelivered && (
+          <button onClick={() => navigate("/")} className="delivered-btn">
+            🏠 Go to Home
+          </button>
+        )}
+      </div>
 
-//         <p>
-//           <b>Live Updates:</b> Active
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }
+      {/* Info */}
+      <div className="tracking-info">
+        <p>
+          <b>Order ID:</b> {id}
+        </p>
 
-// export default Tracking;
+        <p>
+          <b>Rider Status:</b> Moving to destination <br />
+          <b>ETA:</b> {eta ? `${eta} mins` : "Calculating..."}
+        </p>
+
+        <p>
+          <b>Live Updates:</b> Active
+        </p>
+      </div>
+    </div>
+  );
+}
+
+export default Tracking;

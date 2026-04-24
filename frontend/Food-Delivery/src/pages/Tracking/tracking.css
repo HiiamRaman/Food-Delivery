@@ -1,68 +1,216 @@
+/* =========================
+   GLOBAL LAYOUT
+========================= */
 .tracking-container {
-  padding: 20px;
-  background: #f6f7fb;
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f172a, #1c1917);
+  color: #e2e8f0;
+  font-family: "Inter", sans-serif;
+  overflow: hidden;
 }
 
-/* Header */
+/* =========================
+   HEADER
+========================= */
 .tracking-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  justify-content: space-between;
+
+  padding: 16px 20px;
+  background: rgba(2, 6, 23, 0.75);
+  backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .tracking-title {
   font-size: 18px;
   font-weight: 600;
-  color: #222;
 }
 
 .tracking-status {
-  background: #ff9800;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-}
-
-/* Map wrapper */
-.map-wrapper {
-  background: white;
-  padding: 10px;
-  border-radius: 12px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-}
-
-/* Info box */
-.tracking-info {
-  margin-top: 15px;
-  background: white;
-  padding: 12px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.tracking-info p {
-  margin: 6px 0;
-  color: #444;
-  font-size: 14px;
-}
-
-/* Delivered button */
-.delivered-btn {
-  margin-top: 15px;
-  padding: 10px 18px;
-  background: #de7c0c;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(249, 115, 22, 0.15);
+  color: #fb923c;
+  font-size: 13px;
   font-weight: 500;
-  transition: 0.2s;
+}
+
+/* Change Destination Button */
+.tracking-header button {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #f97316, #ea580c);
+  color: white;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.tracking-header button:hover {
+  transform: scale(1.05);
+}
+
+/* =========================
+   MAP WRAPPER
+========================= */
+.map-wrapper {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+/* =========================
+   GO TO HOME BUTTON
+   (FIXED OVERLAP ISSUE)
+========================= */
+.delivered-btn {
+  position: absolute;
+  bottom: 90px;   /* avoids bottom panel overlap */
+  right: 20px;
+
+  z-index: 1000;  /* 🔥 IMPORTANT FIX */
+
+  padding: 14px 20px;
+  border-radius: 12px;
+  border: none;
+
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: white;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35);
 }
 
 .delivered-btn:hover {
-  background: #c96c1b;
+  transform: scale(1.08);
+}
+
+/* =========================
+   INFO PANEL
+========================= */
+.tracking-info {
+  padding: 16px 20px;
+  background: rgba(2, 6, 23, 0.85);
+  backdrop-filter: blur(10px);
+
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Each row */
+.tracking-info p {
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}
+
+/* Labels */
+.tracking-info b {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Values */
+.tracking-info span {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.eta {
+  color: #fb923c;
+}
+
+/* =========================
+   ANIMATION
+========================= */
+.tracking-container {
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================
+   RESPONSIVE DESIGN
+========================= */
+
+/* TABLET */
+@media (max-width: 768px) {
+  .tracking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .tracking-header button {
+    width: 100%;
+  }
+
+  .delivered-btn {
+    bottom: 110px;
+    right: 15px;
+    left: 15px;
+    width: auto;
+    text-align: center;
+  }
+
+  .tracking-info {
+    padding: 14px;
+  }
+
+  .tracking-info p {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* MOBILE */
+@media (max-width: 480px) {
+  .tracking-title {
+    font-size: 16px;
+  }
+
+  .tracking-status {
+    font-size: 12px;
+  }
+
+  .tracking-header button {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .delivered-btn {
+    bottom: 100px;
+    font-size: 14px;
+    padding: 12px;
+  }
+}
+
+/* LARGE SCREEN */
+@media (min-width: 1024px) {
+  .tracking-container {
+    max-width: 1200px;
+    margin: auto;
+    border-radius: 16px;
+    overflow: hidden;
+  }
 }
