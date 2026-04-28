@@ -357,13 +357,7 @@
 
 
 
-// import React, { useEffect, useState, useRef } from "react";
-// import { useParams, useNavigate } from "react-router-dom";
-// import LiveMap from "../../socket/Map";
-// import { socket } from "../../socket/socket";
-// import "./Tracking.css";
-// import { getRoute } from "../../Api/route.api.js";
-// import polyline from "@mapbox/polyline";
+
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import LiveMap from "../../socket/Map";
@@ -380,45 +374,64 @@ function Tracking() {
   const [delivered, setDelivered] = useState(false);
 
   // join room
+// useEffect(() => {
+//   if (!id) return;
+
+//   socket.emit("join_order", id);
+
+//   console.log("🔌 Joined:", id);
+
+//   socket.on("admin:dispatch_order", (data) => {
+//     console.log("🚀 DISPATCH RECEIVED:", data);
+
+//     const route = data.route;
+
+//     if (!route || route.length === 0) {
+//       console.warn("⚠️ Empty route received");
+//       return;
+//     }
+
+//     let i = 0;
+
+//     const interval = setInterval(() => {
+//       if (i >= route.length) {
+//         clearInterval(interval);
+//         console.log("🏁 Movement finished");
+//         return;
+//       }
+
+//       console.log("📡 MOVING TO:", route[i]);
+
+//       setPosition([route[i].lat, route[i].lng]);
+
+//       i++;
+//     }, 2000);
+//   });
+
+//   return () => {
+//     socket.off("admin:dispatch_order");
+//   };
+// }, [id]);
 useEffect(() => {
   if (!id) return;
 
   socket.emit("join_order", id);
 
-  console.log("🔌 Joined:", id);
+  const handleMove = (data) => {
+    setPosition([data.lat, data.lng]);
+  };
 
-  socket.on("admin:dispatch_order", (data) => {
-    console.log("🚀 DISPATCH RECEIVED:", data);
+  socket.on("order:location_update", handleMove);
 
-    const route = data.route;
-
-    if (!route || route.length === 0) {
-      console.warn("⚠️ Empty route received");
-      return;
-    }
-
-    let i = 0;
-
-    const interval = setInterval(() => {
-      if (i >= route.length) {
-        clearInterval(interval);
-        console.log("🏁 Movement finished");
-        return;
-      }
-
-      console.log("📡 MOVING TO:", route[i]);
-
-      setPosition([route[i].lat, route[i].lng]);
-
-      i++;
-    }, 2000);
+  socket.on("order:delivered", () => {
+    console.log("DELIVERED");
   });
 
   return () => {
-    socket.off("admin:dispatch_order");
+    socket.off("order:location_update", handleMove);
+    socket.off("order:delivered");
   };
 }, [id]);
-
   return (
     <div>
 
