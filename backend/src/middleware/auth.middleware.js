@@ -58,9 +58,6 @@
 
 
 
-
-
-
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/apiError.js";
@@ -106,78 +103,3 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
 
 
 
-
-
-
-// import jwt from "jsonwebtoken";
-// import { User } from "../models/user.model.js";
-// import { ApiError } from "../utils/apiError.js";
-// import { asyncHandler } from "../utils/asyncHandler.js";
-
-// export const verifyJWT = asyncHandler(async (req, res, next) => {
-  
-//   console.log("\n================ JWT DEBUG START ================\n");
-
-//   // 1. RAW HEADERS
-//   console.log("🧠 HEADERS:", req.headers);
-
-//   const authHeader = req.headers.authorization;
-//   console.log("🔐 AUTH HEADER:", authHeader);
-
-//   if (!authHeader) {
-//     console.log("❌ No authorization header found");
-//     throw new ApiError(401, "Authorization token missing or invalid");
-//   }
-
-//   if (!authHeader.startsWith("Bearer ")) {
-//     console.log("❌ Header does not start with Bearer");
-//     throw new ApiError(401, "Invalid token format");
-//   }
-
-//   // 2. TOKEN EXTRACTION
-//   const token = authHeader.split(" ")[1];
-//   console.log("🔐 EXTRACTED TOKEN:", token);
-
-//   if (!token || token === "undefined") {
-//     console.log("❌ Token is missing or undefined");
-//     throw new ApiError(401, "Token missing");
-//   }
-
-//   // 3. ENV CHECK
-//   console.log("🔑 ACCESS TOKEN SECRET:", process.env.ACCESS_TOKEN_SECRET);
-
-//   if (!process.env.ACCESS_TOKEN_SECRET) {
-//     console.log("❌ JWT secret is undefined in environment");
-//     throw new ApiError(500, "Server misconfiguration");
-//   }
-
-//   // 4. VERIFY TOKEN
-//   let decoded;
-//   try {
-//     decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-//     console.log("✅ DECODED TOKEN:", decoded);
-//   } catch (err) {
-//     console.log("❌ JWT VERIFY ERROR:", err.message);
-//     throw new ApiError(401, `Invalid token: ${err.message}`);
-//   }
-
-//   // 5. USER FETCH
-//   console.log("👤 LOOKING FOR USER ID:", decoded._id);
-
-//   const user = await User.findById(decoded._id).select(
-//     "-password -refreshToken"
-//   );
-
-//   if (!user) {
-//     console.log("❌ User not found in DB");
-//     throw new ApiError(404, "User not found");
-//   }
-
-//   console.log("✅ USER FOUND:", user.email);
-
-//   req.user = user;
-
-//   console.log("\n================ JWT DEBUG END ================\n");
-
-//   next();
-// });
