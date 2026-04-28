@@ -1,10 +1,12 @@
 // controllers/order.controller.js
 import Stripe from "stripe";
+import mongoose from "mongoose";
 import { Cart } from "../models/cart.model.js";
 import { Order } from "../models/order.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
+import { updateOrderStatus } from "../Service/order.services.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
@@ -80,6 +82,7 @@ export const createOrder = asyncHandler(async (req, res) => {  try {
       pricing: { subTotal, deliveryFee, totalAmount },
       payment: { method: "CARD", status: "pending" },
       deliveryAddress,
+      orderStatus: "placed", 
     });
   
     /* ---------------- STRIPE LINE ITEMS ---------------- */
@@ -142,6 +145,77 @@ export const createOrder = asyncHandler(async (req, res) => {  try {
 catch (error) 
 {
   console.log("error",error)
-  return res.status(500).json("error")  
+   throw new ApiError(500,"Server Error")
 }
   });
+ export const getMyOrders = asyncHandler(async (req, res) => {
+  const userId = req.user?._id;
+
+  if (!userId) {
+    throw new ApiError(401, "Unauthorized");
+  }
+
+  const orders = await Order.find({ user: userId })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // ✅ return empty array (NOT error)
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      { orders },
+      orders.length ? "Orders retrieved successfully" : "No orders found"
+    )
+  );
+});
+
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return res.status(200).json({
+      success: true,
+      orders,
+    });
+
+  } catch (error) {
+    console.error("Admin fetch error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch orders",
+    });
+  }
+};
+
+
+
+
+export const changeOrderStatus = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const { status } = req.body;
+  console.log("PARAM ORDER ID:", orderId);
+  console.log("BODY STATUS:", status);
+
+  // ✅ 1. BASIC VALIDATION
+  if (!orderId || !status) {
+    throw new ApiError(400, "OrderId and status are required");
+  }
+
+  // ✅ 2. OBJECT ID VALIDATION (YOU ASKED THIS)
+  if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    throw new ApiError(400, "Invalid Order ID");
+  }
+
+  // ✅ 3. BUSINESS LOGIC
+  const order = await updateOrderStatus(
+    orderId,
+    status,
+    req.app.get("io")
+  );
+
+  return res.status(200).json(
+    new ApiResponse(200, { order }, "Order status updated")
+  );
+});
