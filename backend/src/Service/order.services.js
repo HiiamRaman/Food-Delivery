@@ -1,78 +1,34 @@
-
-
-
-// 🔥 NEXT BIG STEP (VERY IMPORTANT)
-
-// You should connect:
-
-// Payment success → order status becomes confirmed → socket emits → rider starts movement
-
-// This is your real food delivery pipeline
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { Order } from "../models/order.model.js";
-export const updateOrderStatus = async (orderId, status, io) => {
-  const order = await Order.findByIdAndUpdate(
-    orderId,
-    { orderStatus: status },
-    { new: true }
-  );
+import { startRiderMovement } from "./rider.service.js";
 
-  if (!order) throw new Error("Order not found");
+const STATUS_FLOW = {
+  placed: ["confirmed", "cancelled"],
+  confirmed: ["preparing", "cancelled"],
+  preparing: ["out_for_delivery"],
+  out_for_delivery: ["delivered"],
+  delivered: [],
+  cancelled: [],
+};
+const isValidTransition = (current, next) => {
+  return STATUS_FLOW[current]?.includes(next);
+};
 
-  console.log("🟢 DB UPDATED:", order._id);
 
-  if (status === "out_for_delivery") {
-    console.log("🚀 Starting delivery...");
+// export const emitOrderStatus = (io, order) => {
+//   io.to(order._id.toString()).emit("orderStatusUpdated", {
+//     orderId: order._id,
+//     status: order.orderStatus,
+//   });
+// };
 
-    const route = [
-      { lat: 27.7172, lng: 85.324 },
-      { lat: 27.721, lng: 85.325 },
-      { lat: 27.725, lng: 85.33 },
-      { lat: 27.727, lng: 85.336 },
-      { lat: 27.729, lng: 85.339 },
-    ];
 
-    const room = `order:${orderId}`;
+export const handleOrderSideEffects = async ({ io, order }) => {
+ const shouldStart = 
+ order.orderStatus=== "out_for_delivery" && !order.riderStarted
+ console.log("shouldStart:", shouldStart);
+ if(!shouldStart) return ;
+ order.riderStarted = true;
+ await order.save()
 
-    let i = 0;
-
-    const interval = setInterval(() => {
-      if (i >= route.length) {
-        clearInterval(interval);
-
-        io.to(room).emit("order:delivered");
-        console.log("🏁 Delivered");
-
-        return;
-      }
-
-      const point = route[i];
-
-      console.log("📡 MOVE:", point);
-
-      io.to(room).emit("order:location_update", point);
-
-      i++;
-    }, 2000);
-  }
-
-  return order;
+  startRiderMovement(io, order._id.toString(), order.route);
 };

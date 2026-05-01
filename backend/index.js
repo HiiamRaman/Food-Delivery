@@ -5,8 +5,10 @@ import { Server } from "socket.io";
 import { connectDb } from "./src/db/index.js";
 import { app } from "./app.js";
 import mongoose from "mongoose";
-import { riderSocket } from "./src/sockets/ridersocket.js";
-const port = process.env.PORT || 8000;
+import { riderSocket } from "./src/BackendSocket/ridersocket.js";
+
+const port = process.env.PORT ;
+console.log("port",process.env.port);
 
 // Create HTTP server (Socket.IO needs raw HTTP, not just Express)
 const server = http.createServer(app);

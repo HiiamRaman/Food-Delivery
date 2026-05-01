@@ -6,7 +6,9 @@ import { Order } from "../models/order.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
-import { updateOrderStatus } from "../Service/order.services.js";
+import { handleOrderSideEffects } from "../Service/order.services.js";
+import { dispatchOrder,markPreparing,confirmOrder } from "../Service/order.dispatch.service.js";
+import { generateMockRoute } from "../Service/mockRoute.service.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
@@ -16,7 +18,9 @@ const FRONTEND_URL =
   process.env.FRONTEND_URL || "http://localhost:5173";
 
 export const createOrder = asyncHandler(async (req, res) => {  try {
-   
+   const restaurant = { lat: 27.7172, lng: 85.324 };
+const customer = { lat: 27.723, lng: 85.335 };
+const route = generateMockRoute(restaurant, customer);
     const userId = req.user?._id;
     if (!userId) throw new ApiError(401, "Unauthorized");
   
@@ -75,7 +79,7 @@ export const createOrder = asyncHandler(async (req, res) => {  try {
     }
   
     /* ---------------- CREATE ORDER ---------------- */
-  
+     console.log("🗺 GENERATED ROUTE:", route);
     const order = await Order.create({
       user: userId,
       items: orderItems,
@@ -83,6 +87,7 @@ export const createOrder = asyncHandler(async (req, res) => {  try {
       payment: { method: "CARD", status: "pending" },
       deliveryAddress,
       orderStatus: "placed", 
+      route,
     });
   
     /* ---------------- STRIPE LINE ITEMS ---------------- */
@@ -190,32 +195,28 @@ export const getAllOrders = async (req, res) => {
 };
 
 
+export const orderWorkflowController  = asyncHandler(async(req,res)=>{
+ const {orderId}=  req.params;
+ const {action,route} = req.body;
+ const io  =  req.app.get("io");
+ let order;
+  switch (action) {
+    case "confirm":
+      order = await confirmOrder(orderId, io);
+      break;
 
+    case "prepare":
+      order = await markPreparing(orderId, io);
+      break;
 
-export const changeOrderStatus = asyncHandler(async (req, res) => {
-  const { orderId } = req.params;
-  const { status } = req.body;
-  console.log("PARAM ORDER ID:", orderId);
-  console.log("BODY STATUS:", status);
+    case "dispatch":
+      
+      order = await dispatchOrder(orderId, io, route); // ✅ IMPORTANT FIX
+      break;
 
-  // ✅ 1. BASIC VALIDATION
-  if (!orderId || !status) {
-    throw new ApiError(400, "OrderId and status are required");
+    default:
+      throw new ApiError(400, "Invalid workflow action");
   }
+return res.status(200).json(new ApiResponse(200,{order},`Order ${action} successful` ))
+})
 
-  // ✅ 2. OBJECT ID VALIDATION (YOU ASKED THIS)
-  if (!mongoose.Types.ObjectId.isValid(orderId)) {
-    throw new ApiError(400, "Invalid Order ID");
-  }
-
-  // ✅ 3. BUSINESS LOGIC
-  const order = await updateOrderStatus(
-    orderId,
-    status,
-    req.app.get("io")
-  );
-
-  return res.status(200).json(
-    new ApiResponse(200, { order }, "Order status updated")
-  );
-});

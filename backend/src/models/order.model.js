@@ -79,6 +79,7 @@ const orderSchema = new mongoose.Schema(
       {
       lat: Number,
       lng: Number,
+      _id:false
     },
     ],
 
@@ -137,7 +138,7 @@ const orderSchema = new mongoose.Schema(
         "cancelled",
       ],
       default: "placed",
-      index: true,
+      
     },
 
     deliveryAddress: {
