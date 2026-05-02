@@ -7,7 +7,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 import { handleOrderSideEffects } from "../Service/order.services.js";
-import { dispatchOrder,markPreparing,confirmOrder } from "../Service/order.dispatch.service.js";
+import { dispatchOrderByAdmin,markPreparing,confirmOrder } from "../Service/order.dispatch.service.js";
 import { generateMockRoute } from "../Service/mockRoute.service.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -195,11 +195,13 @@ export const getAllOrders = async (req, res) => {
 };
 
 
-export const orderWorkflowController  = asyncHandler(async(req,res)=>{
- const {orderId}=  req.params;
- const {action,route} = req.body;
- const io  =  req.app.get("io");
- let order;
+export const orderWorkflowController = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const { action } = req.body;
+  const io = req.app.get("io");
+
+  let order;
+
   switch (action) {
     case "confirm":
       order = await confirmOrder(orderId, io);
@@ -209,14 +211,21 @@ export const orderWorkflowController  = asyncHandler(async(req,res)=>{
       order = await markPreparing(orderId, io);
       break;
 
-    case "dispatch":
-      
-      order = await dispatchOrder(orderId, io, route); // ✅ IMPORTANT FIX
-      break;
-
     default:
       throw new ApiError(400, "Invalid workflow action");
   }
-return res.status(200).json(new ApiResponse(200,{order},`Order ${action} successful` ))
-})
 
+  return res.status(200).json(
+    new ApiResponse(200, { order }, `Order ${action} successful`)
+  );
+});
+
+export const adminDispatchOrder   = asyncHandler(async (req,res)=>{
+  const {orderId} = req.params;
+  const io  = req.app.get('io');
+
+
+  const order = await dispatchOrderByAdmin(orderId,io)
+  return res.status(200).json(new ApiResponse(200,{order},"Order dispatched by admin"))
+
+})
