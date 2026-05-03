@@ -31,7 +31,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/success" element={<Success />} />
-          {/* <Route path="/success" element={<Success />}/> */}
+        
 
           {/* Optional fallback route to handle undefined paths */}
           <Route path="*" element={<p>Page not found</p>} />
@@ -39,7 +39,7 @@ function App() {
 
         {/* Toast Notifications */}
         <ToastContainer position="top-right" autoClose={3000} />
-
+       
         <Footer />
       </div>
     </>

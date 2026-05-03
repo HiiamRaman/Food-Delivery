@@ -6,7 +6,7 @@ export const bikeIcon = new L.Icon({
   iconAnchor: [22, 45],
 });
 
-export const resturantIcon = new L.icon({
+export const resturantIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/1046/1046747.png",
   iconSize: [40, 40],
   iconAnchor: [20, 40],
