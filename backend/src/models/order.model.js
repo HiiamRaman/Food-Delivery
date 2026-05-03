@@ -29,7 +29,7 @@ const orderItemSchema = new mongoose.Schema(
       min: [0, "Price cannot be negative"],
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 /* ===========================
@@ -61,7 +61,7 @@ const addressSchema = new mongoose.Schema(
       default: "Nepal",
     },
   },
-  { _id: false }
+  { _id: false },
 );
 
 /* ===========================
@@ -75,13 +75,17 @@ const orderSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    route:[
+    route: [
       {
-      lat: Number,
-      lng: Number,
-      _id:false
-    },
+        lat: Number,
+        lng: Number,
+        _id: false,
+      },
     ],
+    dispatchApproved: {
+      type: Boolean,
+      default: false,
+    },
 
     items: {
       type: [orderItemSchema],
@@ -138,7 +142,6 @@ const orderSchema = new mongoose.Schema(
         "cancelled",
       ],
       default: "placed",
-      
     },
 
     deliveryAddress: {
@@ -149,7 +152,7 @@ const orderSchema = new mongoose.Schema(
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 /* ===========================

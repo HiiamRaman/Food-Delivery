@@ -49,30 +49,34 @@ status: order.orderStatus,
 
 import { startRiderMovement } from "./rider.service.js";
 
-export const  dispatchOrder = async (orderId,io)=>{
-    
-    const order = await Order.findById(orderId);
-     
-    if(!order){
-        throw new ApiError(400,"Order not found!!!!")
-    }
-    console.log("ROUTE FROM DB:", order.route);
-     if (!order.route || order.route.length === 0) {
-    throw new ApiError(400, "No route found in order");
+
+
+
+export const dispatchOrderByAdmin = async (orderId, io) => {
+  const order = await Order.findById(orderId);
+
+  if (!order) {
+    throw new ApiError(404, "Order not found");
   }
 
-    order.orderStatus = "out_for_delivery";
-   
-    order.riderStarted =true;
-    await order.save();
+//   if (order.dispatchApproved) {
+//     throw new ApiError(400, "Order already dispatched");
+//   }
 
-   
+//   if (order.orderStatus !== "preparing") {
+//     throw new ApiError(400, "Order must be in preparing state");
+//   }
 
- 
-     // 🚴 START RIDER MOVEMENT
-  startRiderMovement(io, orderId,order.route);
+  // ✅ approve
+  order.dispatchApproved = true;
+  order.orderStatus = "out_for_delivery";
+
+  await order.save();
+
+  console.log("✅ Admin approved dispatch:", orderId);
+
+  // 🚴 movement
+  startRiderMovement(io, orderId, order.route);
 
   return order;
-
-
-}
+};
