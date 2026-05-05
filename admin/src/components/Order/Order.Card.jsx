@@ -1,26 +1,50 @@
-export default function OrderCard({ order, onStatusChange }) {
-  const handleChange = (e) => {
-    const newStatus = e.target.value;
-
-    console.log("🟠 [CARD] Dropdown changed");
-    console.log("Order:", order._id);
-    console.log("Selected:", newStatus);
-
-    onStatusChange(order._id, newStatus);
-  };
-
+import './Order.Card.css'
+export default function OrderCard({ order, onWorkflow, onDispatch }) {
   return (
-    <div style={{ border: "1px solid gray", margin: "10px", padding: "10px" }}>
-      <h4>Order: {order._id}</h4>
-      <p>Status: {order.orderStatus}</p>
+    <div className="order-card">
 
-      <select value={order.orderStatus} onChange={handleChange}>
-        <option value="placed">Placed</option>
-        <option value="confirmed">Confirmed</option>
-        <option value="preparing">Preparing</option>
-        <option value="out_for_delivery">🚚 Out for delivery</option>
-        <option value="delivered">Delivered</option>
-      </select>
+      <h4>Order: {order._id}</h4>
+
+      <p>
+        Status: <b>{order.orderStatus}</b>
+      </p>
+
+      {/* 🔄 Workflow Button (step progression  CONFIRM STEP 1) */}
+      {order.orderStatus == "placed"  && (
+        <button
+          onClick={() => onWorkflow(order._id,"confirm")}
+          className="workflow-btn"
+        >
+          🔄 Next Step
+        </button>
+      )}
+      {/* 🔄 Workflow Button (step progression  prepare STEP 1) */}
+      {order.orderStatus == "confirmed"  && (
+        <button
+          onClick={() => onWorkflow(order._id,"prepare")}
+          className="workflow-btn"
+        >
+          🔄 Next Step
+        </button>
+      )}
+
+      {/* 🚚 Dispatch Button (final stage) */}
+      {order.orderStatus === "preparing" && (
+        <button
+          onClick={() => onDispatch(order._id,"preparing")}
+          className="dispatch-btn"
+        >
+          🚚 Dispatch Order
+        </button>
+      )}
+
+      {/* ✅ Delivered State */}
+      {order.orderStatus === "delivered" && (
+        <button disabled className="done-btn">
+          ✔ Delivered
+        </button>
+      )}
+
     </div>
   );
 }

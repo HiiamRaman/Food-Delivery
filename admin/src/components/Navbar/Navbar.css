@@ -1,53 +1,76 @@
-/* ===== Navbar Container ===== */
 .navbar {
-  height: 64px;
-  width: 100%;
-  background-color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24px;
-  border-bottom: 1px solid #e5e7eb;
-  box-sizing: border-box;
+  padding: 0 30px;
+  height: 65px;
+  background: #ffffff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-/* ===== Logo ===== */
-.navbar .logo {
-  height: 36px;
-  width: auto;
-  cursor: pointer;
+.logo {
+  width: 75px;
   object-fit: contain;
 }
 
-/* ===== Profile Image ===== */
-.navbar .profile {
-  height: 40px;
-  width: 40px;
+/* Right side */
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* Admin badge */
+.admin-badge {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
+/* Profile image */
+.profile {
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   object-fit: cover;
+  border: 2px solid #667eea;
   cursor: pointer;
-  border: 2px solid #e5e7eb;
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  transition: transform 0.2s;
 }
 
-/* ===== Hover Effect ===== */
-.navbar .profile:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: scale(1.05);
+.profile:hover {
+  transform: scale(1.08);
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0 16px;
-  }
+/* Logout button */
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 3px 10px rgba(255, 75, 43, 0.3);
+}
 
-  .navbar .logo {
-    height: 32px;
-  }
+.logout-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px rgba(255, 75, 43, 0.4);
+}
 
-  .navbar .profile {
-    height: 36px;
-    width: 36px;
-  }
+.logout-btn:active {
+  transform: translateY(0px);
 }

@@ -1,28 +1,38 @@
+
+
+
+
+
+
+
+
 // import { useState } from "react";
 // import Navbar from "./components/Navbar/Navbar";
 // import Sidebar from "./components/Sidebar/Sidebar";
-// import { Routes, Route } from "react-router-dom";
+// import { Routes, Route, Navigate } from "react-router-dom";
 // import Add from "./pages/Add/Add";
-// import Order from "./pages/Order/Order";
+// import OrdersPage from "./pages/Order/Order";
 // import List from "./pages/List/List";
 
-// import { ToastContainer, toast } from "react-toastify";
+// import { ToastContainer } from "react-toastify";
 
 // function App() {
-//   const [count, setCount] = useState(0);
-
 //   return (
 //     <>
 //       <div>
-//         <ToastContainer/>
+//         <ToastContainer />
 //         <Navbar />
 //         <hr />
+
 //         <div className="app-content">
 //           <Sidebar />
+
 //           <Routes>
-//        
+//             {/* ✅ FIX: default route */}
+//             <Route path="/" element={<Navigate to="/add" />} />
+
 //             <Route path="/add" element={<Add />} />
-//             <Route path="/order" element={<Order />} />
+//             <Route path="admin/order" element={<OrdersPage />} />
 //             <Route path="/list" element={<List />} />
 //           </Routes>
 //         </div>
@@ -41,17 +51,62 @@
 
 
 
-import { useState } from "react";
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Add from "./pages/Add/Add";
 import OrdersPage from "./pages/Order/Order";
 import List from "./pages/List/List";
-
 import { ToastContainer } from "react-toastify";
 
+import {useNavigate} from 'react-router-dom';
+
+
+
+
 function App() {
+ 
+const navigate = useNavigate();
+
+//lets add security when user doesnot have accesssToken and he can go back to main app (for non-login user)
+
+useEffect(()=>{
+  const token =  localStorage.getItem('accessToken');
+  if(!token){
+    // No token = not logged in, redirect to main app
+      window.location.href = "http://localhost:5173";
+  }
+},[])
+
+  
+  
+
   return (
     <>
       <div>
@@ -63,9 +118,7 @@ function App() {
           <Sidebar />
 
           <Routes>
-            {/* ✅ FIX: default route */}
             <Route path="/" element={<Navigate to="/add" />} />
-
             <Route path="/add" element={<Add />} />
             <Route path="admin/order" element={<OrdersPage />} />
             <Route path="/list" element={<List />} />

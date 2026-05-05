@@ -8,19 +8,14 @@ export const getAllOrders = async () => {
 
   return res.data;
 };
+  
 
-export const updateOrderStatus = async (orderId, status) => {
-  console.log("ORDER ID:", orderId);
-console.log("STATUS:", status);
-
-  const res = await axios.patch(
-    `${BASE_URL}/api/v1/order/status/${orderId}`,
-    { status }
-  );
-  console.log("STATUS UPDATE RESPONSE:", res);
-
-  return res.data;
-};
+export const updateWorkflow = async(orderId)=>{
+  return await axios.post(`${BASE_URL}/api/v1/order/${orderId}/workflow`);
 
 
+}
+export const adminDispatch = async(orderId)=>{
+  return await axios.post(`${BASE_URL}/api/v1/order/${orderId}/admin-dispatch`);
 
+}
