@@ -102,5 +102,5 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { userData, accessToken }, "Login successFull"));
+    .json(new ApiResponse(200, { user : userData, accessToken }, "Login successFull"));
 });

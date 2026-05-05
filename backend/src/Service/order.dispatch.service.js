@@ -59,13 +59,13 @@ export const dispatchOrderByAdmin = async (orderId, io) => {
     throw new ApiError(404, "Order not found");
   }
 
-//   if (order.dispatchApproved) {
-//     throw new ApiError(400, "Order already dispatched");
-//   }
+  // if (order.dispatchApproved) {
+  //   throw new ApiError(400, "Order already dispatched");
+  // }
 
-//   if (order.orderStatus !== "preparing") {
-//     throw new ApiError(400, "Order must be in preparing state");
-//   }
+  if (order.orderStatus !== "preparing") {
+    throw new ApiError(400, "Order must be in preparing state");
+  }
 
   // ✅ approve
   order.dispatchApproved = true;

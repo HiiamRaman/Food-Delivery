@@ -67,7 +67,7 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
  
 
   const authHeader = req.headers.authorization;
-  
+  console.log("HEADERS:", req.headers.authorization);
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     throw new ApiError(401, "Authorization token missing or invalid");
   }
@@ -79,7 +79,10 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
   let decoded;
   try {
     decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+ console.log("decoded ",decoded);
+
   } catch (err) {
+    console.log("error",err);
     throw new ApiError(401, "Invalid token");
   }
 

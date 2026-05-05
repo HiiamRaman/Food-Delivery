@@ -6,7 +6,7 @@ import { orderWorkflowController,adminDispatchOrder } from "../controllers/order
 const router = express.Router();
 
 router.post("/create", verifyJWT, createOrder);
-router.get("/allOrders",getAllOrders)
-router.post("/:orderId/workflow", orderWorkflowController);
+router.get("/allOrders",verifyJWT,isAdmin, getAllOrders)
+router.post("/:orderId/workflow", verifyJWT,isAdmin, orderWorkflowController);
 router.post("/:orderId/admin-dispatch",verifyJWT,isAdmin, adminDispatchOrder)
 export default router;
