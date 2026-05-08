@@ -6,6 +6,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { generateTokensForUser } from "../utils/service.tokens.js";
 import { Cart } from "../models/cart.model.js";
+import { use } from "react";
+import jwt from 'jsonwebtoken'
+
 //register user
 export const registerUser = asyncHandler(async (req, res) => {
   /*
@@ -83,10 +86,10 @@ export const loginUser = asyncHandler(async (req, res) => {
 
   //  5. Generate JWT access token
   const { accessToken, refreshToken } = await generateTokensForUser(user._id);
- await Cart.findOneAndUpdate(
+  await Cart.findOneAndUpdate(
     { user: user._id },
-    { $set: { item: [] } },   // clears cart items
-    { new: true, upsert: true }
+    { $set: { item: [] } }, // clears cart items
+    { new: true, upsert: true },
   );
   const userData = user.toObject(); //converts it to a plain JavaScript object
   delete userData.password;
@@ -97,10 +100,73 @@ export const loginUser = asyncHandler(async (req, res) => {
     secure: true,
   };
   res.cookie("refreshToken", refreshToken, cookieOptions);
- 
+
   //  Build safe user object (exclude password)
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { user : userData, accessToken }, "Login successFull"));
+    .json(
+      new ApiResponse(
+        200,
+        { user: userData, accessToken },
+        "Login successFull",
+      ),
+    );
+});
+
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  //   1. Read refresh token (from cookie)
+  // 2. Verify it (JWT check)
+  // 3. Find user in DB
+  // 4. Validate token matches DB
+  // 5. Generate new access token
+  // 6. (optionally rotate refresh token)
+  // 7. Send new access token
+
+  // 1. get refresh token from cookie
+  const incomingRefreshToken = req.cookies.refreshToken;
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "Refresh Token is missing");
+  }
+  // 2. verify refresh token
+
+  const decoded = jwt.verify(
+    incomingRefreshToken,
+    process.env.REFRESH_TOKEN_SECRET,
+  );
+
+  // 3. find user
+  const user = await User.findById(decoded._id);
+  if (!user) {
+    throw new ApiError(404, "User not Found");
+  }
+  // 4. validate refresh token matches DB
+
+  if (user.refreshToken !== incomingRefreshToken) {
+    throw new ApiError(401, "Invalid Refresh Token");
+  }
+  // 5. generate new access token
+  const newAccessToken = user.generateAccessToken();
+  const newRefreshToken = user.generateRefreshToken();
+  // save new refresh token in DB;
+  user.refreshToken = newRefreshToken;
+  await user.save({ validateBeforeSave: false });
+  // cookie options
+  const options = {
+  httpOnly: true,
+  secure: false,
+  sameSite: "strict",
+  path: "/",   // important
+  maxAge: 7 * 24 * 60 * 60 * 1000
+};
+
+  return res
+    .status(200).cookie("refreshToken",newRefreshToken,options)
+    .json(
+      new ApiResponse(
+        200,
+        { accessToken: newAccessToken },
+        "Tokens regenrated successfully!!",
+      ),
+    );
 });

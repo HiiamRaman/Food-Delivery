@@ -14,9 +14,9 @@ import orderRouter from './src/routes/order.routes.js';
 import stripeRouter from './src/routes/stripe.routes.js';
 import successRouter from './src/routes/payment.routes.js';
 import deliveryRouter from './src/routes/delivery.routes.js'
-
+import cookieParser from "cookie-parser";
 export const app = express();
-
+app.use(cookieParser())
 // ----------------- STRIPE WEBHOOK -----------------
 // Must be raw parser for Stripe signature verification
 app.use("/api/v1/stripe/webhook", express.raw({ type: "application/json" }));

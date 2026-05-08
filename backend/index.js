@@ -17,6 +17,7 @@ const io = new Server(server, {
   cors: { origin: "*" }, // allow frontend connections
 });
 
+
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
   socket.on("disconnect", () => {

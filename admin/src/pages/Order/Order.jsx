@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../../api/axios";
+
 import {
   getAllOrders,
   adminDispatch,
@@ -7,6 +7,7 @@ import {
 } from "../../Api/order.api";
 import OrderCard from "../../components/Order/Order.Card";
 import "./Order.css";
+import api from "../../Api/axios.admin";
 export default function OrderPage() {
   const [orders, setOrders] = useState([]);
   //Fetch Orders
