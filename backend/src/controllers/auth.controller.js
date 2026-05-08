@@ -6,7 +6,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
 import { generateTokensForUser } from "../utils/service.tokens.js";
 import { Cart } from "../models/cart.model.js";
-import { use } from "react";
+
 import jwt from 'jsonwebtoken'
 
 //register user
