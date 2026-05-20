@@ -1,14 +1,17 @@
+
+
+
+
+
 import React, { useContext, useState } from "react";
 import "./Login.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../Context/StoreContext";
-// import axios from "axios";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import api from "../../utils/axios.client";
-
 function Login({ setShowLogin }) {
-  const { url, loadCartData } = useContext(StoreContext);
+  const { url, setToken, loadCartData } = useContext(StoreContext);
   const [currState, setCurrState] = useState("Login");
   const navigate = useNavigate();
 
@@ -26,53 +29,55 @@ function Login({ setShowLogin }) {
   };
 
   const onSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const isLogin = currState === "Login";
-    const apiEndpoint = isLogin
-      ? "/api/v1/user/login"
-      : "/api/v1/user/register";
+  const isLogin = currState === "Login";
+  const apiEndpoint = isLogin
+    ? `${url}/api/v1/user/login`
+    : `${url}/api/v1/user/register`;
 
-    // Filter data: login only needs email and password
+  const submitData = isLogin
+    ? { email: formData.email, password: formData.password }
+    : formData;
 
-    const submitData = isLogin
-      ? { email: formData.email, password: formData.password }
-      : formData;
+  try {
+    const response = await axios.post(apiEndpoint, submitData, {
+      withCredentials: true,
+    });
 
-    try {
-      const response = await api.post(apiEndpoint, submitData);
+    if (response.status >= 200 && response.status < 300) {
+      const token = response.data.data.accessToken;
+      const user = response.data.data.user;
 
-      // Check for generic success (2xx)
-      if (response.status >= 200 && response.status < 300) {
-        const token = response.data.data.accessToken;
+      if (isLogin && user.role === "admin") {
+        toast.success("Redirecting to Admin Panel...");
 
-        const user = response.data.data.user;
+        setTimeout(() => {
+          window.location.href = "http://localhost:5174";
+        }, 1000);
 
-        // THEN set fresh ones
+        return;
+      }
+
+      if (isLogin) {
+        setToken(token);
         localStorage.setItem("accessToken", token);
         localStorage.setItem("user", JSON.stringify(user));
 
-        // Wait for state to settle before loading cart
-        await loadCartData();
-        if (user.role === "admin") {
-          toast.success("Redirecting to Admin Panel...");
-          // We append the token to the URL so the Admin panel can "see" it
+        await loadCartData(token);
 
-          setTimeout(() => {
-            window.location.href = `http://localhost:5174?token=${token}`;
-          }, 800);
-        } else {
-          toast.success("User logged in successfully");
-          navigate("/");
-        }
-
+        toast.success("User logged in successfully");
+        navigate("/");
         setShowLogin(false);
-        // toast.success(response.data.message || `${currState} successful`);
+      } else {
+        toast.success("Account created successfully. Please login.");
+        setCurrState("Login");
       }
-    } catch (error) {
-      toast.error(error.response?.data?.message || "An error occurred");
     }
-  };
+  } catch (error) {
+    toast.error(error.response?.data?.message || "An error occurred");
+  }
+};
 
   return (
     <div className="login">
@@ -155,3 +160,78 @@ function Login({ setShowLogin }) {
 }
 
 export default Login;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

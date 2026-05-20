@@ -49,18 +49,19 @@ function Navbar({ setShowLogin }) {
           onClick={() => {
             setMenu("MobileApp");
           }}
-          className={menu === "MobileApp" ? "active" : ""}
+          className={menu === "Get App" ? "active" : ""}
         >
-          MobileApp
+          Get App
+
         </a>
         <a
           href="#footer"
           onClick={() => {
-            setMenu("ContactUs");
+            setMenu("Contact");
           }}
-          className={menu === "ContactUs" ? "active" : ""}
+          className={menu === "Contact" ? "active" : ""}
         >
-          ContactUs
+          Contact
         </a>
       </ul>
       <div className="navbar-right">
@@ -74,7 +75,7 @@ function Navbar({ setShowLogin }) {
         </div>
       </div>
       {!token ? (
-        <button onClick={() => setShowLogin(true)}>sign in</button>
+        <button onClick={() => setShowLogin(true)}>sign In</button>
       ) : (
         <div className="nav-bar-profile">
           <img src={assets.profile_icon} alt="" />
