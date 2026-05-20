@@ -7,7 +7,7 @@ import { ApiError } from "../utils/apiError.js";
 import { generateTokensForUser } from "../utils/service.tokens.js";
 import { Cart } from "../models/cart.model.js";
 
-import jwt from 'jsonwebtoken'
+import jwt from "jsonwebtoken";
 
 //register user
 export const registerUser = asyncHandler(async (req, res) => {
@@ -97,9 +97,13 @@ export const loginUser = asyncHandler(async (req, res) => {
   //cookie options
   const cookieOptions = {
     httpOnly: true,
-    secure: true,
+    secure: false,
+    sameSite: "lax",
+    path: "/",
   };
   res.cookie("refreshToken", refreshToken, cookieOptions);
+
+  res.cookie("accessToken", accessToken, cookieOptions);
 
   //  Build safe user object (exclude password)
 
@@ -153,20 +157,33 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   await user.save({ validateBeforeSave: false });
   // cookie options
   const options = {
-  httpOnly: true,
-  secure: false,
-  sameSite: "strict",
-  path: "/",   // important
-  maxAge: 7 * 24 * 60 * 60 * 1000
-};
+    httpOnly: true,
+    secure: false,
+    sameSite: "strict",
+    path: "/", // important
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  };
 
   return res
-    .status(200).cookie("refreshToken",newRefreshToken,options)
+    .status(200)
+    .cookie("refreshToken", newRefreshToken, options)
     .json(
       new ApiResponse(
         200,
         { accessToken: newAccessToken },
         "Tokens regenrated successfully!!",
+      ),
+    );
+});
+
+export const getcurrentAdmin = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { user: req.user },
+        "Admin authenticated successfully",
       ),
     );
 });
