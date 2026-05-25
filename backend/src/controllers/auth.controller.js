@@ -128,7 +128,12 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   // 7. Send new access token
 
   // 1. get refresh token from cookie
+  console.log("HEADERS:", req.headers.cookie);
+console.log("COOKIES:", req.cookies);
   const incomingRefreshToken = req.cookies.refreshToken;
+  console.log("INCOMING REFRESH:", incomingRefreshToken);
+
+
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Refresh Token is missing");
   }
@@ -147,11 +152,13 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   // 4. validate refresh token matches DB
 
   if (user.refreshToken !== incomingRefreshToken) {
+    console.log("DB REFRESH:", user.refreshToken);
     throw new ApiError(401, "Invalid Refresh Token");
   }
   // 5. generate new access token
   const newAccessToken = user.generateAccessToken();
   const newRefreshToken = user.generateRefreshToken();
+  console.log("NEW REFRESH:", newRefreshToken);
   // save new refresh token in DB;
   user.refreshToken = newRefreshToken;
   await user.save({ validateBeforeSave: false });

@@ -1,34 +1,28 @@
+
+
+
+
+import {User} from '../models/user.model.js'
+import jwt from "jsonwebtoken"
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/apiError.js";
-import jwt from "jsonwebtoken";
-import { User } from "../models/user.model.js";
 export const verifyJWT = asyncHandler(async (req, res, next) => {
-  /**
- * MENTAL FLOW:
- * 1. Extract token from cookie or Authorization header
- * 2. Verify token signature & expiry
- * 3. Validate userId from token
- * 4. Fetch user from DB
- * 5. Attach user to req
- * 6. Allow request to proceed
- */
+  const token =
+    req.headers.authorization?.replace("Bearer ", "") ||
+    req.cookies?.accessToken;
 
-
-  const token =  req.cookies?.accessToken ||   req.headers.authorization?.replace("Bearer ", "");
   if (!token) {
     throw new ApiError(401, "Token missing");
   }
 
-  // 3️ Verify token
+  let decodedToken;
 
-  const decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
-
-  // 4. Validate userId from token
-
-  if (!decodedToken?._id) {
-    throw new ApiError(401, "Invalid Token");
-  }
-  // 5️ Fetch user from database
+  try {
+    decodedToken = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+  }catch (error) {
+  console.log("JWT ERROR:", error.message);
+  throw new ApiError(401, "Invalid Token");
+}
 
   const user = await User.findById(decodedToken._id).select(
     "-password -refreshToken"
@@ -38,11 +32,6 @@ export const verifyJWT = asyncHandler(async (req, res, next) => {
     throw new ApiError(404, "User not found");
   }
 
-  // 6. Attach user to req
-
   req.user = user;
   next();
 });
-
-
-
