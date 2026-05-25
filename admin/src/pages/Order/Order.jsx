@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-
 import {
   getAllOrders,
   adminDispatch,
@@ -7,68 +6,71 @@ import {
 } from "../../Api/order.api";
 import OrderCard from "../../components/Order/Order.Card";
 import "./Order.css";
-import api from "../../Api/axios.admin";
+
 export default function OrderPage() {
   const [orders, setOrders] = useState([]);
-  //Fetch Orders
 
+  // Fetch Orders
   const fetchOrders = async () => {
     try {
-      const res = await api.get("http://localhost:3000/api/v1/order/allorders");
-     
-      const data = Array.isArray(res.data) ? res.data : res.data.orders || [];
-      setOrders(data);
-    } catch (error) {
-      console.log("Admin Error", error);
-    }
-  };
-
-  //WorkFlow
-  const handleWorkflow = async (orderId, action) => {
-    try {
-      await api.post(`http://localhost:3000/api/v1/order/${orderId}/workflow`, {
-        action,
-      });
-      fetchOrders(); //refresh
-    } catch (error) {
-      console.log("WorkFlow Error ", error);
-    }
-  };
-
    
 
- const handleDispatch = async (orderId) => {
-  try {
-    const token = localStorage.getItem("accessToken");
+      const data = await getAllOrders();
 
-    if (!token) {
-      alert("Session expired. Please login again.");
-      return;
+
+
+      const orderList = data?.orders || data || [];
+
+    
+
+      setOrders(orderList);
+    } catch (error) {
+      console.log("❌ Admin Error (fetchOrders):");
+      console.log("ERROR:", error);
+      console.log("RESPONSE:", error.response);
+      console.log("STATUS:", error.response?.status);
     }
+  };
 
-    await api.post(
-      `http://localhost:3000/api/v1/order/${orderId}/admin-dispatch`,
-      {},
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+  // Workflow handler
+  const handleWorkflow = async (orderId, action) => {
+    try {
+      
 
-    fetchOrders(); // refresh orders
-  } catch (error) {
-    console.log("handleDispatch error:", error);
-  }
-};
+      await updateWorkflow(orderId, action);
+
+
+
+      fetchOrders();
+    } catch (error) {
+      console.log("❌ WorkFlow Error:");
+      console.log(error);
+    }
+  };
+
+  // Dispatch handler
+  const handleDispatch = async (orderId) => {
+    try {
+      
+
+      await adminDispatch(orderId);
+
+      console.log("✅ Dispatch success");
+
+      fetchOrders();
+    } catch (error) {
+      console.log("❌ handleDispatch error:");
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
+  
     fetchOrders();
   }, []);
 
   return (
     <div className="orders-container">
-      {/* HEADER */}
       <header className="page-header">
         <div className="header-info">
           <h2 className="title">📦 Order Management</h2>
@@ -81,7 +83,6 @@ export default function OrderPage() {
         </div>
       </header>
 
-      {/* GRID */}
       <main className="grid-viewport">
         {orders.length === 0 ? (
           <div className="empty-state">
@@ -91,15 +92,19 @@ export default function OrderPage() {
           </div>
         ) : (
           <div className="orders-grid">
-            {orders.map((order) => (
-              <div key={order._id} className="grid-card-item">
-                <OrderCard
-                  order={order}
-                  onWorkflow={handleWorkflow}
-                  onDispatch={handleDispatch}
-                />
-              </div>
-            ))}
+            {orders.map((order) => {
+              
+
+              return (
+                <div key={order._id} className="grid-card-item">
+                  <OrderCard
+                    order={order}
+                    onWorkflow={handleWorkflow}
+                    onDispatch={handleDispatch}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </main>

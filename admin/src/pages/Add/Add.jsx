@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { assets } from "../../assets/assets.js";
 import "./Add.css";
-import axios from "axios";
+import adminApi from "../../Api/axios.admin.js";
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -29,11 +29,11 @@ function Add() {
       formData.append("price", Number(data.price));
       formData.append("category", data.category);
       formData.append("image", image);
-      const response = await axios.post(`${url}/api/v1/add-food/add`, formData);
+      const response = await adminApi.post(`/add-food/add`, formData);
       if (response.data.success) {
         console.log(" Food Added  successfully!!")
         setData({ name: "", description: "", price: "", category: "Cake" });
-         setImage(false)
+         setImage(null)
          toast.success(response.data.message)
       }
       

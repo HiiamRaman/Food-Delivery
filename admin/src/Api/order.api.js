@@ -1,21 +1,21 @@
+import adminApi from "./axios.admin";
 
-import axios from "axios";
-
-const BASE_URL = "http://localhost:3000";
-
+// GET all orders
 export const getAllOrders = async () => {
-  const res = await axios.get(`${BASE_URL}/api/v1/order/allOrders`);
-
-  return res.data;
-};
   
+  const res = await adminApi.get("/order/allOrders");
 
-export const updateWorkflow = async(orderId)=>{
-  return await axios.post(`${BASE_URL}/api/v1/order/${orderId}/workflow`);
+  
+  return res.data; // 👈 THIS is correct
+};
 
 
-}
-export const adminDispatch = async(orderId)=>{
-  return await axios.post(`${BASE_URL}/api/v1/order/${orderId}/admin-dispatch`);
+// UPDATE workflow
+export const updateWorkflow = (orderId, action) => {
+  return adminApi.post(`/order/${orderId}/workflow`, { action });
+};
 
-}
+// ADMIN dispatch order
+export const adminDispatch = (orderId) => {
+  return adminApi.post(`/order/${orderId}/admin-dispatch`);
+};

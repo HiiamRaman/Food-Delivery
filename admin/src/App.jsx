@@ -8,7 +8,7 @@ import Add from "./pages/Add/Add";
 import OrdersPage from "./pages/Order/Order";
 import List from "./pages/List/List";
 import { ToastContainer } from "react-toastify";
-import axios from "axios";
+import adminApi from "./Api/axios.admin";
 
 
 
@@ -19,7 +19,7 @@ function App() {
   useEffect(()=>{
     const checkadminAccess = async()=>{
       try {
-        await axios.get("http://localhost:3000/api/v1/user/admin/me", {
+        await adminApi.get("/user/admin/me", {
           withCredentials: true,
         })
         setCheckingAuth(false);
@@ -27,8 +27,9 @@ function App() {
         window.location.replace("http://localhost:5173");
         
       }
-      checkadminAccess()
+      
     }
+    checkadminAccess()
   },[])
   if(checkingAuth){
     return <p>Checking access ....</p>
