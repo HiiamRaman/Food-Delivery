@@ -1,6 +1,5 @@
 import { createContext, useEffect, useState } from "react";
-import axios from "axios";
-
+import api from "../utils/axios.client";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
@@ -11,7 +10,7 @@ const StoreContextProvider = (props) => {
   const [food_list, setFoodList] = useState([]);
   const fetchFoodList = async () => {
     try {
-      const response = await axios.get(url + "/api/v1/allfoods");
+      const response = await api.get( "/allfoods");
       
       setFoodList(response.data.data.foods);
     } catch (error) {
@@ -30,9 +29,7 @@ const StoreContextProvider = (props) => {
 
   const loadCartData = async (token) => {
     try {
-      const response = await axios.get(`${url}/api/v1/cart`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const response = await api.get(`/cart`);
 
       const cartData = response.data.data.items || [];
 
@@ -66,10 +63,10 @@ const StoreContextProvider = (props) => {
     if (!token) return;
 
     try {
-      const res = await axios.post(
-        url + "/api/v1/cart/add",
+      const res = await api.post(
+        "/cart/add",
         { foodId, quantity: 1 },
-        { headers: { Authorization: `Bearer ${token}` } },
+        
       );
       
       const updatedCart = res.data.data.cart.item || [];
@@ -102,9 +99,7 @@ const StoreContextProvider = (props) => {
 
     if (token) {
       try {
-        await axios.delete(`${url}/api/v1/cart/remove/${foodId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        await api.delete(`/cart/remove/${foodId}`, );
       } catch (err) {
         console.error(
           "Failed to remove from cart:",

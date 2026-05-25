@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import axios from "axios";
+import api from "../../utils/axios.client";
 import { StoreContext } from "../../Context/StoreContext";
 import "./PlaceOrder.css";
 
@@ -58,18 +58,12 @@ function PlaceOrder() {
     }
 
     try {
-      const response = await axios.post(
-        `${url}/api/v1/order/create`,
+      const response = await api.post(
+        `/order/create`,
         { deliveryInfo: data },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        
       );
-      console.log("FULL RESPONSE:", response);
-console.log("DATA:", response.data);
-console.log("URL:", response.data?.data?.url);
+      
 
       const checkoutUrl =
         response.data?.data?.url ||

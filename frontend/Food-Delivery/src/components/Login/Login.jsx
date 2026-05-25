@@ -7,7 +7,7 @@ import React, { useContext, useState } from "react";
 import "./Login.css";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../Context/StoreContext";
-import axios from "axios";
+import api from "../../utils/axios.client";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 function Login({ setShowLogin }) {
@@ -32,18 +32,16 @@ function Login({ setShowLogin }) {
   e.preventDefault();
 
   const isLogin = currState === "Login";
-  const apiEndpoint = isLogin
-    ? `${url}/api/v1/user/login`
-    : `${url}/api/v1/user/register`;
+ const apiEndpoint = isLogin
+  ? "/user/login"
+  : "/user/register";
 
   const submitData = isLogin
     ? { email: formData.email, password: formData.password }
     : formData;
 
   try {
-    const response = await axios.post(apiEndpoint, submitData, {
-      withCredentials: true,
-    });
+    const response = await api.post(apiEndpoint, submitData);
 
     if (response.status >= 200 && response.status < 300) {
       const token = response.data.data.accessToken;
