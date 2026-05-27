@@ -28,26 +28,25 @@ function Login({ setShowLogin }) {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const onSubmit = async (e) => {
+ const onSubmit = async (e) => {
   e.preventDefault();
 
   const isLogin = currState === "Login";
- const apiEndpoint = isLogin
-  ? "/user/login"
-  : "/user/register";
-
-  const submitData = isLogin
-    ? { email: formData.email, password: formData.password }
-    : formData;
 
   try {
-    const response = await api.post(apiEndpoint, submitData);
+    // =========================
+    // LOGIN FLOW
+    // =========================
+    if (isLogin) {
+      const response = await api.post("/user/login", {
+        email: formData.email,
+        password: formData.password,
+      });
 
-    if (response.status >= 200 && response.status < 300) {
       const token = response.data.data.accessToken;
       const user = response.data.data.user;
 
-      if (isLogin && user.role === "admin") {
+      if (user.role === "admin") {
         toast.success("Redirecting to Admin Panel...");
 
         setTimeout(() => {
@@ -57,21 +56,31 @@ function Login({ setShowLogin }) {
         return;
       }
 
-      if (isLogin) {
-        setToken(token);
-        localStorage.setItem("accessToken", token);
-        localStorage.setItem("user", JSON.stringify(user));
+      setToken(token);
+      localStorage.setItem("accessToken", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-        await loadCartData(token);
+      await loadCartData(token);
 
-        toast.success("User logged in successfully");
-        navigate("/");
-        setShowLogin(false);
-      } else {
-        toast.success("Account created successfully. Please login.");
-        setCurrState("Login");
-      }
+      toast.success("User logged in successfully");
+      navigate("/");
+      setShowLogin(false);
+
+      return;
     }
+
+    // =========================
+    // SIGNUP FLOW (OTP TRIGGER)
+    // =========================
+    await api.post("/user/register", formData);
+
+    toast.success("OTP sent to your email");
+
+    navigate("otp-verify", {
+      state: { email: formData.email },
+    });
+
+    setShowLogin(false);
   } catch (error) {
     toast.error(error.response?.data?.message || "An error occurred");
   }

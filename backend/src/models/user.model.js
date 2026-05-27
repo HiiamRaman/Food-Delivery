@@ -68,6 +68,10 @@ const userSchema = new mongoose.Schema(
     appliedCoupon:{
       type:String,
       default:null
+    },
+    isVerified:{
+      type:Boolean,
+      default:false
     }
     
   },
@@ -116,3 +120,6 @@ userSchema.methods.generateRefreshToken = function () {
 };
 
 export const User = new mongoose.model("User", userSchema);
+
+
+
