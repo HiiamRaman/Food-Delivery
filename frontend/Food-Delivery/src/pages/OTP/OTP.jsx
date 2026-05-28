@@ -21,9 +21,10 @@ export default function VerifyOtp() {
         return;
       }
 
-      await api.post("/user/verify-otp", {
+      await api.post("/user/verify-signup-otp", {
         email,
-        otp,
+        otp
+       
       });
 
       toast.success("Email verified successfully");

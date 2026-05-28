@@ -4,8 +4,9 @@
 
 import {User} from '../models/user.model.js'
 import jwt from "jsonwebtoken"
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/apiError.js";
+import { ApiError } from '../utils/API/apiError.js';
+import { asyncHandler } from '../utils/API/asyncHandler.js';
+
 export const verifyJWT = asyncHandler(async (req, res, next) => {
   const token =
     req.headers.authorization?.replace("Bearer ", "") ||

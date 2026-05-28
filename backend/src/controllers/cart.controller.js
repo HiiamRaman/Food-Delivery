@@ -1,11 +1,12 @@
 import { Cart } from "../models/cart.model.js";
 import { User } from "../models/user.model.js";
 import { Food } from "../models/food.model.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/apiError.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+
 import mongoose from "mongoose";
 import { Coupon } from "../models/coupon.model.js";
+import { ApiError } from "../utils/API/apiError.js";
+import { ApiResponse } from "../utils/API/apiResponse.js";
+import { asyncHandler } from "../utils/API/asyncHandler.js";
 // export const addToCart = asyncHandler(async (req, res) => {
 //   /**
 //    * Mental Flow:

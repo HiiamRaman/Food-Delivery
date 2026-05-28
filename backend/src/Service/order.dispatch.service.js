@@ -1,56 +1,44 @@
 // confirmOrder → markPreparing → dispatchOrder → startRiderMovement
 
-
-
 import { Order } from "../models/order.model.js";
-import { ApiError } from "../utils/apiError.js";
-export const confirmOrder = async(orderId,io)=>{
-    const order = await Order.findById(orderId)
-    if(!order){
-        throw new ApiError(404,"Order not found");
+import { ApiError } from "../utils/API/apiError.js";
+export const confirmOrder = async (orderId, io) => {
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new ApiError(404, "Order not found");
+  }
 
-    }
-
-     order.orderStatus = "confirmed";
-     await order.save();
-     io.to(orderId).emit("orderStatusUpdated",{
-        orderId,
-        status:order.orderStatus
-     })
-     return order;
-
-}
+  order.orderStatus = "confirmed";
+  await order.save();
+  io.to(orderId).emit("orderStatusUpdated", {
+    orderId,
+    status: order.orderStatus,
+  });
+  return order;
+};
 
 // MARK PREPARING
 
-export const markPreparing = async(orderId,io)=>{
-    const order  = await Order.findById(orderId);
-    if(!order){
-        throw new ApiError(400,"Order not found")
-    }
-    order.orderStatus=  "preparing";
-    await order.save();
+export const markPreparing = async (orderId, io) => {
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new ApiError(400, "Order not found");
+  }
+  order.orderStatus = "preparing";
+  await order.save();
 
-    io.to(orderId).emit("orderStatusUpdated",{
-orderId,
-status: order.orderStatus,
-    })
-    return order;
-
-}
-
-
+  io.to(orderId).emit("orderStatusUpdated", {
+    orderId,
+    status: order.orderStatus,
+  });
+  return order;
+};
 
 // 3. DISPATCH ORDER (IMPORTANT STEP)
 
 // This is where rider starts:
 
-
-
 import { startRiderMovement } from "./rider.service.js";
-
-
-
 
 export const dispatchOrderByAdmin = async (orderId, io) => {
   const order = await Order.findById(orderId);

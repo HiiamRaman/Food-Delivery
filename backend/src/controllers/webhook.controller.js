@@ -1,6 +1,7 @@
 import Stripe from "stripe";
-import { asyncHandler } from "../utils/asyncHandler.js";
+
 import { Order } from "../models/order.model.js";
+import { asyncHandler } from "../utils/API/asyncHandler.js";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 

@@ -82,6 +82,7 @@ function Login({ setShowLogin }) {
 
     setShowLogin(false);
   } catch (error) {
+    toast.error("please verify your email!!")
     toast.error(error.response?.data?.message || "An error occurred");
   }
 };

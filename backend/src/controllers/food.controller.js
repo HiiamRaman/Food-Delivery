@@ -1,10 +1,10 @@
 import { Food } from "../models/food.model.js";
 
-import { asyncHandler } from "../utils/asyncHandler.js";
-
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-import { ApiError } from "../utils/apiError.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+
+import { asyncHandler } from "../utils/API/asyncHandler.js";
+import { ApiResponse } from "../utils/API/apiResponse.js";
+import { ApiError } from "../utils/API/apiError.js";
 
 export const addFood = asyncHandler(async (req, res) => {
   /*
@@ -71,8 +71,8 @@ export const listFood = asyncHandler(async (req, res) => {
       new ApiResponse(
         200,
         { count: foods.length, foods },
-        "Food fetched successfully!!"
-      )
+        "Food fetched successfully!!",
+      ),
     );
 });
 
@@ -86,10 +86,9 @@ export const removeFoodItem = asyncHandler(async (req, res) => {
   5. Return success response after deletion
   */
 
-  const  {id}  = req.params
-  if(!id){
-    throw new ApiError(400,"Invalid id or id is required");
-    
+  const { id } = req.params;
+  if (!id) {
+    throw new ApiError(400, "Invalid id or id is required");
   }
 
   // 2. Extract food ID from request parameters

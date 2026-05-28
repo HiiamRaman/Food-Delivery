@@ -14,7 +14,7 @@ import orderRouter from './src/routes/order.routes.js';
 import stripeRouter from './src/routes/stripe.routes.js';
 import successRouter from './src/routes/payment.routes.js';
 import deliveryRouter from './src/routes/delivery.routes.js'
-import EmailRouter from './src/routes/email.routes.js'
+// import EmailRouter from './src/routes/email.routes.js'
 import cookieParser from "cookie-parser";
 export const app = express();
 app.use(cookieParser())
@@ -65,7 +65,7 @@ app.use("/api/v1/payment",successRouter);
 //deliveryRoute
 app.use('/api/v1/delivery',deliveryRouter);
 //test emailRoute
-app.use('/api/v1/email',EmailRouter);
+// app.use('/api/v1/email',EmailRouter);
 
 
 // ----------------- ERROR HANDLERS -----------------

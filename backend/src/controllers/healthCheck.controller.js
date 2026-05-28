@@ -1,5 +1,7 @@
-import { ApiResponse } from "../utils/apiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+
+import { ApiResponse } from "../utils/API/apiResponse.js";
+import { asyncHandler } from "../utils/API/asyncHandler.js";
+
 export const healthCheck = asyncHandler(async (req, res) => {
   return res
     .status(200)
