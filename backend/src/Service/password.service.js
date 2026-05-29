@@ -1,6 +1,7 @@
 import bcrypt from "bcrypt";
-import User from "../models/user.model.js";
+
 import { ApiError } from "../utils/API/apiError.js";
+import { User } from "../models/user.model.js";
 
 export const changePasswordService = async ({
   userId,

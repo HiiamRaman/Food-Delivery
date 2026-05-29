@@ -160,66 +160,68 @@ export const loginUser = asyncHandler(async (req, res) => {
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
-  //   1. Read refresh token (from cookie)
-  // 2. Verify it (JWT check)
-  // 3. Find user in DB
-  // 4. Validate token matches DB
-  // 5. Generate new access token
-  // 6. (optionally rotate refresh token)
-  // 7. Send new access token
 
   // 1. get refresh token from cookie
-  console.log("HEADERS:", req.headers.cookie);
-  console.log("COOKIES:", req.cookies);
-  const incomingRefreshToken = req.cookies.refreshToken;
-  console.log("INCOMING REFRESH:", incomingRefreshToken);
+  const incomingRefreshToken = req.cookies?.refreshToken;
 
   if (!incomingRefreshToken) {
     throw new ApiError(401, "Refresh Token is missing");
   }
-  // 2. verify refresh token
 
-  const decoded = jwt.verify(
-    incomingRefreshToken,
-    process.env.REFRESH_TOKEN_SECRET,
-  );
+  // 2. verify refresh token
+  let decoded;
+
+  try {
+    decoded = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+  } catch (error) {
+    throw new ApiError(401, "Invalid or Expired Refresh Token");
+  }
 
   // 3. find user
   const user = await User.findById(decoded._id);
-  if (!user) {
-    throw new ApiError(404, "User not Found");
-  }
-  // 4. validate refresh token matches DB
 
-  if (user.refreshToken !== incomingRefreshToken) {
-    console.log("DB REFRESH:", user.refreshToken);
-    throw new ApiError(401, "Invalid Refresh Token");
+  if (!user) {
+    throw new ApiError(404, "User not found");
   }
-  // 5. generate new access token
+
+  // 4. validate token matches DB
+  if (user.refreshToken !== incomingRefreshToken) {
+    throw new ApiError(401, "Refresh token mismatch");
+  }
+
+  // 5. generate new tokens
   const newAccessToken = user.generateAccessToken();
   const newRefreshToken = user.generateRefreshToken();
-  console.log("NEW REFRESH:", newRefreshToken);
-  // save new refresh token in DB;
+
+  // 6. save new refresh token
   user.refreshToken = newRefreshToken;
+
   await user.save({ validateBeforeSave: false });
-  // cookie options
+
+  // 7. cookie options
   const options = {
     httpOnly: true,
-    secure: false,
-    sameSite: "strict",
-    path: "/", // important
+    secure: false, // true in production with HTTPS
+    sameSite: "lax",
+    path: "/",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
+  // 8. send tokens
   return res
     .status(200)
     .cookie("refreshToken", newRefreshToken, options)
     .json(
       new ApiResponse(
         200,
-        { accessToken: newAccessToken },
-        "Tokens regenrated successfully!!",
-      ),
+        {
+          accessToken: newAccessToken,
+        },
+        "Tokens regenerated successfully"
+      )
     );
 });
 
@@ -235,10 +237,4 @@ export const getcurrentAdmin = asyncHandler(async (req, res) => {
     );
 });
 
-// export const verifyOTP = asyncHandler(async (req, res) => {
-//  const {email,otp,purpose} = req.body;
-//   const result  = await verifyOtpService({email,otp,purpose})
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, result, "OTP Verified Successfully"));
-// });
+

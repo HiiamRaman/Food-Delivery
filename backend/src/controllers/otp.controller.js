@@ -7,36 +7,8 @@ import { asyncHandler } from "../utils/API/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import { generateOTP } from "../utils/OTP/generateotp.utils.js";
 import { verifyOtpService } from "../Service/verifyotp.service.js";
-// export const sendSignupOtp = asyncHandler(async (req, res) => {
-//   const { email } = req.body;
+import { changePasswordService } from "../Service/password.service.js";
 
-//   if (!email) {
-//     throw new ApiError(400, "Email is required");
-//   }
-
-//   const otp = generateOTP();
-
-//   console.log("Generated OTP:", otp);
-
-//   // 1. STORE OTP FIRST (IMPORTANT)
-//   await createOtpService({
-//     email,
-//     otp,
-//     purpose: "SIGNUP",
-//     expiresInMinutes: 5,
-//   });
-
-//   // 2. SEND EMAIL
-//   await sendEmail({
-//     to: email,
-//     subject: "Verify Your Account - OTP",
-//     html: `<h1>${otp}</h1>`,
-//   });
-
-//   return res
-//     .status(200)
-//     .json(new ApiResponse(200, {}, "OTP sent successfully"));
-// });
 
 export const verifySignupOtp = asyncHandler(async (req, res) => {
   const { email, otp } = req.body;
@@ -82,4 +54,46 @@ export const verifyResetOtp = asyncHandler(async (req, res) => {
     purpose: "RESET_PASSWORD",
   });
   return res.status(200).json(new ApiResponse(200,{},"OTP verified successfully"))
+});
+
+export const resetPassword = asyncHandler(async(req,res)=>{
+  const {email,newPassword} = req.body;
+  if(!email||!newPassword){
+    throw new ApiError(400,"Both email and newPassword are required!!")
+  }
+  const user = await User.findOne({email})
+  if(!user){
+    throw new ApiError(404,"user not found!!")
+  }
+if (!user.resetPasswordVerified) {
+    throw new ApiError(400, "OTP not verified");
+  }
+  user.password = newPassword;
+   // reset flag after use
+  user.resetPasswordVerified = false;
+  user.resetPasswordVerifiedAt = null;
+await user.save();
+
+return res.status(200).json(new ApiResponse(200,{},"Password Reset successfull!!"))
+})
+
+export const changePassword = asyncHandler(async (req, res) => {
+  const { oldPassword, newPassword } = req.body;
+  if (!oldPassword || !newPassword) {
+    throw new ApiError(400, "Both password are required !!");
+  }
+  // optional validation
+  if (newPassword.length < 7) {
+    throw new ApiError(400, "New password must be at least 7 characters");
+  }
+
+  await changePasswordService({
+    userId: req.user._id,
+    oldPassword,
+    newPassword,
+  });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed SuccessFully!!"));
 });

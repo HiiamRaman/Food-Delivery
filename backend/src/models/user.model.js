@@ -72,7 +72,16 @@ const userSchema = new mongoose.Schema(
     isVerified:{
       type:Boolean,
       default:false
-    }
+    },
+    resetPasswordVerified: {
+  type: Boolean,
+  default: false,
+},
+
+resetPasswordVerifiedAt: {
+  type: Date,
+  default: null,
+},
     
   },
   { timestamps: true }
