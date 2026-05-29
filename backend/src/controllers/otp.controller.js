@@ -61,6 +61,17 @@ export const resetPassword = asyncHandler(async(req,res)=>{
   if(!email||!newPassword){
     throw new ApiError(400,"Both email and newPassword are required!!")
   }
+   const isStrong =
+    newPassword.length >= 8 &&
+    /[A-Z]/.test(newPassword) &&
+    /[a-z]/.test(newPassword) &&
+    /[0-9]/.test(newPassword);
+ if (!isStrong) {
+    throw new ApiError(
+      400,
+      "Password must be 8+ chars with uppercase, lowercase and number"
+    );
+  }
   const user = await User.findOne({email})
   if(!user){
     throw new ApiError(404,"user not found!!")
@@ -79,12 +90,23 @@ return res.status(200).json(new ApiResponse(200,{},"Password Reset successfull!!
 
 export const changePassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
+
   if (!oldPassword || !newPassword) {
-    throw new ApiError(400, "Both password are required !!");
+    throw new ApiError(400, "Both passwords are required");
   }
-  // optional validation
-  if (newPassword.length < 7) {
-    throw new ApiError(400, "New password must be at least 7 characters");
+
+  // 🔐 Strong password validation
+  const isStrong =
+    newPassword.length >= 8 &&
+    /[A-Z]/.test(newPassword) &&
+    /[a-z]/.test(newPassword) &&
+    /[0-9]/.test(newPassword);
+
+  if (!isStrong) {
+    throw new ApiError(
+      400,
+      "Password must be 8+ chars with uppercase, lowercase and number"
+    );
   }
 
   await changePasswordService({
@@ -95,5 +117,5 @@ export const changePassword = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, {}, "Password changed SuccessFully!!"));
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
