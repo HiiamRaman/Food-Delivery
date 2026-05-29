@@ -4,7 +4,7 @@ import api from "../../utils/axios.client";
 import { toast } from "react-toastify";
 import "./OTP.css";
 
-export default function VerifyOtp() {
+export default function VerifyResetOtp() {
 
   const [otp, setOtp] = useState("");
 
@@ -14,6 +14,7 @@ export default function VerifyOtp() {
   const email = location.state?.email;
 
   const handleVerify = async () => {
+
     try {
 
       if (!otp) {
@@ -21,20 +22,21 @@ export default function VerifyOtp() {
         return;
       }
 
-      await api.post("/user/verify-signup-otp", {
+      await api.post("/user/verify-reset-otp", {
         email,
         otp
-       
       });
 
-      toast.success("Email verified successfully");
+      toast.success("OTP verified successfully");
 
-      navigate("/");
+      navigate("/reset-password", {
+        state: { email }
+      });
 
     } catch (error) {
 
       toast.error(
-        error.response?.data?.message ||
+        
         "OTP verification failed"
       );
     }
@@ -46,11 +48,10 @@ export default function VerifyOtp() {
 
       <div className="verify-card">
 
-        {/* Header */}
         <div className="verify-header">
 
           <h2 className="verify-title">
-            Verify Your Account
+            Verify Reset OTP
           </h2>
 
           <p className="verify-subtitle">
@@ -63,7 +64,6 @@ export default function VerifyOtp() {
 
         </div>
 
-        {/* OTP Input */}
         <div className="verify-input-group">
 
           <label className="verify-label">
@@ -81,7 +81,6 @@ export default function VerifyOtp() {
 
         </div>
 
-        {/* Button */}
         <button
           onClick={handleVerify}
           className="verify-button"
@@ -89,7 +88,6 @@ export default function VerifyOtp() {
           Verify OTP
         </button>
 
-        {/* Footer */}
         <p className="verify-footer">
           Didn’t receive OTP? Check spam folder
         </p>

@@ -157,3 +157,43 @@
         height: 22px;
     }
 }
+
+
+
+
+
+
+
+
+
+
+.forgot-password {
+  font-size: 13px;
+  color: #4f46e5; /* modern indigo */
+  text-align: right;
+  margin-top: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: inline-block;
+  user-select: none;
+}
+
+.forgot-password:hover {
+  color: #3730a3;
+  transform: translateY(-1px);
+}
+
+.forgot-password:active {
+  transform: translateY(0px);
+  opacity: 0.8;
+}
+.forgot-password::after {
+  content: " →";
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.forgot-password:hover::after {
+  opacity: 1;
+}
