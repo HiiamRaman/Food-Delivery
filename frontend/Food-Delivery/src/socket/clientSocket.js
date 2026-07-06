@@ -17,7 +17,3 @@ socket.on("disconnect", () => {
   console.log("🔴 SOCKET DISCONNECTED");
 });
 
-// ✅ correct error handler
-// socket.on("connect_error", (err) => {
-//   console.log("❌ SOCKET ERROR:", err.message);
-// });

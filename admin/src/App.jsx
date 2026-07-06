@@ -1,5 +1,14 @@
 
 
+
+
+
+
+
+
+
+
+
 import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
@@ -10,35 +19,36 @@ import List from "./pages/List/List";
 import { ToastContainer } from "react-toastify";
 import adminApi from "./Api/axios.admin";
 
-
-
-
 function App() {
- 
-  const [checkingAuth,setCheckingAuth] = useState(true);
-  useEffect(()=>{
-    const checkadminAccess = async()=>{
+  const [checkingAuth, setCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkadminAccess = async () => {
+      
+
       try {
-        await adminApi.get("/user/admin/me", {
+        
+
+        const res = await adminApi.get("/user/admin/me", {
           withCredentials: true,
-        })
+        });
+
         setCheckingAuth(false);
       } catch (error) {
-        window.location.replace("http://localhost:5173");
         
+
+        window.location.replace("http://localhost:5173");
       }
-      
-    }
-    checkadminAccess()
-  },[])
-  if(checkingAuth){
-    return <p>Checking access ....</p>
+    };
+
+    checkadminAccess();
+  }, []);
+
+  if (checkingAuth) {
+  
+    return <p>Checking access ....</p>;
   }
 
-
-
-  
-  
 
   return (
     <>

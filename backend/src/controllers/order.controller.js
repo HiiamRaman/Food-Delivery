@@ -10,7 +10,7 @@ import { generateMockRoute } from "../Service/mockRoute.service.js";
 import { ApiError } from "../utils/API/apiError.js";
 import { ApiResponse } from "../utils/API/apiResponse.js";
 import { asyncHandler } from "../utils/API/asyncHandler.js";
-
+import { assignRiderToOrder } from "../Service/riderAssignment.service.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
 });
@@ -228,5 +228,15 @@ export const adminDispatchOrder   = asyncHandler(async (req,res)=>{
 
   const order = await dispatchOrderByAdmin(orderId,io)
   return res.status(200).json(new ApiResponse(200,{order},"Order dispatched by admin"))
+
+})
+
+export const assignRider  = asyncHandler(async(req,res)=>{
+  const {orderId,riderId} = req.body;
+  if(!orderId||!riderId){
+    throw new ApiError(400,"OrderId and RiderId are required!!!")
+  }
+  const order = await assignRiderToOrder({orderId,riderId,assignedBy:req.user._id});
+  return res.status(200).json(new ApiResponse(200,order,"Rider Assigned SuccessFully"))
 
 })

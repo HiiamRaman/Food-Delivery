@@ -14,12 +14,7 @@ const isValidTransition = (current, next) => {
 };
 
 
-// export const emitOrderStatus = (io, order) => {
-//   io.to(order._id.toString()).emit("orderStatusUpdated", {
-//     orderId: order._id,
-//     status: order.orderStatus,
-//   });
-// };
+
 
 
 export const handleOrderSideEffects = async ({ io, order }) => {

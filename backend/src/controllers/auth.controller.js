@@ -196,6 +196,8 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   const newAccessToken = user.generateAccessToken();
   const newRefreshToken = user.generateRefreshToken();
 
+
+
   // 6. save new refresh token
   user.refreshToken = newRefreshToken;
 
@@ -212,16 +214,16 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 
   // 8. send tokens
   return res
-    .status(200)
-    .cookie("refreshToken", newRefreshToken, options)
-    .json(
-      new ApiResponse(
-        200,
-        {
-          accessToken: newAccessToken,
-        },
-        "Tokens regenerated successfully"
-      )
+  .status(200)
+  .cookie("accessToken", newAccessToken, options)
+  .cookie("refreshToken", newRefreshToken, options)
+  .json(
+    new ApiResponse(
+      200,
+      {},
+      "Tokens regenerated successfully"
+    )
+
     );
 });
 

@@ -143,6 +143,15 @@ const orderSchema = new mongoose.Schema(
       ],
       default: "placed",
     },
+    assignedOrder:{
+type:mongoose.Schema.Types.ObjectId,
+ref:"User",
+default:null,
+    },
+    riderAcceptted:{
+      type:Boolean,
+      default:false,
+    },
 
     deliveryAddress: {
       type: addressSchema,
