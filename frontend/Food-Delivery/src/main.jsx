@@ -4,7 +4,7 @@ import './index.css'
 import App from './App.jsx'
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import StoreContextProvider from './Context/StoreContext.jsx';
-
+import React from 'react';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

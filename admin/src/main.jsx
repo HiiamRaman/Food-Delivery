@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import { BrowserRouter } from "react-router-dom";
-
+import React from "react";
 // Admin Panel - main.jsx or index.jsx (entry point)
 const params = new URLSearchParams(window.location.search);
 const tokenFromUrl = params.get("token");

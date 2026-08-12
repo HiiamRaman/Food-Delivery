@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import api from "../../utils/axios.client";
 import { toast } from "react-toastify";
 import "./OTP.css";
+import React from "react";
 
 export default function VerifySignupOtp() {
 

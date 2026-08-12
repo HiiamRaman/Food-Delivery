@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./App.css";
 import Navbar from "./components/Navbar/Navbar.jsx";
 import { Routes, Route } from "react-router-dom";
 import Home from "./pages/Home/Home.jsx";
@@ -17,40 +16,47 @@ import ResetPassword from "./pages/Auth/ResetPassword.jsx";
 import ChangePassword from "./pages/Auth/Changepassword.jsx";
 import ForgotPassword from "./pages/Auth/forgotpassword.jsx";
 
-
 function App() {
   const [showLogin, setShowLogin] = useState(false);
 
   return (
-    <>
-      {/* Login Modal */}
+    <div className="min-h-screen bg-white text-slate-900">
       {showLogin && <Login setShowLogin={setShowLogin} />}
 
-      <div className="app">
-        <Navbar setShowLogin={setShowLogin} />
+      <Navbar setShowLogin={setShowLogin} />
 
-        {/* App Routes */}
+      <main className="min-h-[70vh]">
         <Routes>
-          <Route path="/tracking/:id" element={<Tracking />} />
           <Route path="/" element={<Home />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/success" element={<Success />} />
+          <Route path="/tracking/:id" element={<Tracking />} />
+
           <Route path="/otp-verify" element={<VerifySignupOtp />} />
           <Route path="/verify-reset-otp" element={<VerifyResetOtp />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/change-password" element={<ChangePassword />} />
-          <Route path="/Forgot-password" element={<ForgotPassword/>} />
-          {/* Optional fallback route to handle undefined paths */}
-          <Route path="*" element={<p>Page not found</p>} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+
+          <Route
+            path="*"
+            element={
+              <div className="flex min-h-[60vh] items-center justify-center px-4">
+                <div className="text-center">
+                  <h1 className="text-4xl font-bold">404</h1>
+                  <p className="mt-2 text-slate-500">Page not found</p>
+                </div>
+              </div>
+            }
+          />
         </Routes>
+      </main>
 
-        {/* Toast Notifications */}
-        <ToastContainer position="top-right" autoClose={3000} />
+      <ToastContainer position="top-right" autoClose={3000} />
 
-        <Footer />
-      </div>
-    </>
+      <Footer />
+    </div>
   );
 }
 

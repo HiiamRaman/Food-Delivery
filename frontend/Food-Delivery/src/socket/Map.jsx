@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, Marker, Polyline, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css";
 
 import { homeIcon,bikeIcon, resturantIcon} from "./MapIcon";
-
+import React from "react";
 export default function Map({
   riderPosition,
   route,

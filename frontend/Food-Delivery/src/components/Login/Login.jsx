@@ -47,12 +47,12 @@ function Login({ setShowLogin }) {
           password: formData.password,
         });
 
-        
+
 
         const token = response.data?.data?.accessToken;
         const user = response.data?.data?.user;
 
-       
+
 
         // HARD SAFETY CHECK
         if (!token || token === "undefined") {
@@ -214,6 +214,3 @@ function Login({ setShowLogin }) {
 }
 
 export default Login;
-
-
-

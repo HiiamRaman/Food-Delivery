@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import api from "../utils/axios.client";
 export const StoreContext = createContext(null);
-
+import React from "react";
 const StoreContextProvider = (props) => {
   const url = "http://localhost:3000";
   const [category, setCategory] = useState("All"); // default "All"

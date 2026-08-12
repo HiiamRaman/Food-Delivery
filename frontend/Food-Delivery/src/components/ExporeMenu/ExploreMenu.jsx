@@ -7,8 +7,8 @@ function ExploreMenu() {
   // Access category state and updater from context
   const { category, setCategory } = useContext(StoreContext);
 
- 
- 
+
+
   return (
     <div className="explore-menu" id="explore-menu">
       <h1>Explore menu</h1>
@@ -33,7 +33,7 @@ function ExploreMenu() {
                     ? "All"
                     : item.menu_name
                 );
-               
+
               }}
             >
               {/* Highlight the image if it matches the selected category */}

@@ -30,7 +30,7 @@ api.interceptors.request.use((config) => {
     delete config.headers.Authorization;
   }
 
-  console.log("🚀 REQUEST:", config.url, "| TOKEN:", token);
+  
 
   return config;
 });
