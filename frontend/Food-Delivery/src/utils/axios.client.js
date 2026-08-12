@@ -9,7 +9,8 @@ const api = axios.create({
 });
 
 // ========================
-// REFRESH INSTANCE (NO INTERCEPTORS)
+// REFRESH INSTANCE
+// No interceptors here
 // ========================
 const refreshApi = axios.create({
   baseURL: "http://localhost:3000/api/v1",
@@ -19,27 +20,25 @@ const refreshApi = axios.create({
 // ========================
 // REQUEST INTERCEPTOR
 // ========================
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
 
-  config.headers = config.headers || {};
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    } else {
+      delete config.headers.Authorization;
+    }
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    delete config.headers.Authorization;
-  }
-
-  
-
-  return config;
-});
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 // ========================
 // REFRESH CONTROL
 // ========================
-let isRefreshing = false;
-let refreshQueue = [];
+let refreshPromise = null;
 
 // ========================
 // RESPONSE INTERCEPTOR
@@ -50,17 +49,20 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Not a 401
     if (!error.response || error.response.status !== 401) {
       return Promise.reject(error);
     }
 
-    // 🚨 prevent refresh loop
-    if (originalRequest.url?.includes("/user/refresh-token")) {
+    // Don't retry refresh endpoint itself
+    if (originalRequest?.url?.includes("/user/refresh-token")) {
       localStorage.removeItem("accessToken");
-      window.location.href = "http://localhost:5173";
+      localStorage.removeItem("user");
+
       return Promise.reject(error);
     }
 
+    // Already retried once
     if (originalRequest._retry) {
       return Promise.reject(error);
     }
@@ -68,41 +70,47 @@ api.interceptors.response.use(
     originalRequest._retry = true;
 
     try {
-      console.log("🔄 Refreshing token...");
+      // Only ONE refresh request can run at a time
+      if (!refreshPromise) {
+        refreshPromise = refreshApi
+          .post("/user/refresh-token")
+          .then((response) => {
+            const newToken = response.data?.data?.accessToken;
 
-      const res = await refreshApi.post("/user/refresh-token");
+            if (!newToken || newToken === "undefined") {
+              throw new Error("Refresh endpoint did not return an access token");
+            }
 
-      const newToken = res.data?.data?.accessToken;
+            localStorage.setItem("accessToken", newToken);
 
-      if (!newToken || newToken === "undefined") {
-        throw new Error("Invalid refreshed token");
+            api.defaults.headers.common.Authorization =
+              `Bearer ${newToken}`;
+
+            return newToken;
+          })
+          .finally(() => {
+            refreshPromise = null;
+          });
       }
 
-      console.log("✅ New token received:", newToken);
+      const newToken = await refreshPromise;
 
-      // store token
-      localStorage.setItem("accessToken", newToken);
+      // Put new access token on failed request
+      originalRequest.headers.Authorization =
+        `Bearer ${newToken}`;
 
-      // update default axios header
-      api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
-
-      // 🔥 IMPORTANT: rebuild request fully
-      return api({
-        ...originalRequest,
-        headers: {
-          ...originalRequest.headers,
-          Authorization: `Bearer ${newToken}`,
-        },
-      });
-
-    } catch (err) {
-      console.log("❌ Refresh failed");
+      // Retry original request
+      return api(originalRequest);
+    } catch (refreshError) {
+      console.error(
+        "Refresh token failed:",
+        refreshError.response?.data || refreshError.message
+      );
 
       localStorage.removeItem("accessToken");
+      localStorage.removeItem("user");
 
-      window.location.href = "http://localhost:5173";
-
-      return Promise.reject(err);
+      return Promise.reject(refreshError);
     }
   }
 );

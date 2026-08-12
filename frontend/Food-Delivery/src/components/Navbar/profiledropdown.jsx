@@ -1,104 +1,56 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets.js";
 
-function ProfileDropdown({ onLogout, onClose }) {
-  const navigate = useNavigate();
-
-  const handleOrders = () => {
-    navigate("/myorders");
-    onClose();
-  };
-
+function ProfileDropdown({ onLogout }) {
   return (
     <div
       className="
-        absolute right-0 top-full z-50 mt-4
+        absolute left-0 top-full z-50 mt-3
         w-[220px]
         overflow-hidden
-        rounded-3xl
+        rounded-2xl
         border border-slate-200
         bg-white
-        shadow-[0_24px_70px_rgba(15,23,42,0.16)]
+        shadow-[0_20px_60px_rgba(15,23,42,0.14)]
       "
     >
-      {/* Header */}
-      <div className="border-b border-slate-100 px-5 py-5">
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-orange-50">
+      {/* Profile Header */}
+      <div className="border-b border-slate-100 bg-slate-50/70 px-4 py-4">
+        <div className="flex items-center gap-3">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-100">
             <img
               src={assets.profile_icon}
               alt="Profile"
-              className="h-10 w-10 rounded-full"
+              className="h-5 w-5 rounded-full"
             />
           </div>
 
           <div>
-            <h3 className="text-base font-semibold text-slate-900">
+            <h3 className="text-sm font-semibold text-slate-900">
               Welcome back 👋
             </h3>
 
-            <p className="mt-1 text-sm text-slate-500">
-              Manage your account
+            <p className="mt-0.5 text-xs text-slate-500">
+              Your account
             </p>
           </div>
         </div>
       </div>
 
-      {/* Menu */}
-      <div className="p-3">
-        {/* Orders */}
-        <button
-          type="button"
-          onClick={handleOrders}
-          className="
-            group flex w-full items-center justify-between
-            rounded-2xl px-3 py-4
-            transition-colors duration-200
-            hover:bg-orange-50
-          "
-        >
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-orange-100">
-              <img
-                src={assets.bag_icon}
-                alt=""
-                className="h-5 w-5"
-              />
-            </div>
-
-            <div className="text-left">
-              <p className="text-sm font-semibold text-slate-900">
-                My Orders
-              </p>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Track and view your orders
-              </p>
-            </div>
-          </div>
-
-          <span className="text-xl text-slate-300 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-orange-500">
-            →
-          </span>
-        </button>
-
-        {/* Divider */}
-        <div className="my-2 border-t border-slate-100" />
-
-        {/* Logout */}
+      {/* Logout */}
+      <div className="p-2">
         <button
           type="button"
           onClick={onLogout}
           className="
             group flex w-full items-center justify-between
-            rounded-2xl px-3 py-4
-            transition-colors duration-200
+            rounded-xl px-3 py-3
+            transition-all duration-200
             hover:bg-red-50
           "
         >
-          <div className="flex items-center gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-red-100">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-red-100">
               <img
                 src={assets.logout_icon}
                 alt=""
@@ -106,18 +58,12 @@ function ProfileDropdown({ onLogout, onClose }) {
               />
             </div>
 
-            <div className="text-left">
-              <p className="text-sm font-semibold text-red-500">
-                Logout
-              </p>
-
-              <p className="mt-1 text-xs text-slate-500">
-                Sign out of your account
-              </p>
-            </div>
+            <span className="text-sm font-semibold text-red-500">
+              Logout
+            </span>
           </div>
 
-          <span className="text-xl text-red-200 transition-transform duration-200 group-hover:translate-x-1 group-hover:text-red-400">
+          <span className="text-base text-red-200 transition-all duration-200 group-hover:translate-x-1 group-hover:text-red-400">
             →
           </span>
         </button>

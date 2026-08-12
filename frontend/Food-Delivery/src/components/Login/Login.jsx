@@ -112,7 +112,7 @@ function Login({ setShowLogin }) {
 
       setShowLogin(false);
     } catch (error) {
-      console.log("LOGIN ERROR:", error.response?.data);
+     
       toast.error(error.response?.data?.message || "An error occurred");
     }
   };

@@ -1,18 +1,3 @@
-// import React from 'react'
-// import './Header.css'
-// function Header() {
-//   return (
-//     <div className='header'>
-//       <div className="header-content">
-//         <h2>Order your Food here</h2>
-//          <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit quis perspiciatis corrupti eligendi impedit eius doloremque non nihil distinctio sapiente.</p>
-//          <button>View-Menu</button>
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default Header
 
 import React from "react";
 import { Link } from "react-router-dom";
@@ -39,9 +24,9 @@ function Header() {
 
         {/* Paragraph description */}
         <p className="text-sm font-medium text-slate-100 sm:text-base md:text-lg leading-relaxed drop-shadow-sm">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit quis
-          perspiciatis corrupti eligendi impedit eius doloremque non nihil
-          distinctio sapiente.
+          Discover fresh, delicious meals from your favorite local restaurants
+          and have them delivered straight to your door — fast, simple, and
+          convenient.
         </p>
 
         {/* Premium View Menu Button */}
