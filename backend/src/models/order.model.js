@@ -164,14 +164,7 @@ default:null,
   },
 );
 
-/* ===========================
-   Data Integrity Hooks
-   =========================== */
-// orderSchema.pre("validate", function (next) {
-//   this.pricing.totalAmount =
-//     this.pricing.subTotal + this.pricing.deliveryFee;
-//   // next();
-// });
+
 
 /* ===========================
    Indexes (Performance)

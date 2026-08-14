@@ -1,77 +1,115 @@
 import axios from "axios";
 
+const BASE_URL = "http://localhost:3000/api/v1";
+
 const adminApi = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL: BASE_URL,
   withCredentials: true,
 });
 
-// ==============================
+// ======================================================
 // REQUEST INTERCEPTOR
-// ==============================
+// ======================================================
+
 adminApi.interceptors.request.use(
   (config) => {
-  
-
     return config;
   },
+
   (error) => {
-    console.error("❌ Request Error:", error);
     return Promise.reject(error);
-  }
+  },
 );
 
-// ==============================
+// ======================================================
 // RESPONSE INTERCEPTOR
-// ==============================
+// ======================================================
+
 adminApi.interceptors.response.use(
+  // ====================================================
+  // SUCCESS
+  // ====================================================
+
   (response) => {
-    
     return response;
   },
+
+  // ====================================================
+  // ERROR
+  // ====================================================
 
   async (error) => {
     const originalRequest = error.config;
 
-   
-    // Prevent infinite loop
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url.includes("/user/refresh-token")
-    ) {
-      originalRequest._retry = true;
+    // If there is no original request, stop
+    if (!originalRequest) {
+      console.error("❌ No original request found");
 
-      try {
-        console.log("🔄 Access token expired. Refreshing...");
-
-        const refreshRes = await axios.post(
-          "http://localhost:3000/api/v1/user/refresh-token",
-          {},
-          {
-            withCredentials: true,
-          }
-        );
-
-        console.log("✅ Refresh Successful");
-        console.log("Refresh Response:", refreshRes.data);
-
-        console.log("🔁 Retrying original request...");
-
-        return adminApi(originalRequest);
-      } catch (refreshError) {
-        console.error("❌ Refresh Failed");
-        console.error("Status:", refreshError.response?.status);
-        console.error("Response:", refreshError.response?.data);
-
-        // Redirect to login
-        window.location.href = "http://localhost:5174";
-
-        return Promise.reject(refreshError);
-      }
+      return Promise.reject(error);
     }
 
-    return Promise.reject(error);
-  }
+    // ==================================================
+    // CHECK 401
+    // ==================================================
+
+    if (error.response?.status !== 401) {
+      return Promise.reject(error);
+    }
+
+    // ==================================================
+    // PREVENT INFINITE REFRESH LOOP
+    // ==================================================
+
+    if (originalRequest._retry) {
+      console.error("❌ Request already retried.");
+      console.error("❌ Not trying refresh again.");
+
+      return Promise.reject(error);
+    }
+
+    // Mark request as retried
+    originalRequest._retry = true;
+
+    // ==================================================
+    // NEVER REFRESH THE REFRESH REQUEST
+    // ==================================================
+
+    if (originalRequest.url?.includes("/user/refresh-token")) {
+      window.location.href = "http://localhost:5174/";
+
+      return Promise.reject(error);
+    }
+
+    // ==================================================
+    // REFRESH TOKEN
+    // ==================================================
+
+    try {
+      const refreshResponse = await axios.post(
+        `${BASE_URL}/user/refresh-token`,
+        {},
+        {
+          withCredentials: true,
+        },
+      );
+
+      // ==================================================
+      // RETRY ORIGINAL REQUEST
+      // ==================================================
+
+      const retryResponse = await adminApi(originalRequest);
+
+      return retryResponse;
+    } catch (refreshError) {
+      // ==================================================
+      // REFRESH FAILED
+      // ==================================================
+
+      window.location.href = "http://localhost:5174/";
+
+      return Promise.reject(refreshError);
+    }
+  },
 );
 
 export default adminApi;

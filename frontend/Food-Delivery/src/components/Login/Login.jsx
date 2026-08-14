@@ -1,12 +1,3 @@
-
-
-
-
-
-
-
-
-
 import React, { useContext, useState } from "react";
 import "./Login.css";
 import { assets } from "../../assets/assets";
@@ -29,7 +20,11 @@ function Login({ setShowLogin }) {
 
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const onSubmit = async (e) => {
@@ -38,81 +33,122 @@ function Login({ setShowLogin }) {
     const isLogin = currState === "Login";
 
     try {
-      // ========================
+      // =====================================================
       // LOGIN
-      // ========================
+      // =====================================================
+
       if (isLogin) {
         const response = await api.post("/user/login", {
-          email: formData.email,
+          email: formData.email.trim().toLowerCase(),
           password: formData.password,
         });
-
-
 
         const token = response.data?.data?.accessToken;
         const user = response.data?.data?.user;
 
-
-
-        // HARD SAFETY CHECK
+        // Check token
         if (!token || token === "undefined") {
           console.log("❌ INVALID TOKEN:", response.data);
+
           toast.error("Login failed: invalid token from server");
+
           return;
         }
 
+        // Check user
         if (!user) {
           toast.error("Login failed: user data missing");
+
           return;
         }
 
-        // ========================
+        // =====================================================
         // STORE AUTH DATA
-        // ========================
+        // =====================================================
+
         localStorage.setItem("accessToken", token);
+
         localStorage.setItem("user", JSON.stringify(user));
 
-        // sync axios (only needed if using header auth)
         api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
         setToken(token);
 
         await loadCartData(token);
 
-        // ========================
+        // =====================================================
         // ADMIN REDIRECT
-        // ========================
+        // =====================================================
+
         if (user.role === "admin") {
           toast.success("Redirecting to Admin Panel...");
 
           setTimeout(() => {
-            window.location.replace ("http://localhost:5174") ;
+            window.location.replace("http://localhost:5174");
           }, 1000);
 
           return;
         }
 
+        // =====================================================
+        // NORMAL USER
+        // =====================================================
+
         toast.success("User logged in successfully");
+
         navigate("/");
+
         setShowLogin(false);
 
         return;
       }
 
-      // ========================
+      // =====================================================
       // SIGNUP
-      // ========================
-      await api.post("/user/register", formData);
+      // =====================================================
+
+      const signupData = {
+        username: formData.username.trim(),
+        fullname: formData.fullname.trim(),
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      };
+
+      console.log("REGISTER DATA:", {
+        ...signupData,
+        password: "********",
+      });
+
+      const response = await api.post("/user/register", signupData);
+
+      console.log("REGISTER RESPONSE:", response.data);
 
       toast.success("OTP sent to your email");
 
+      // =====================================================
+      // GO TO OTP VERIFICATION PAGE
+      // =====================================================
+
       navigate("/otp-verify", {
-        state: { email: formData.email },
+        state: {
+          email: signupData.email,
+        },
       });
 
       setShowLogin(false);
     } catch (error) {
-     
+      console.error("========== AUTH ERROR ==========");
+
+      console.error("STATUS:", error.response?.status);
+
+      console.error("DATA:", error.response?.data);
+
+      console.error("MESSAGE:", error.message);
+
+      console.error("URL:", error.config?.url);
+
+      console.error("================================");
+
       toast.error(error.response?.data?.message || "An error occurred");
     }
   };
@@ -120,14 +156,19 @@ function Login({ setShowLogin }) {
   return (
     <div className="login">
       <form onSubmit={onSubmit} className="login-container">
+        {/* ================= TITLE ================= */}
+
         <div className="login-title">
           <h2>{currState}</h2>
+
           <img
             onClick={() => setShowLogin(false)}
             src={assets.cross_icon}
             alt="Close"
           />
         </div>
+
+        {/* ================= INPUTS ================= */}
 
         <div className="login-inputs">
           {currState === "Signup" && (
@@ -183,16 +224,23 @@ function Login({ setShowLogin }) {
           )}
         </div>
 
+        {/* ================= SUBMIT ================= */}
+
         <button type="submit">
           {currState === "Signup" ? "Create Account" : "Login"}
         </button>
 
+        {/* ================= TERMS ================= */}
+
         {currState === "Signup" && (
           <div className="login-condition">
             <input type="checkbox" required />
+
             <p>Accept Terms and Conditions</p>
           </div>
         )}
+
+        {/* ================= SWITCH ================= */}
 
         <p>
           {currState === "Login"

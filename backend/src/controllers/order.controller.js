@@ -24,61 +24,61 @@ const customer = { lat: 27.723, lng: 85.335 };
 const route = generateMockRoute(restaurant, customer);
     const userId = req.user?._id;
     if (!userId) throw new ApiError(401, "Unauthorized");
-  
+
     /* ---------------- DELIVERY VALIDATION ---------------- */
-  
+
     const deliveryAddress = req.body?.deliveryInfo;
-  
+
     if (
       !deliveryAddress ||
       typeof deliveryAddress !== "object"
     ) {
       throw new ApiError(400, "Valid delivery info required");
     }
-  
+
     /* ---------------- FETCH CART ---------------- */
-  
+
     const cart = await Cart.findOne({ user: userId })
       .populate("item.food")
       .lean();
-  
+
     if (!cart || !Array.isArray(cart.item) || cart.item.length === 0) {
       throw new ApiError(400, "Cart is empty");
     }
-  
+
     /* ---------------- FILTER VALID ITEMS ---------------- */
-  
+
     const validItems = cart.item.filter(
       (ci) => ci?.food && ci.quantity > 0
     );
-  
+
     if (validItems.length === 0) {
       throw new ApiError(400, "Cart has no purchasable items");
     }
-  
+
     /* ---------------- ORDER ITEMS ---------------- */
-  
+
     const orderItems = validItems.map((ci) => ({
       food: ci.food._id,
       name: ci.food.name,
       quantity: ci.quantity,
       price: Number(ci.food.price),
     }));
-  
+
     /* ---------------- PRICING ---------------- */
-  
+
     const subTotal = orderItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-  
+
     const deliveryFee = subTotal >= 500 ? 0 : 50;
     const totalAmount = subTotal + deliveryFee;
-  
+
     if (totalAmount <= 0) {
       throw new ApiError(400, "Invalid pricing calculation");
     }
-  
+
     /* ---------------- CREATE ORDER ---------------- */
      console.log("🗺 GENERATED ROUTE:", route);
     const order = await Order.create({
@@ -87,12 +87,12 @@ const route = generateMockRoute(restaurant, customer);
       pricing: { subTotal, deliveryFee, totalAmount },
       payment: { method: "CARD", status: "pending" },
       deliveryAddress,
-      orderStatus: "placed", 
+      orderStatus: "placed",
       route,
     });
-  
+
     /* ---------------- STRIPE LINE ITEMS ---------------- */
-  
+
     const line_items = orderItems.map((item) => ({
       price_data: {
         currency: "usd",
@@ -101,7 +101,7 @@ const route = generateMockRoute(restaurant, customer);
       },
       quantity: item.quantity,
     }));
-  
+
     if (deliveryFee > 0) {
       line_items.push({
         price_data: {
@@ -112,29 +112,29 @@ const route = generateMockRoute(restaurant, customer);
         quantity: 1,
       });
     }
-  
+
     /* ---------------- STRIPE SESSION ---------------- */
-  
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
       line_items,
-  
+
       success_url: `${FRONTEND_URL}/success?orderId=${order._id}`,
       cancel_url: `${FRONTEND_URL}/cart`,
-  
+
       metadata: {
         orderId: order._id.toString(),
         userId: userId.toString(),
       },
     });
-  
+
     if (!session?.url) {
       throw new ApiError(500, "Stripe session creation failed");
     }
-  
+
     /* ---------------- RESPONSE ---------------- */
-  
+
     res.status(200).json({
       statusCode: 200,
       success: true,
@@ -146,9 +146,9 @@ const route = generateMockRoute(restaurant, customer);
       message: "Order + Stripe session created",
     });
 
-  
-} 
-catch (error) 
+
+}
+catch (error)
 {
   console.log("error",error)
    throw new ApiError(500,"Server Error")
@@ -177,7 +177,8 @@ catch (error)
 
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await Order.find()
+       const orders = await Order.find()
+      .populate("user", "username fullname email")
       .sort({ createdAt: -1 })
       .lean();
 

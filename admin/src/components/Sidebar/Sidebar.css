@@ -1,78 +1,318 @@
-/* ===== Sidebar Container ===== */
+/* ==================================================
+   MODERN ADMIN SIDEBAR
+   ================================================== */
+
+:root {
+  --primary: #f67b5f;
+  --primary-dark: #f5694a;
+
+  --sidebar-bg: #ffffff;
+  --page-bg: #f4f6fb;
+
+  --text: #111827;
+  --muted: #6b7280;
+
+  --border: #e5e7eb;
+
+  --active-bg: #fff1ed;
+  --active-text: #f5694a;
+
+  --radius: 12px;
+}
+
+
+/* ==================================================
+   SIDEBAR
+   ================================================== */
+
 .sidebar {
   width: 240px;
   min-height: 100vh;
-  background-color: #ffffff;
-  border-right: 1px solid #e5e7eb;
-  padding: 20px 16px;
+
+  background: var(--sidebar-bg);
+
+  border-right: 1px solid var(--border);
+
+  padding: 28px 16px;
+
   box-sizing: border-box;
+
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.03);
+
+  position: sticky;
+  top: 0;
+
+  animation: sidebarFade 0.4s ease;
 }
 
-/* ===== Options Wrapper ===== */
+
+/* ==================================================
+   SIDEBAR OPTIONS
+   ================================================== */
+
 .sidebar-options {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* ===== Single Option ===== */
+
+/* ==================================================
+   NAVIGATION ITEM
+   ================================================== */
+
 .sidebar-option {
   display: flex;
+
   align-items: center;
+
   gap: 14px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background-color 0.25s ease, box-shadow 0.25s ease;
+
+  width: 100%;
+
+  padding: 13px 14px;
+
+  box-sizing: border-box;
+
+  border-radius: var(--radius);
+
+  text-decoration: none;
+
+  color: var(--muted);
+
+  font-size: 14px;
+
+  font-weight: 500;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.2s ease,
+    box-shadow 0.25s ease;
+
+  position: relative;
 }
 
-/* ===== Icon ===== */
+
+/* ==================================================
+   ICONS
+   ================================================== */
+
 .sidebar-option img {
   width: 22px;
   height: 22px;
+
   object-fit: contain;
-  opacity: 0.85;
+
+  opacity: 0.7;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
-/* ===== Text ===== */
+
+.sidebar-option svg {
+  width: 22px;
+  height: 22px;
+
+  stroke-width: 2;
+
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease;
+}
+
+
+/* ==================================================
+   TEXT
+   ================================================== */
+
 .sidebar-option p {
-  font-size: 15px;
-  font-weight: 500;
-  color: #374151;
   margin: 0;
-  white-space: nowrap;
+
+  color: inherit;
+
+  font-size: 14px;
+
+  font-weight: 600;
 }
 
-/* ===== Hover Effect ===== */
+
+/* ==================================================
+   HOVER
+   ================================================== */
+
 .sidebar-option:hover {
-  background-color: #d7c4a1;
+  background: #fff7f4;
+
+  color: var(--primary);
+
+  transform: translateX(3px);
 }
 
-/* ===== Active State (future-ready) ===== */
+
+.sidebar-option:hover img {
+  opacity: 1;
+
+  transform: scale(1.08);
+}
+
+
+.sidebar-option:hover svg {
+  transform: scale(1.08);
+
+  color: var(--primary);
+}
+
+
+/* ==================================================
+   ACTIVE NAVIGATION
+   ================================================== */
+
 .sidebar-option.active {
-  background-color: #f5694a;
+  background: var(--active-bg);
+
+  color: var(--active-text);
+
+  box-shadow:
+    0 6px 18px rgba(246, 123, 95, 0.12);
 }
 
-.sidebar-option.active p {
-  color: black;
-}
+
+/* Active icon */
 
 .sidebar-option.active img {
   opacity: 1;
 }
 
-/* ===== Responsive (Mobile) ===== */
-@media (max-width: 768px) {
+
+.sidebar-option.active svg {
+  color: var(--active-text);
+}
+
+
+/* ==================================================
+   ACTIVE LEFT INDICATOR
+   ================================================== */
+
+.sidebar-option.active::before {
+  content: "";
+
+  position: absolute;
+
+  left: -16px;
+
+  top: 50%;
+
+  transform: translateY(-50%);
+
+  width: 4px;
+
+  height: 28px;
+
+  border-radius: 0 6px 6px 0;
+
+  background: linear-gradient(
+    180deg,
+    var(--primary),
+    var(--primary-dark)
+  );
+
+  animation: activeIndicator 0.25s ease;
+}
+
+
+/* ==================================================
+   CLICK EFFECT
+   ================================================== */
+
+.sidebar-option:active {
+  transform: scale(0.98);
+}
+
+
+/* ==================================================
+   RESPONSIVE
+   ================================================== */
+
+@media (max-width: 900px) {
+
+  .sidebar {
+    width: 210px;
+
+    padding: 24px 12px;
+  }
+
+  .sidebar-option {
+    padding: 12px;
+  }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 640px) {
+
   .sidebar {
     width: 70px;
-    padding: 16px 10px;
+
+    padding: 20px 8px;
   }
 
   .sidebar-option {
     justify-content: center;
+
+    padding: 13px 8px;
   }
 
   .sidebar-option p {
     display: none;
   }
+
+  .sidebar-option img,
+  .sidebar-option svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .sidebar-option.active::before {
+    left: -8px;
+  }
+
+}
+
+
+/* ==================================================
+   ANIMATIONS
+   ================================================== */
+
+@keyframes sidebarFade {
+
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+}
+
+
+@keyframes activeIndicator {
+
+  from {
+    height: 0;
+  }
+
+  to {
+    height: 28px;
+  }
+
 }

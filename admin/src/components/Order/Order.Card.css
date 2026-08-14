@@ -1,38 +1,389 @@
+/* =========================================
+   ORDER CARD
+========================================= */
+
 .order-card {
+  width: 100%;
+  background: #ffffff;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 14px;
-  background: #fff;
-  margin: 10px 0;
+  border-radius: 18px;
+  padding: 22px;
+  box-sizing: border-box;
+
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.04);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
+
+
+/* =========================================
+   HOVER
+========================================= */
+
+.order-card:hover {
+  transform: translateY(-3px);
+
+  border-color: #d1d5db;
+
+  box-shadow:
+    0 10px 25px rgba(0, 0, 0, 0.08),
+    0 4px 8px rgba(0, 0, 0, 0.04);
+}
+
+
+/* =========================================
+   ORDER HEADER
+========================================= */
+
+.order-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding-bottom: 16px;
+
+  border-bottom: 1px solid #f0f0f0;
+}
+
+
+/* Order ID */
+
+.order-card-header h4 {
+  margin: 0;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  color: #111827;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   STATUS BADGE
+========================================= */
+
+.status-badge {
+  flex-shrink: 0;
+
+  padding: 6px 11px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  text-transform: capitalize;
+
+  letter-spacing: 0.2px;
+}
+
+
+/* Placed */
+
+.status-placed {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+
+/* Confirmed */
+
+.status-confirmed {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+
+/* Preparing */
+
+.status-preparing {
+  color: #9a3412;
+  background: #ffedd5;
+}
+
+
+/* Out for delivery */
+
+.status-out_for_delivery {
+  color: #6b21a8;
+  background: #f3e8ff;
+}
+
+
+/* Delivered */
+
+.status-delivered {
+  color: #166534;
+  background: #dcfce7;
+}
+
+
+/* Cancelled */
+
+.status-cancelled {
+  color: #991b1b;
+  background: #fee2e2;
+}
+
+
+/* =========================================
+   CUSTOMER INFORMATION
+========================================= */
+
+.customer-info {
+  margin-top: 18px;
+
+  padding: 14px 15px;
+
+  background: #f9fafb;
+
+  border: 1px solid #f1f5f9;
+
+  border-radius: 12px;
+}
+
+
+/* Customer paragraphs */
+
+.customer-info p {
+  margin: 6px 0;
+
+  font-size: 13px;
+
+  color: #6b7280;
+
+  line-height: 1.5;
+}
+
+
+/* Bold customer information */
+
+.customer-info b {
+  color: #111827;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   ORDER STATUS
+========================================= */
+
+.order-status {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  margin: 18px 0;
+
+  font-size: 14px;
+
+  color: #6b7280;
+}
+
+
+.order-status b {
+  color: #111827;
+
+  font-weight: 700;
+
+  text-transform: capitalize;
+}
+
+
+/* =========================================
+   ALL BUTTONS
+========================================= */
 
 .workflow-btn,
 .dispatch-btn,
-.done-btn {
-  margin-top: 10px;
-  padding: 8px 12px;
+.done-btn,
+.cancelled-btn {
+  width: 100%;
+
   border: none;
-  border-radius: 8px;
+
+  border-radius: 11px;
+
+  padding: 11px 15px;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
   cursor: pointer;
-  font-weight: 500;
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.15s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
+
+
+/* =========================================
+   WORKFLOW BUTTON
+========================================= */
 
 .workflow-btn {
-  background: #f59e0b;
-  color: white;
+  color: #ffffff;
+
+  background: #2563eb;
+
+  box-shadow:
+    0 4px 10px rgba(37, 99, 235, 0.18);
 }
+
+
+.workflow-btn:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 6px 14px rgba(37, 99, 235, 0.25);
+}
+
+
+/* =========================================
+   DISPATCH BUTTON
+========================================= */
 
 .dispatch-btn {
-  background: #3b82f6;
-  color: white;
+  color: #ffffff;
+
+  background: #16a34a;
+
+  box-shadow:
+    0 4px 10px rgba(22, 163, 74, 0.18);
 }
+
+
+.dispatch-btn:hover {
+  background: #15803d;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 6px 14px rgba(22, 163, 74, 0.25);
+}
+
+
+/* =========================================
+   DELIVERED BUTTON
+========================================= */
 
 .done-btn {
-  background: #22c55e;
-  color: white;
+  color: #166534;
+
+  background: #dcfce7;
+
+  cursor: default;
+
+  border: 1px solid #bbf7d0;
 }
 
-button:disabled {
+
+/* =========================================
+   CANCELLED BUTTON
+========================================= */
+
+.cancelled-btn {
+  color: #991b1b;
+
+  background: #fee2e2;
+
+  cursor: default;
+
+  border: 1px solid #fecaca;
+}
+
+
+/* =========================================
+   DISABLED / LOADING
+========================================= */
+
+.workflow-btn:disabled,
+.dispatch-btn:disabled {
   cursor: not-allowed;
-  opacity: 0.7;
+
+  opacity: 0.65;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =========================================
+   BUTTON ACTIVE
+========================================= */
+
+.workflow-btn:active,
+.dispatch-btn:active {
+  transform: scale(0.98);
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 600px) {
+
+  .order-card {
+    padding: 18px;
+
+    border-radius: 15px;
+  }
+
+
+  .order-card-header {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 10px;
+  }
+
+
+  .order-card-header h4 {
+    max-width: 100%;
+  }
+
+
+  .status-badge {
+    font-size: 11px;
+
+    padding: 5px 10px;
+  }
+
+
+  .customer-info {
+    padding: 12px;
+  }
+
+
+  .customer-info p {
+    font-size: 12px;
+  }
+
+
+  .order-status {
+    font-size: 13px;
+  }
+
 }

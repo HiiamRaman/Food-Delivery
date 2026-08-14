@@ -14,37 +14,30 @@ import { verifyOtpService } from "../Service/verifyotp.service.js";
 import { createOtpService } from "../Service/otp.services.js";
 //register user
 export const registerUser = asyncHandler(async (req, res) => {
-  /*
-  MENTAL FLOW (Production OTP System)
-
-  1. Extract user input
-  2. Validate required fields
-  3. Check if user already exists
-  4. Create user (NOT verified yet)
-  5. Generate OTP
-  6. Store OTP in DB
-  7. Send OTP email
-  8. Return success response
-  */
-  // 1. Extract required fields from request body
+  // 1. Extract user input
   const { username, fullname, email, password } = req.body;
 
-  // Validate input (basic safety checks)
+  // 2. Validate required fields
   if (!username || !fullname || !email || !password) {
-    throw new ApiError(400, "All Fields are Required");
+    throw new ApiError(400, "All fields are required");
   }
+
   // 3. Check if user already exists
   const existingUser = await User.findOne({ email });
-  if (existingUser) {
-    if(existingUser.isVerified){
-      throw new ApiError(400,"User already exists")
 
+  if (existingUser) {
+    if (existingUser.isVerified) {
+      throw new ApiError(400, "User already exists");
     }
-    throw new ApiError(400, "User already exist but not verified");
+
+    throw new ApiError(
+      400,
+      "User already exists but is not verified"
+    );
   }
 
-  // 5. Create user instance (cartdata initialized automatically)
-  const user = await  User.create({
+  // 4. Create user
+  const user = await User.create({
     username,
     fullname,
     email,
@@ -53,40 +46,39 @@ export const registerUser = asyncHandler(async (req, res) => {
     isVerified: false,
   });
 
-  //Generate OTP
+  // 5. Generate OTP
   const otp = generateOTP();
-  //store otp
-await createOtpService({
-  email,
-  otp,
-  purpose: "SIGNUP",
-  expiresInMinutes: 5,
-});
 
-  //send email
+  // 6. Store hashed OTP in database
+  await createOtpService({
+    email,
+    otp,
+    purpose: "SIGNUP",
+    expiresInMinutes: 5,
+  });
+
+  // 7. Send OTP email
   await sendEmail({
     to: email,
     subject: "Verify Your Account",
     html: `
       <h2>Verify Your Account</h2>
+      <p>Your verification OTP is:</p>
       <h1>${otp}</h1>
-      <p>OTP valid for 5 minutes</p>
+      <p>This OTP will expire in 5 minutes.</p>
     `,
   });
 
-  // Send safe response
-
-  //   before send res we have to remove password for security
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        { email:user.email, message: "OTP sent to email" },
-        "User Registered Successfully!!",
-      ),
-    );
+  // 8. Send response
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      {
+        email: user.email,
+      },
+      "User registered successfully. OTP sent to your email."
+    )
+  );
 });
 //login  user
 export const loginUser = asyncHandler(async (req, res) => {
@@ -113,7 +105,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   if (!user) {
     throw new ApiError(404, "User not Found!!");
   }
-  
+
   //iLOGIN PROTECTION
   if (!user.isVerified) {
     throw new ApiError(403, "Please verify Your Account");
@@ -239,4 +231,24 @@ export const getcurrentAdmin = asyncHandler(async (req, res) => {
     );
 });
 
+export const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find()
+      .select("-password -refreshToken")
+      .sort({ createdAt: -1 })
+      .lean();
 
+    return res.status(200).json({
+      success: true,
+      users,
+    });
+
+  } catch (error) {
+    console.error("Admin users fetch error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch users",
+    });
+  }
+};

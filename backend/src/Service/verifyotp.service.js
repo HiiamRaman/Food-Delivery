@@ -10,16 +10,12 @@ export const verifyOtpService = async ({ email, otp, purpose }) => {
   // hash incoming otp
   const hashedOtp = crypto.createHash("sha256").update(otp).digest("hex");
 
-  
-
   // find otp
   const otpRecord = await OTP.findOne({
     email,
     otp: hashedOtp,
     purpose,
   });
-
-  
 
   if (!otpRecord) {
     throw new ApiError(400, "Invalid OTP");
@@ -54,8 +50,6 @@ export const verifyOtpService = async ({ email, otp, purpose }) => {
       throw new ApiError(404, "User not found");
     }
 
-    
-
     result = {
       message: "User verified successfully",
       user: user._id,
@@ -63,19 +57,19 @@ export const verifyOtpService = async ({ email, otp, purpose }) => {
     };
   }
   if (purpose === "RESET_PASSWORD") {
-      const user = await User.findOneAndUpdate(
-        { email },
-        { resetPasswordVerified: true, resetPasswordVerifiedAt: Date.now() },
-        { new: true },
-      );
-      if (!user) {
-        throw new ApiError(404, "user not found");
-      }
-      result = {
-        message: "Reset OTP verified",
-        isVerified: true,
-      };
+    const user = await User.findOneAndUpdate(
+      { email },
+      { resetPasswordVerified: true, resetPasswordVerifiedAt: Date.now() },
+      { new: true },
+    );
+    if (!user) {
+      throw new ApiError(404, "user not found");
     }
+    result = {
+      message: "Reset OTP verified",
+      isVerified: true,
+    };
+  }
 
   return result;
 };

@@ -14,6 +14,7 @@ import orderRouter from './src/routes/order.routes.js';
 import stripeRouter from './src/routes/stripe.routes.js';
 import successRouter from './src/routes/payment.routes.js';
 import deliveryRouter from './src/routes/delivery.routes.js'
+import dashboardRouter from './src/routes/dashboard.routes.js'
 // import EmailRouter from './src/routes/email.routes.js'
 import cookieParser from "cookie-parser";
 export const app = express();
@@ -46,12 +47,14 @@ app.use("/api/v1/remove-food", removeFoodRouter);
 
 // User auth routes
 app.use("/api/v1/user", authRouter);
+//dashboard
+app.use("/api/v1/dashboard",dashboardRouter);
 
 // Cart routes
 app.use("/api/v1/cart", cartRouter);         // get, add, delete, etc.
 app.use("/api/v1/getCart", cartRouter);      // optional duplicate if needed
-app.use("/api/v1/deleteCart", cartRouter); 
-console.log("DELETE CART ROUTE MOUNTED");  // optional duplicate if needed
+app.use("/api/v1/deleteCart", cartRouter);
+
 
 // Order routes
 app.use("/api/v1/order", orderRouter);

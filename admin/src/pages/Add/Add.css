@@ -1,198 +1,476 @@
 /* ==================================================
-   MODERN ADD PRODUCT – ADMIN PANEL (SINGLE FILE)
+   MODERN ADD PRODUCT – ADMIN PANEL
    ================================================== */
 
 :root {
   --primary: #f67b5f;
   --primary-dark: #f5694a;
+
   --bg: #f4f6fb;
   --card-bg: #ffffff;
+
   --border: #e5e7eb;
+
   --text: #111827;
   --muted: #6b7280;
-  --radius: 10px;
+
+  --input-bg: #ffffff;
+  --upload-bg: #fffaf8;
+
+  --radius: 14px;
 }
 
-/* -----------------------------
+
+/* ==================================================
    PAGE CONTAINER
------------------------------- */
+   ================================================== */
+
 .add {
   width: 100%;
   min-height: 100vh;
+
   padding: 40px;
-  background: linear-gradient(135deg,#f59b4ad4, #f8fafc);
+
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(246, 123, 95, 0.12),
+      transparent 35%
+    ),
+    linear-gradient(
+      135deg,
+      #f8fafc,
+      #f4f6fb
+    );
+
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  box-sizing: border-box;
+
+  animation: pageFade 0.45s ease;
 }
 
-/* -----------------------------
+
+/* ==================================================
    FLEX COLUMN UTILITY
------------------------------- */
+   ================================================== */
+
 .flex-col {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* -----------------------------
+
+/* ==================================================
    FORM CARD
------------------------------- */
+   ================================================== */
+
 .add form {
   width: 100%;
-  max-width: 640px;
+  max-width: 680px;
+
   background: var(--card-bg);
-  padding: 32px;
-  border-radius: var(--radius);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
+
+  padding: 36px;
+
+  border: 1px solid rgba(229, 231, 235, 0.8);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 10px 30px rgba(17, 24, 39, 0.05),
+    0 2px 8px rgba(17, 24, 39, 0.03);
+
   animation: fadeUp 0.5s ease;
+
+  box-sizing: border-box;
 }
 
-/* -----------------------------
-   SECTION LABELS
------------------------------- */
+
+/* ==================================================
+   LABELS
+   ================================================== */
+
 .add p {
+  margin: 0;
+
   font-size: 14px;
+
   font-weight: 600;
+
   color: var(--text);
 }
 
-/* -----------------------------
+
+/* ==================================================
    IMAGE UPLOAD
------------------------------- */
+   ================================================== */
+
+.add-image-upload {
+  margin-bottom: 8px;
+}
+
+
 .add-image-upload label {
   width: 160px;
   height: 160px;
-  border-radius: var(--radius);
+
+  border-radius: 16px;
+
   border: 2px dashed var(--border);
-  background: #fafafa;
+
+  background: var(--upload-bg);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   cursor: pointer;
-  transition: all 0.25s ease;
+
+  overflow: hidden;
+
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
 }
+
 
 .add-image-upload label:hover {
   border-color: var(--primary);
-  background: #eef2ff;
+
+  background: #fff4f0;
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(246, 123, 95, 0.12);
 }
+
 
 .add-image-upload img {
   width: 56px;
-  opacity: 0.65;
+  height: 56px;
+
+  object-fit: contain;
+
+  opacity: 0.6;
+
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
 }
 
-/* -----------------------------
+
+.add-image-upload label:hover img {
+  opacity: 0.85;
+
+  transform: scale(1.08);
+}
+
+
+/* ==================================================
+   INPUT GROUPS
+   ================================================== */
+
+.product-name,
+.add-product-description,
+.add-category-price {
+  margin-top: 6px;
+}
+
+
+/* ==================================================
    INPUTS / SELECT / TEXTAREA
------------------------------- */
+   ================================================== */
+
 .product-name input,
 .add-product-description textarea,
 .add-category-price input,
 .add-category-price select {
   width: 100%;
-  padding: 12px 14px;
+
+  padding: 13px 14px;
+
+  font-family: inherit;
+
   font-size: 14px;
-  border-radius: 8px;
+
+  border-radius: 10px;
+
   border: 1px solid var(--border);
-  background: #ffffff;
+
+  background: var(--input-bg);
+
   color: var(--text);
-  transition: all 0.2s ease;
+
+  outline: none;
+
   box-sizing: border-box;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
+
+/* ==================================================
+   PLACEHOLDER
+   ================================================== */
+
 .product-name input::placeholder,
-.add-product-description textarea::placeholder {
-  color: var(--muted);
+.add-product-description textarea::placeholder,
+.add-category-price input::placeholder {
+  color: #9ca3af;
 }
+
+
+/* ==================================================
+   FOCUS
+   ================================================== */
 
 .product-name input:focus,
 .add-product-description textarea:focus,
 .add-category-price input:focus,
 .add-category-price select:focus {
   border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
-  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(246, 123, 95, 0.14);
+
+  transform: translateY(-1px);
 }
 
-/* -----------------------------
+
+/* ==================================================
    TEXTAREA
------------------------------- */
+   ================================================== */
+
 .add-product-description textarea {
-  resize: vertical;
   min-height: 120px;
+
+  resize: vertical;
+
+  line-height: 1.6;
 }
 
-/* -----------------------------
-   CATEGORY & PRICE ROW
------------------------------- */
+
+/* ==================================================
+   CATEGORY & PRICE
+   ================================================== */
+
 .add-category-price {
   display: flex;
+
   gap: 20px;
-  margin-top: 6px;
 }
+
 
 .add-category-flex-col,
 .add-price-flex-col {
   flex: 1;
+
   display: flex;
+
   flex-direction: column;
+
   gap: 10px;
 }
 
-/* -----------------------------
-   SUBMIT BUTTON
------------------------------- */
-.add-btn {
-  margin-top: 24px;
-  padding: 14px;
-  border-radius: 10px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #ffffff;
-  font-size: 15px;
-  font-weight: 600;
-  border: none;
+
+/* ==================================================
+   SELECT
+   ================================================== */
+
+.add-category-price select {
   cursor: pointer;
-  transition: all 0.25s ease;
+
+  appearance: auto;
 }
 
-.add-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(240, 220, 182, 0.35);
+
+/* ==================================================
+   SUBMIT BUTTON
+   ================================================== */
+
+.add-btn {
+  width: 100%;
+
+  margin-top: 26px;
+
+  padding: 14px 18px;
+
+  border: none;
+
+  border-radius: 11px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-dark)
+    );
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 8px 18px rgba(246, 123, 95, 0.18);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
 }
+
+
+/* ==================================================
+   BUTTON HOVER
+   ================================================== */
+
+.add-btn:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 25px rgba(246, 123, 95, 0.25);
+
+  filter: brightness(1.02);
+}
+
+
+/* ==================================================
+   BUTTON ACTIVE
+   ================================================== */
 
 .add-btn:active {
   transform: translateY(0);
+
+  box-shadow:
+    0 5px 12px rgba(246, 123, 95, 0.18);
 }
 
-/* -----------------------------
+
+/* ==================================================
+   BUTTON DISABLED
+   ================================================== */
+
+.add-btn:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* ==================================================
    RESPONSIVE
------------------------------- */
-@media (max-width: 640px) {
+   ================================================== */
+
+@media (max-width: 768px) {
+
   .add {
-    padding: 20px;
+    padding: 28px 20px;
   }
 
   .add form {
-    padding: 24px;
+    padding: 28px;
+  }
+
+}
+
+
+/* ==================================================
+   MOBILE
+   ================================================== */
+
+@media (max-width: 640px) {
+
+  .add {
+    padding: 20px 14px;
+  }
+
+  .add form {
+    padding: 22px;
+
+    border-radius: 14px;
   }
 
   .add-category-price {
     flex-direction: column;
+
+    gap: 14px;
   }
+
+  .add-image-upload label {
+    width: 140px;
+    height: 140px;
+  }
+
 }
 
-/* -----------------------------
-   ANIMATION
------------------------------- */
-@keyframes fadeUp {
+
+/* ==================================================
+   SMALL MOBILE
+   ================================================== */
+
+@media (max-width: 400px) {
+
+  .add form {
+    padding: 18px;
+  }
+
+  .add-image-upload label {
+    width: 120px;
+    height: 120px;
+  }
+
+}
+
+
+/* ==================================================
+   ANIMATIONS
+   ================================================== */
+
+@keyframes pageFade {
+
   from {
     opacity: 0;
-    transform: translateY(12px);
   }
+
   to {
     opacity: 1;
+  }
+
+}
+
+
+@keyframes fadeUp {
+
+  from {
+    opacity: 0;
+
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+
     transform: translateY(0);
   }
+
 }

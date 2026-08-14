@@ -17,18 +17,19 @@ const transporter = nodemailer.createTransport({
 
 export const sendEmail = async ({ to, subject, html }) => {
   try {
-    //sending email via  transporter
     const info = await transporter.sendMail({
-      from: `"Food Delivery App" <${process.env.EMAIL_USER}>`, //sender name
-      to, //receiver email,
-      subject, //email subject line
-      html, //email content
+      from: `"Food Delivery App" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      html,
     });
-    // 5. SUCCESS LOG
-    console.log("Email sent successfully ", info.messageId);
+
+    console.log("Email sent successfully:", info.messageId);
+
     return info;
   } catch (error) {
-    console.log("Failed to Send Email", error);
-    throw new ApiError(500, "Email couldnot be  sent");
+    console.error("Failed to send email:", error);
+
+    throw error;
   }
 };

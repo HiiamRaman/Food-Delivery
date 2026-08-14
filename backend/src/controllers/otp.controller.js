@@ -8,7 +8,7 @@ import { User } from "../models/user.model.js";
 import { generateOTP } from "../utils/OTP/generateotp.utils.js";
 import { verifyOtpService } from "../Service/verifyotp.service.js";
 import { changePasswordService } from "../Service/password.service.js";
-
+import { resendOtpService } from "../Service/otp.services.js";
 
 export const verifySignupOtp = asyncHandler(async (req, res) => {
   const { email, otp } = req.body;
@@ -53,40 +53,34 @@ export const verifyResetOtp = asyncHandler(async (req, res) => {
     otp,
     purpose: "RESET_PASSWORD",
   });
-  return res.status(200).json(new ApiResponse(200,{},"OTP verified successfully"))
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "OTP verified successfully"));
 });
 
-export const resetPassword = asyncHandler(async(req,res)=>{
-  const {email,newPassword} = req.body;
-  if(!email||!newPassword){
-    throw new ApiError(400,"Both email and newPassword are required!!")
+export const resetPassword = asyncHandler(async (req, res) => {
+  const { email, newPassword } = req.body;
+  if (!email || !newPassword) {
+    throw new ApiError(400, "Both email and newPassword are required!!");
   }
-   const isStrong =
-    newPassword.length >= 8 &&
-    /[A-Z]/.test(newPassword) &&
-    /[a-z]/.test(newPassword) &&
-    /[0-9]/.test(newPassword);
- if (!isStrong) {
-    throw new ApiError(
-      400,
-      "Password must be 8+ chars with uppercase, lowercase and number"
-    );
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new ApiError(404, "user not found!!");
   }
-  const user = await User.findOne({email})
-  if(!user){
-    throw new ApiError(404,"user not found!!")
-  }
-if (!user.resetPasswordVerified) {
+  if (!user.resetPasswordVerified) {
     throw new ApiError(400, "OTP not verified");
   }
   user.password = newPassword;
-   // reset flag after use
+  // reset flag after use
   user.resetPasswordVerified = false;
   user.resetPasswordVerifiedAt = null;
-await user.save();
+  await user.save();
 
-return res.status(200).json(new ApiResponse(200,{},"Password Reset successfull!!"))
-})
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password Reset successfull!!"));
+});
 
 export const changePassword = asyncHandler(async (req, res) => {
   const { oldPassword, newPassword } = req.body;
@@ -105,7 +99,7 @@ export const changePassword = asyncHandler(async (req, res) => {
   if (!isStrong) {
     throw new ApiError(
       400,
-      "Password must be 8+ chars with uppercase, lowercase and number"
+      "Password must be 8+ chars with uppercase, lowercase and number",
     );
   }
 
@@ -118,4 +112,29 @@ export const changePassword = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Password changed successfully"));
+});
+
+export const resendSignupOtp = asyncHandler(async (req, res) => {
+  // 1. Get email from request body
+  const { email } = req.body || {};
+
+  // 2. Validate email
+  if (!email) {
+    throw new ApiError(400, "Email is required");
+  }
+
+  // 3. Normalize email
+  const normalizedEmail = email.trim().toLowerCase();
+
+  // 4. Resend OTP
+  const result = await resendOtpService({
+    email: normalizedEmail,
+    purpose: "SIGNUP",
+    expiresInMinutes: 5,
+  });
+
+  // 5. Send response
+  return res
+    .status(200)
+    .json(new ApiResponse(200, result, "OTP resent successfully"));
 });
