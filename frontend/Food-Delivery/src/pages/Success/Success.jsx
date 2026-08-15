@@ -1,100 +1,249 @@
-import React, { useEffect, useContext, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
-import { CheckCircle } from "lucide-react";
-import "./Success.css";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  LoaderCircle,
+  MapPinned,
+  PackageCheck,
+} from "lucide-react";
+import {
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
+
 import { StoreContext } from "../../Context/StoreContext";
-import axios from "axios";
+import api from "../../utils/axios.client";
+
+import "./Success.css";
 
 function Success() {
-  const { url, token, setCartItems } = useContext(StoreContext);
+  const {
+    token,
+    setCartItems,
+  } = useContext(StoreContext);
+
   const [searchParams] = useSearchParams();
+
   const navigate = useNavigate();
-  const orderId = searchParams.get("orderId");
+
+  const orderId =
+    searchParams.get("orderId");
 
   const hasCalled = useRef(false);
 
+  const [processing, setProcessing] =
+    useState(true);
+
+  const [paymentConfirmed, setPaymentConfirmed] =
+    useState(false);
+
+  // ================= POST PAYMENT =================
+
   useEffect(() => {
-    if (!orderId || !token || hasCalled.current) return;
+    if (
+      !orderId ||
+      !token ||
+      hasCalled.current
+    ) {
+      return;
+    }
 
     hasCalled.current = true;
 
     const processPostPayment = async () => {
       try {
-        console.log("📡 Confirming payment...");
+        setProcessing(true);
 
-        const paymentRes = await axios.post(`${url}/api/v1/payment/success`, {
-          orderId,
-          paymentId: "stripe_session_completed",
-        });
+        // Confirm payment
+        const paymentResponse = await api.post(
+          "/api/v1/payment/success",
+          {
+            orderId,
+            paymentId:
+              "stripe_session_completed",
+          },
+        );
 
-        if (paymentRes.data.success) {
-          // Clear backend cart
-          await axios.delete(`${url}/api/v1/deleteCart/clear`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          // Clear frontend cart
-          setCartItems({});
-
-          console.log("✅ Payment + cart cleared");
+        if (!paymentResponse.data?.success) {
+          return;
         }
+
+        // Clear backend cart
+        await api.delete(
+          "/api/v1/deleteCart/clear",
+        );
+
+        // Clear frontend cart
+        setCartItems({});
+
+        setPaymentConfirmed(true);
       } catch (error) {
         console.error(
-          "❌ Error:",
-          error.response?.data || error.message
+          "POST PAYMENT ERROR:",
+          error.response?.data ||
+            error.message,
         );
+      } finally {
+        setProcessing(false);
       }
     };
 
     processPostPayment();
+  }, [
+    orderId,
+    token,
+    setCartItems,
+  ]);
 
-  }, [orderId, token, url, setCartItems]);
+  const shortOrderId = orderId
+    ? orderId.slice(-8).toUpperCase()
+    : "N/A";
 
   return (
     <div className="success-page">
-  <div className="success-container">
-    <div className="success-card">
+      <div className="success-wrapper">
+        {/* ================= STATUS ICON ================= */}
 
-      {/* ✅ Icon */}
-      <div className="success-icon-wrapper">
-        <CheckCircle size={70} className="success-icon" />
-      </div>
+        <div
+          className={`success-icon-box ${
+            processing ? "processing" : ""
+          }`}
+        >
+          {processing ? (
+            <LoaderCircle
+              size={38}
+              className="success-spinner"
+            />
+          ) : (
+            <CheckCircle2 size={42} />
+          )}
+        </div>
 
-      {/* ✅ Title */}
-      <h1 className="success-title">Payment Successful!</h1>
+        {/* ================= STATUS ================= */}
 
-      {/* ✅ Order ID */}
-      {orderId && (
-        <p className="success-order-id">
-          Order ID: <span>{orderId}</span>
+        <span className="success-eyebrow">
+          {processing
+            ? "FINALIZING ORDER"
+            : "ORDER CONFIRMED"}
+        </span>
+
+        <h1>
+          {processing
+            ? "Confirming your payment..."
+            : "Payment successful!"}
+        </h1>
+
+        <p className="success-description">
+          {processing
+            ? "We're finishing your order and preparing it for tracking."
+            : "Your order has been confirmed and is now being prepared."}
         </p>
-      )}
 
-      {/* ✅ Message */}
-      <p className="success-message">
-        Your order has been confirmed. You can track it in real-time.
-      </p>
+        {/* ================= ORDER CARD ================= */}
 
-      {/* ✅ Buttons */}
-      <div className="success-actions">
-        <button
-          className="success-button primary-btn"
-          onClick={() => navigate(`/tracking/${orderId}`)}
-        >
-          🚚 Track Order
-        </button>
+        <div className="success-order-card">
+          <div className="success-order-icon">
+            <PackageCheck size={21} />
+          </div>
 
-        <button
-          className="success-button secondary-btn"
-          onClick={() => navigate("/")}
-        >
-          ⬅ Back Home
-        </button>
+          <div className="success-order-content">
+            <span>Order reference</span>
+
+            <strong>
+              #{shortOrderId}
+            </strong>
+
+            {orderId && (
+              <small>
+                {orderId}
+              </small>
+            )}
+          </div>
+
+          <div
+            className={`success-payment-status ${
+              paymentConfirmed
+                ? "confirmed"
+                : ""
+            }`}
+          >
+            <span />
+
+            {processing
+              ? "Processing"
+              : "Paid"}
+          </div>
+        </div>
+
+        {/* ================= NEXT STEP ================= */}
+
+        {!processing && (
+          <div className="success-next-step">
+            <div>
+              <MapPinned size={19} />
+            </div>
+
+            <p>
+              You can now follow your order
+              and rider from the live tracking
+              page.
+            </p>
+          </div>
+        )}
+
+        {/* ================= ACTIONS ================= */}
+
+        <div className="success-actions">
+          <button
+            type="button"
+            className="success-primary-btn"
+            disabled={
+              processing || !orderId
+            }
+            onClick={() =>
+              navigate(
+                `/tracking/${orderId}`,
+              )
+            }
+          >
+            {processing ? (
+              <LoaderCircle
+                size={18}
+                className="button-spinner"
+              />
+            ) : (
+              <MapPinned size={18} />
+            )}
+
+            {processing
+              ? "Preparing tracking..."
+              : "Track order"}
+          </button>
+
+          <button
+            type="button"
+            className="success-secondary-btn"
+            onClick={() => navigate("/")}
+          >
+            <ArrowLeft size={17} />
+
+            Back to home
+          </button>
+        </div>
+
+        {/* ================= FOOT NOTE ================= */}
+
+        <p className="success-footnote">
+          Keep your order reference for future
+          support or tracking.
+        </p>
       </div>
-
     </div>
-  </div>
-</div>
   );
 }
 

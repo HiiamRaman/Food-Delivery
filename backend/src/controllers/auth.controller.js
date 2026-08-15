@@ -30,10 +30,7 @@ export const registerUser = asyncHandler(async (req, res) => {
       throw new ApiError(400, "User already exists");
     }
 
-    throw new ApiError(
-      400,
-      "User already exists but is not verified"
-    );
+    throw new ApiError(400, "User already exists but is not verified");
   }
 
   // 4. Create user
@@ -76,8 +73,8 @@ export const registerUser = asyncHandler(async (req, res) => {
       {
         email: user.email,
       },
-      "User registered successfully. OTP sent to your email."
-    )
+      "User registered successfully. OTP sent to your email.",
+    ),
   );
 });
 //login  user
@@ -152,7 +149,6 @@ export const loginUser = asyncHandler(async (req, res) => {
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
-
   // 1. get refresh token from cookie
   const incomingRefreshToken = req.cookies?.refreshToken;
 
@@ -166,7 +162,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     decoded = jwt.verify(
       incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
+      process.env.REFRESH_TOKEN_SECRET,
     );
   } catch (error) {
     throw new ApiError(401, "Invalid or Expired Refresh Token");
@@ -188,8 +184,6 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   const newAccessToken = user.generateAccessToken();
   const newRefreshToken = user.generateRefreshToken();
 
-
-
   // 6. save new refresh token
   user.refreshToken = newRefreshToken;
 
@@ -206,17 +200,10 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 
   // 8. send tokens
   return res
-  .status(200)
-  .cookie("accessToken", newAccessToken, options)
-  .cookie("refreshToken", newRefreshToken, options)
-  .json(
-    new ApiResponse(
-      200,
-      {},
-      "Tokens regenerated successfully"
-    )
-
-    );
+    .status(200)
+    .cookie("accessToken", newAccessToken, options)
+    .cookie("refreshToken", newRefreshToken, options)
+    .json(new ApiResponse(200, {}, "Tokens regenerated successfully"));
 });
 
 export const getcurrentAdmin = asyncHandler(async (req, res) => {
@@ -242,13 +229,95 @@ export const getAllUsers = async (req, res) => {
       success: true,
       users,
     });
-
   } catch (error) {
     console.error("Admin users fetch error:", error);
 
     return res.status(500).json({
       success: false,
       message: "Failed to fetch users",
+    });
+  }
+};
+
+export const addFavorite = async (req, res) => {
+  try {
+    const { foodId } = req.params;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $addToSet: {
+          favorites: foodId,
+        },
+      },
+      {
+        new: true,
+      },
+    ).populate("favorites");
+
+    return res.status(200).json({
+      statusCode: 200,
+      data: user.favorites,
+      message: "Added to favorites",
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      statusCode: 500,
+      data: null,
+      message: "Failed to add favorite",
+      success: false,
+    });
+  }
+};
+export const getFavorites = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id).populate("favorites");
+
+    return res.status(200).json({
+      statusCode: 200,
+      data: user.favorites,
+      message: "Favorites fetched successfully",
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      statusCode: 500,
+      data: null,
+      message: "Failed to fetch favorites",
+      success: false,
+    });
+  }
+};
+
+export const removeFavorite = async (req, res) => {
+  try {
+    const { foodId } = req.params;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        $pull: {
+          favorites: foodId,
+        },
+      },
+      {
+        new: true,
+      },
+    ).populate("favorites");
+
+    return res.status(200).json({
+      statusCode: 200,
+      data: user.favorites,
+      message: "Removed from favorites",
+      success: true,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      statusCode: 500,
+      data: null,
+      message: "Failed to remove favorite",
+      success: false,
     });
   }
 };

@@ -1,6 +1,16 @@
 import React, { useContext, useState } from "react";
+import {
+  CreditCard,
+  MapPin,
+  PackageCheck,
+  ShieldCheck,
+  Truck,
+} from "lucide-react";
+import { toast } from "react-toastify";
+
 import api from "../../utils/axios.client";
 import { StoreContext } from "../../Context/StoreContext";
+
 import "./PlaceOrder.css";
 
 function PlaceOrder() {
@@ -11,10 +21,10 @@ function PlaceOrder() {
     token,
     food_list,
     cartItems,
-    url,
   } = useContext(StoreContext);
 
-  /* ---------------- DELIVERY FORM STATE ---------------- */
+  const [loading, setLoading] = useState(false);
+
   const [data, setData] = useState({
     firstName: "",
     lastName: "",
@@ -27,128 +37,347 @@ function PlaceOrder() {
     phone: "",
   });
 
+  // ================= INPUT CHANGE =================
+
   const onChangeHandler = (e) => {
     const { name, value } = e.target;
-    setData((prev) => ({ ...prev, [name]: value }));
+
+    setData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  /* ---------------- CREATE ORDER + STRIPE ---------------- */
+  // ================= CREATE ORDER =================
+
   const createOrder = async (e) => {
     e.preventDefault();
 
-    /* ---- auth guard ---- */
+    if (loading) return;
+
     if (!token) {
-      alert("Please login first");
+      toast.error("Please login first");
       return;
     }
 
-    /* ---- cart validation ---- */
     if (!food_list?.length) {
-      alert("Cart still loading");
+      toast.error("Cart is still loading");
       return;
     }
 
     const hasItems = food_list.some(
-      (item) => cartItems[item._id] > 0
+      (item) => cartItems[item._id] > 0,
     );
 
     if (!hasItems) {
-      alert("Cart is empty");
+      toast.error("Your cart is empty");
       return;
     }
 
     try {
-      const response = await api.post(
-        `/order/create`,
-        { deliveryInfo: data },
-        
-      );
-      
+      setLoading(true);
+
+      const response = await api.post("/order/create", {
+        deliveryInfo: data,
+      });
 
       const checkoutUrl =
         response.data?.data?.url ||
         response.data?.url;
 
       if (!checkoutUrl) {
-        throw new Error("Stripe URL missing");
+        throw new Error("Stripe checkout URL missing");
       }
 
-      // redirect to Stripe checkout
       window.location.assign(checkoutUrl);
-
     } catch (error) {
-      console.error("Checkout error:", error);
+      console.error("CHECKOUT ERROR:", error);
 
-      if (error.response?.status === 401) {
-        alert("Session expired — login again");
-      } else {
-        alert(
-          error.response?.data?.message ||
-          "Checkout failed"
-        );
-      }
+      const message =
+        error.response?.data?.data ||
+        error.response?.data?.message ||
+        error.message ||
+        "Checkout failed";
+
+      toast.error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  /* ---------------- UI ---------------- */
   return (
-    <form onSubmit={createOrder} className="place-order">
+    <div className="place-order-page">
+      <div className="place-order-container">
+        {/* ================= HEADER ================= */}
 
-      {/* LEFT — DELIVERY */}
-      <div className="place-order-left">
-        <p className="title">Delivery Info</p>
+        <div className="place-order-header">
+          <span>CHECKOUT</span>
 
-        <div className="multi-fields">
-          <input required name="firstName" value={data.firstName} onChange={onChangeHandler} placeholder="First name" />
-          <input required name="lastName" value={data.lastName} onChange={onChangeHandler} placeholder="Last name" />
+          <h1>Complete your order</h1>
+
+          <p>
+            Enter your delivery details and review your order before payment.
+          </p>
         </div>
 
-        <input required type="email" name="email" value={data.email} onChange={onChangeHandler} placeholder="Email" />
-        <input required name="street" value={data.street} onChange={onChangeHandler} placeholder="Street" />
+        <form
+          onSubmit={createOrder}
+          className="place-order-layout"
+        >
+          {/* ================= LEFT ================= */}
 
-        <div className="multi-fields">
-          <input required name="city" value={data.city} onChange={onChangeHandler} placeholder="City" />
-          <input required name="state" value={data.state} onChange={onChangeHandler} placeholder="State" />
-        </div>
+          <section className="delivery-card">
+            <div className="section-heading">
+              <div className="section-icon">
+                <MapPin size={20} />
+              </div>
 
-        <div className="multi-fields">
-          <input required name="zipcode" value={data.zipcode} onChange={onChangeHandler} placeholder="Zip code" />
-          <input required name="country" value={data.country} onChange={onChangeHandler} placeholder="Country" />
-        </div>
+              <div>
+                <h2>Delivery information</h2>
 
-        <input required name="phone" value={data.phone} onChange={onChangeHandler} placeholder="Phone" />
+                <p>
+                  Tell us where your order should be delivered.
+                </p>
+              </div>
+            </div>
+
+            <div className="delivery-form">
+              <div className="multi-fields">
+                <div className="checkout-field">
+                  <label htmlFor="firstName">
+                    First name
+                  </label>
+
+                  <input
+                    id="firstName"
+                    required
+                    name="firstName"
+                    value={data.firstName}
+                    onChange={onChangeHandler}
+                    placeholder="Raman"
+                    autoComplete="given-name"
+                  />
+                </div>
+
+                <div className="checkout-field">
+                  <label htmlFor="lastName">
+                    Last name
+                  </label>
+
+                  <input
+                    id="lastName"
+                    required
+                    name="lastName"
+                    value={data.lastName}
+                    onChange={onChangeHandler}
+                    placeholder="Singh"
+                    autoComplete="family-name"
+                  />
+                </div>
+              </div>
+
+              <div className="checkout-field">
+                <label htmlFor="email">
+                  Email
+                </label>
+
+                <input
+                  id="email"
+                  required
+                  type="email"
+                  name="email"
+                  value={data.email}
+                  onChange={onChangeHandler}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                />
+              </div>
+
+              <div className="checkout-field">
+                <label htmlFor="street">
+                  Street address
+                </label>
+
+                <input
+                  id="street"
+                  required
+                  name="street"
+                  value={data.street}
+                  onChange={onChangeHandler}
+                  placeholder="Street and house number"
+                  autoComplete="street-address"
+                />
+              </div>
+
+              <div className="multi-fields">
+                <div className="checkout-field">
+                  <label htmlFor="city">
+                    City
+                  </label>
+
+                  <input
+                    id="city"
+                    required
+                    name="city"
+                    value={data.city}
+                    onChange={onChangeHandler}
+                    placeholder="Kathmandu"
+                    autoComplete="address-level2"
+                  />
+                </div>
+
+                <div className="checkout-field">
+                  <label htmlFor="state">
+                    State
+                  </label>
+
+                  <input
+                    id="state"
+                    required
+                    name="state"
+                    value={data.state}
+                    onChange={onChangeHandler}
+                    placeholder="Bagmati"
+                    autoComplete="address-level1"
+                  />
+                </div>
+              </div>
+
+              <div className="multi-fields">
+                <div className="checkout-field">
+                  <label htmlFor="zipcode">
+                    ZIP code
+                  </label>
+
+                  <input
+                    id="zipcode"
+                    required
+                    name="zipcode"
+                    value={data.zipcode}
+                    onChange={onChangeHandler}
+                    placeholder="44600"
+                    autoComplete="postal-code"
+                  />
+                </div>
+
+                <div className="checkout-field">
+                  <label htmlFor="country">
+                    Country
+                  </label>
+
+                  <input
+                    id="country"
+                    required
+                    name="country"
+                    value={data.country}
+                    onChange={onChangeHandler}
+                    placeholder="Nepal"
+                    autoComplete="country-name"
+                  />
+                </div>
+              </div>
+
+              <div className="checkout-field">
+                <label htmlFor="phone">
+                  Phone
+                </label>
+
+                <input
+                  id="phone"
+                  required
+                  type="tel"
+                  name="phone"
+                  value={data.phone}
+                  onChange={onChangeHandler}
+                  placeholder="+977 98XXXXXXXX"
+                  autoComplete="tel"
+                />
+              </div>
+            </div>
+
+            <div className="delivery-note">
+              <Truck size={18} />
+
+              <p>
+                Your delivery details are used only to complete this order.
+              </p>
+            </div>
+          </section>
+
+          {/* ================= RIGHT ================= */}
+
+          <aside className="checkout-summary">
+            <div className="summary-heading">
+              <div>
+                <h2>Order summary</h2>
+
+                <p>
+                  Review your payment details.
+                </p>
+              </div>
+
+              <PackageCheck size={22} />
+            </div>
+
+            <div className="summary-row">
+              <span>Subtotal</span>
+
+              <strong>
+                Rs. {getCartSubtotal()}
+              </strong>
+            </div>
+
+            <div className="summary-row">
+              <span>Delivery fee</span>
+
+              <strong>
+                Rs. {getDeliveryFee()}
+              </strong>
+            </div>
+
+            <div className="summary-divider" />
+
+            <div className="summary-total">
+              <span>Total</span>
+
+              <strong>
+                Rs. {getCartTotal()}
+              </strong>
+            </div>
+
+            <div className="payment-note">
+              <CreditCard size={18} />
+
+              <div>
+                <strong>Secure payment</strong>
+
+                <span>
+                  You will continue to Stripe to complete payment.
+                </span>
+              </div>
+            </div>
+
+            <div className="security-note">
+              <ShieldCheck size={17} />
+
+              <span>
+                Your payment information is handled securely.
+              </span>
+            </div>
+
+            <button
+              type="submit"
+              className="payment-button"
+              disabled={loading}
+            >
+              {loading
+                ? "Preparing checkout..."
+                : "Proceed to payment"}
+            </button>
+          </aside>
+        </form>
       </div>
-
-      {/* RIGHT — TOTAL */}
-      <div className="place-order-right">
-        <div className="cart-bottom">
-          <div className="cart-total">
-            <h2>Cart Total</h2>
-
-            <div className="cart-total-detail">
-              <p>Subtotal</p>
-              <p>${getCartSubtotal()}</p>
-            </div>
-
-            <div className="cart-total-detail">
-              <p>Delivery Fee</p>
-              <p>${getDeliveryFee()}</p>
-            </div>
-
-            <hr />
-
-            <div className="cart-total-detail">
-              <b>Total</b>
-              <b>${getCartTotal()}</b>
-            </div>
-          </div>
-
-          <button type="submit">
-            Proceed to Payment
-          </button>
-        </div>
-      </div>
-    </form>
+    </div>
   );
 }
 

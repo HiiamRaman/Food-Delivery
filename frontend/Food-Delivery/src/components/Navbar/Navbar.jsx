@@ -1,22 +1,25 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
+import { Heart } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import ProfileDropdown from "./profiledropdown";
+import "./Navbar.css";
+
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../Context/StoreContext";
 
-function Navbar({ setShowLogin }) {
+function Navbar() {
   const [menu, setMenu] = useState("Home");
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
-  const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
 
-  const { getCartTotal, token, setToken } = useContext(StoreContext);
   const navigate = useNavigate();
+
+  const { getCartTotal, token, setToken } = useContext(StoreContext);
+
+  // ================= SCROLL EFFECT =================
 
   useEffect(() => {
     const handleScroll = () => {
@@ -30,19 +33,7 @@ function Navbar({ setShowLogin }) {
     };
   }, []);
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  // ================= SEARCH AUTO FOCUS =================
 
   useEffect(() => {
     if (isSearchOpen) {
@@ -50,19 +41,23 @@ function Navbar({ setShowLogin }) {
     }
   }, [isSearchOpen]);
 
+  // ================= LOGOUT =================
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
+    localStorage.removeItem("user");
+
     setToken(null);
-    setIsDropdownOpen(false);
 
     toast.success("Logged out successfully");
 
     navigate("/");
   };
 
+  // ================= HOME =================
+
   const handleHomeClick = () => {
     setMenu("Home");
-    setIsDropdownOpen(false);
     setIsSearchOpen(false);
     setSearchValue("");
 
@@ -73,6 +68,8 @@ function Navbar({ setShowLogin }) {
       behavior: "smooth",
     });
   };
+
+  // ================= SEARCH =================
 
   const handleSearchOpen = () => {
     setIsSearchOpen(true);
@@ -91,9 +88,13 @@ function Navbar({ setShowLogin }) {
     setSearchValue(value);
 
     if (value.trim()) {
-      navigate(`/food-display?search=${encodeURIComponent(value)}`);
+      navigate(
+        `/food-display?search=${encodeURIComponent(value)}`,
+      );
     }
   };
+
+  // ================= NAVIGATION ITEMS =================
 
   const navItems = [
     {
@@ -131,7 +132,8 @@ function Navbar({ setShowLogin }) {
       }`}
     >
       <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
+        {/* ================= LOGO ================= */}
+
         <Link
           to="/"
           onClick={handleHomeClick}
@@ -145,7 +147,8 @@ function Navbar({ setShowLogin }) {
           </span>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* ================= DESKTOP NAVIGATION ================= */}
+
         <nav className="hidden md:block">
           <ul className="flex items-center gap-8 lg:gap-10">
             {navItems.map((item) => {
@@ -193,9 +196,11 @@ function Navbar({ setShowLogin }) {
           </ul>
         </nav>
 
-        {/* Right Controls */}
+        {/* ================= RIGHT CONTROLS ================= */}
+
         <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          {/* Search */}
+          {/* ================= SEARCH ================= */}
+
           {isSearchOpen ? (
             <div className="flex items-center gap-1">
               <div className="relative">
@@ -212,7 +217,7 @@ function Navbar({ setShowLogin }) {
                     border
                     border-slate-200
                     bg-slate-50
-                    pl-10
+                    pl-4
                     pr-4
                     text-sm
                     text-slate-800
@@ -231,7 +236,6 @@ function Navbar({ setShowLogin }) {
                 />
               </div>
 
-              {/* Close Search */}
               <button
                 type="button"
                 onClick={handleSearchClose}
@@ -280,10 +284,48 @@ function Navbar({ setShowLogin }) {
             </button>
           )}
 
-          {/* Cart */}
+          {/* ================= FAVORITES ================= */}
+
+          {token && (
+            <Link
+              to="/favorites"
+              aria-label="Favorites"
+              title="Favorites"
+              className="
+                group
+                relative
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                text-slate-600
+                transition-all
+                duration-200
+                hover:bg-orange-50
+                hover:text-orange-500
+              "
+            >
+              <Heart
+                size={20}
+                strokeWidth={2}
+                className="
+                  transition-transform
+                  duration-200
+                  group-hover:scale-110
+                "
+              />
+            </Link>
+          )}
+
+          {/* ================= CART ================= */}
+
           <Link
             to="/cart"
             aria-label="Cart"
+            title="Cart"
             className="
               relative
               flex
@@ -308,16 +350,18 @@ function Navbar({ setShowLogin }) {
             )}
           </Link>
 
-          {/* Authentication */}
+          {/* ================= AUTHENTICATION ================= */}
+
           {!token ? (
             <button
               type="button"
-              onClick={() => setShowLogin(true)}
+              onClick={() => navigate("/login")}
               className="
                 ml-1
-                h-10
-                rounded-full
-                bg-slate-900
+                h-8
+                w-20
+                rounded-md
+                bg-slate-600
                 px-5
                 text-sm
                 font-semibold
@@ -333,33 +377,34 @@ function Navbar({ setShowLogin }) {
                 sm:px-6
               "
             >
-              Sign In
+              Log In
             </button>
           ) : (
-            <div ref={dropdownRef} className="relative ml-1">
-              <button
-                type="button"
-                onClick={() => setIsDropdownOpen((prev) => !prev)}
-                className={`flex h-10 w-10 items-center justify-center rounded-full border transition ${
-                  isDropdownOpen
-                    ? "border-orange-500"
-                    : "border-slate-200 hover:border-slate-300"
-                }`}
-              >
-                <img
-                  src={assets.profile_icon}
-                  alt="Profile"
-                  className="h-8 w-8 rounded-full"
-                />
-              </button>
-
-              {isDropdownOpen && (
-                <ProfileDropdown
-                  onLogout={handleLogout}
-                  onClose={() => setIsDropdownOpen(false)}
-                />
-              )}
-            </div>
+            <button
+              type="button"
+              onClick={() => navigate("/profile")}
+              aria-label="Profile"
+              title="Profile"
+              className="
+                ml-1
+                flex
+                h-10
+                w-10
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-slate-200
+                transition
+                hover:border-orange-400
+              "
+            >
+              <img
+                src={assets.profile_icon}
+                alt="Profile"
+                className="h-8 w-8 rounded-full"
+              />
+            </button>
           )}
         </div>
       </div>

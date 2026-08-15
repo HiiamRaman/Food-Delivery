@@ -161,17 +161,23 @@ catch (error)
     throw new ApiError(401, "Unauthorized");
   }
 
-  const orders = await Order.find({ user: userId })
+  const orders = await Order.find({
+    user: userId,
+  })
     .sort({ createdAt: -1 })
     .lean();
 
-  // ✅ return empty array (NOT error)
   return res.status(200).json(
     new ApiResponse(
       200,
-      { orders },
-      orders.length ? "Orders retrieved successfully" : "No orders found"
-    )
+      {
+        orders,
+        totalOrders: orders.length,
+      },
+      orders.length > 0
+        ? "Orders retrieved successfully"
+        : "No orders found",
+    ),
   );
 });
 

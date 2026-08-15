@@ -1,19 +1,21 @@
 import React, { useContext, useState } from "react";
 import "./Login.css";
-import { assets } from "../../assets/assets";
+
+import { Eye, EyeOff, Sparkles } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 import { StoreContext } from "../../Context/StoreContext";
 import api from "../../utils/axios.client";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
-function Login({ setShowLogin }) {
-  const { setToken, loadCartData } = useContext(StoreContext);
-  const [currState, setCurrState] = useState("Login");
+function Login() {
   const navigate = useNavigate();
+  const { setToken, loadCartData } = useContext(StoreContext);
+
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [formData, setFormData] = useState({
-    username: "",
-    fullname: "",
     email: "",
     password: "",
   });
@@ -30,233 +32,193 @@ function Login({ setShowLogin }) {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    const isLogin = currState === "Login";
+    if (loading) return;
 
     try {
-      // =====================================================
-      // LOGIN
-      // =====================================================
+      setLoading(true);
 
-      if (isLogin) {
-        const response = await api.post("/user/login", {
-          email: formData.email.trim().toLowerCase(),
-          password: formData.password,
-        });
+      const response = await api.post("/user/login", {
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      });
 
-        const token = response.data?.data?.accessToken;
-        const user = response.data?.data?.user;
+      const token = response.data?.data?.accessToken;
+      const user = response.data?.data?.user;
 
-        // Check token
-        if (!token || token === "undefined") {
-          console.log("❌ INVALID TOKEN:", response.data);
+      if (!token) {
+        toast.error("Login failed: token missing");
+        return;
+      }
 
-          toast.error("Login failed: invalid token from server");
+      if (!user) {
+        toast.error("Login failed: user data missing");
+        return;
+      }
 
-          return;
-        }
+      localStorage.setItem("accessToken", token);
+      localStorage.setItem("user", JSON.stringify(user));
 
-        // Check user
-        if (!user) {
-          toast.error("Login failed: user data missing");
+      api.defaults.headers.common.Authorization = `Bearer ${token}`;
 
-          return;
-        }
+      setToken(token);
 
-        // =====================================================
-        // STORE AUTH DATA
-        // =====================================================
+      if (user.role === "admin") {
+        toast.success("Redirecting to Admin Panel...");
 
-        localStorage.setItem("accessToken", token);
-
-        localStorage.setItem("user", JSON.stringify(user));
-
-        api.defaults.headers.common.Authorization = `Bearer ${token}`;
-
-        setToken(token);
-
-        await loadCartData(token);
-
-        // =====================================================
-        // ADMIN REDIRECT
-        // =====================================================
-
-        if (user.role === "admin") {
-          toast.success("Redirecting to Admin Panel...");
-
-          setTimeout(() => {
-            window.location.replace("http://localhost:5174");
-          }, 1000);
-
-          return;
-        }
-
-        // =====================================================
-        // NORMAL USER
-        // =====================================================
-
-        toast.success("User logged in successfully");
-
-        navigate("/");
-
-        setShowLogin(false);
+        window.location.replace("http://localhost:5174");
 
         return;
       }
 
-      // =====================================================
-      // SIGNUP
-      // =====================================================
+      await loadCartData(token);
 
-      const signupData = {
-        username: formData.username.trim(),
-        fullname: formData.fullname.trim(),
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password,
-      };
+      toast.success("Logged in successfully");
 
-      console.log("REGISTER DATA:", {
-        ...signupData,
-        password: "********",
-      });
-
-      const response = await api.post("/user/register", signupData);
-
-      console.log("REGISTER RESPONSE:", response.data);
-
-      toast.success("OTP sent to your email");
-
-      // =====================================================
-      // GO TO OTP VERIFICATION PAGE
-      // =====================================================
-
-      navigate("/otp-verify", {
-        state: {
-          email: signupData.email,
-        },
-      });
-
-      setShowLogin(false);
+      navigate("/");
     } catch (error) {
-      console.error("========== AUTH ERROR ==========");
+      const message = error.response?.data?.data;
 
-      console.error("STATUS:", error.response?.status);
-
-      console.error("DATA:", error.response?.data);
-
-      console.error("MESSAGE:", error.message);
-
-      console.error("URL:", error.config?.url);
-
-      console.error("================================");
-
-      toast.error(error.response?.data?.message || "An error occurred");
+      toast.error(message || "Unable to login. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login">
-      <form onSubmit={onSubmit} className="login-container">
-        {/* ================= TITLE ================= */}
+    <div className="login-page">
+      <div className="login-wrapper">
+        {/* ================= LEFT ================= */}
 
-        <div className="login-title">
-          <h2>{currState}</h2>
+        <section className="login-info">
+          <div className="animated-brand">
+            <Sparkles className="brand-sparkle" size={17} />
 
-          <img
-            onClick={() => setShowLogin(false)}
-            src={assets.cross_icon}
-            alt="Close"
-          />
-        </div>
-
-        {/* ================= INPUTS ================= */}
-
-        <div className="login-inputs">
-          {currState === "Signup" && (
-            <>
-              <input
-                name="username"
-                type="text"
-                placeholder="Username"
-                value={formData.username}
-                onChange={onChangeHandler}
-                required
-              />
-
-              <input
-                name="fullname"
-                type="text"
-                placeholder="Full Name"
-                value={formData.fullname}
-                onChange={onChangeHandler}
-                required
-              />
-            </>
-          )}
-
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={onChangeHandler}
-            required
-          />
-
-          <input
-            name="password"
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={onChangeHandler}
-            required
-          />
-
-          {currState === "Login" && (
-            <p
-              className="forgot-password"
-              onClick={() => {
-                navigate("/Forgot-password");
-                setShowLogin(false);
-              }}
-            >
-              Forgot Password?
-            </p>
-          )}
-        </div>
-
-        {/* ================= SUBMIT ================= */}
-
-        <button type="submit">
-          {currState === "Signup" ? "Create Account" : "Login"}
-        </button>
-
-        {/* ================= TERMS ================= */}
-
-        {currState === "Signup" && (
-          <div className="login-condition">
-            <input type="checkbox" required />
-
-            <p>Accept Terms and Conditions</p>
+            <span className="brand-text">
+              Raman<span className="brand-dot">.</span>
+            </span>
           </div>
-        )}
 
-        {/* ================= SWITCH ================= */}
+          <div className="login-info-content">
+            <p className="login-label">FRESH • FAST • DELICIOUS</p>
 
-        <p>
-          {currState === "Login"
-            ? "Create a new account? "
-            : "Already have an account? "}
+            <div className="hero-title-wrapper">
+              <Sparkles className="hero-sparkle" size={20} />
 
-          <span
-            onClick={() =>
-              setCurrState(currState === "Login" ? "Signup" : "Login")
-            }
-            className="form-switch"
-          >
-            {currState === "Login" ? "Sign Up" : "Login"}
-          </span>
-        </p>
-      </form>
+              <h1 className="animated-heading">
+                Good food.
+                <br />
+                Better moments.
+              </h1>
+            </div>
+
+            <p className="login-description">
+              Order your favorite meals and get them delivered fresh to your
+              doorstep.
+            </p>
+
+            <div className="login-features">
+              <div>
+                <strong>Fast</strong>
+                <span>Delivery</span>
+              </div>
+
+              <div>
+                <strong>Fresh</strong>
+                <span>Food</span>
+              </div>
+
+              <div>
+                <strong>Easy</strong>
+                <span>Ordering</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= RIGHT ================= */}
+
+        <section className="login-form-section">
+          <form className="login-form" onSubmit={onSubmit}>
+            <div className="login-heading">
+              <span>WELCOME BACK</span>
+
+              <h2>Log in</h2>
+
+              <p>Enter your account details to continue.</p>
+            </div>
+
+            {/* Email */}
+
+            <div className="login-field">
+              <label htmlFor="email">Email</label>
+
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                value={formData.email}
+                onChange={onChangeHandler}
+                autoComplete="email"
+                required
+              />
+            </div>
+
+            {/* Password */}
+
+            <div className="login-field">
+              <label htmlFor="password">Password</label>
+
+              <div className="password-input-wrapper">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  value={formData.password}
+                  onChange={onChangeHandler}
+                  autoComplete="current-password"
+                  required
+                />
+
+                <button
+                  type="button"
+                  className="password-toggle"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Submit */}
+
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? "Logging in..." : "Log In"}
+            </button>
+
+            {/* Bottom Links */}
+
+            <div className="login-bottom">
+              <button
+                type="button"
+                className="forgot-password"
+                onClick={() => navigate("/forgot-password")}
+              >
+                Forgot password?
+              </button>
+
+              <p className="signup-link">
+                Don't have an account?{" "}
+                <button type="button" onClick={() => navigate("/signup")}>
+                  Create account
+                </button>
+              </p>
+            </div>
+          </form>
+        </section>
+      </div>
     </div>
   );
 }

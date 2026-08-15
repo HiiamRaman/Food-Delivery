@@ -63,7 +63,7 @@ import ExploreMenu from "../../components/ExporeMenu/ExploreMenu.jsx";
 import FoodDisplay from "../../components/FoodDisplay/FoodDisplay.jsx";
 import AppDownload from "../../components/AppDownload/AppDownload.jsx";
 import FoodSectionHeader from "../../components/FoodDisplay/FoodSectionHeader.jsx";
-import Testimonials from "../../components/Testimonials/Testimonial.jsx";
+import DemoBanner from "../../components/DemoBanner/DemoBanner.jsx";
 
 function Home() {
   const [category, setCategory] = useState("All");
@@ -72,7 +72,7 @@ function Home() {
     <div className="w-full min-h-screen flex flex-col items-center bg-white">
       {/* Wrapper to constrain and center content blocks */}
       <div className="w-full max-w-7xl px-6 py-8 sm:px-8 lg:px-12 space-y-16 md:space-y-24">
-
+        <DemoBanner/>
         {/* Hero Header */}
         <Header />
 
@@ -84,7 +84,7 @@ function Home() {
 
         {/* Food Display Grid */}
         <FoodDisplay category={category} />
-        
+
 
         {/* App Download CTA */}
         <AppDownload />
@@ -92,5 +92,6 @@ function Home() {
     </div>
   );
 }
+
 
 export default Home;

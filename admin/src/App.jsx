@@ -55,7 +55,7 @@ function App() {
           <Sidebar />
 
           <Routes>
-            <Route path="/" element={<Navigate to="/add" />} />
+            <Route path="/" element={<Navigate to="/dashboard" />} />
             <Route path="/add" element={<Add />} />
             <Route path="/admin/order" element={<OrdersPage />} />
             <Route path="/list" element={<List />} />

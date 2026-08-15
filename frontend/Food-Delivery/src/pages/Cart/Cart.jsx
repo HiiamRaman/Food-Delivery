@@ -1,7 +1,10 @@
 import React, { useContext } from "react";
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 import { StoreContext } from "../../Context/StoreContext";
 import "./Cart.css";
-import { useNavigate } from "react-router-dom";
+
 function Cart() {
   const {
     cartItems,
@@ -12,76 +15,235 @@ function Cart() {
     getDeliveryFee,
     getCartSubtotal,
   } = useContext(StoreContext);
+
   const navigate = useNavigate();
 
-  const cartTotal = food_list.reduce(
-    (sum, item) => sum + (cartItems[item._id] || 0) * item.price,
-    0
+  const selectedItems = food_list.filter(
+    (item) => cartItems[item._id] > 0,
   );
 
+  const isCartEmpty = selectedItems.length === 0;
+
   return (
-    <div className="cart">
-      <div className="cart-items">
-        <div className="cart-items-title">
-          <p>Items</p>
-          <p>Title</p>
-          <p>Price</p>
-          <p>Quantity</p>
-          <p>Total</p>
-          <p>Remove</p>
+    <div className="cart-page">
+      <div className="cart-container">
+        {/* ================= HEADER ================= */}
+
+        <div className="cart-header">
+          <div>
+            <span className="cart-eyebrow">YOUR CART</span>
+
+            <h1>Shopping Cart</h1>
+
+            <p>
+              Review your items before continuing to checkout.
+            </p>
+          </div>
+
+          <div className="cart-count">
+            <ShoppingBag size={18} />
+
+            <span>
+              {selectedItems.length}{" "}
+              {selectedItems.length === 1 ? "Item" : "Items"}
+            </span>
+          </div>
         </div>
-        <br />
-        <hr />
-        {food_list
-          .filter((item) => cartItems[item._id] > 0)
-          .map((item) => (
-            <div  key={item._id} >
-              <div  className="cart-items-selected">
-                <img src={item.image} alt="" />
+
+        {isCartEmpty ? (
+          /* ================= EMPTY CART ================= */
+
+          <div className="cart-empty">
+            <div className="cart-empty-icon">
+              <ShoppingBag size={34} />
+            </div>
+
+            <h2>Your cart is empty</h2>
+
+            <p>
+              Add something delicious and come back here when
+              you're ready to order.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate("/food-display")}
+            >
+              Explore food
+            </button>
+          </div>
+        ) : (
+          <div className="cart-layout">
+            {/* ================= CART ITEMS ================= */}
+
+            <section className="cart-items-card">
+              <div className="cart-items-heading">
+                <h2>Your items</h2>
+
+                <span>
+                  {selectedItems.length} selected
+                </span>
+              </div>
+
+              <div className="cart-items-list">
+                {selectedItems.map((item) => {
+                  const quantity = cartItems[item._id];
+                  const itemTotal = item.price * quantity;
+
+                  return (
+                    <article
+                      key={item._id}
+                      className="cart-item"
+                    >
+                      {/* Image */}
+
+                      <div className="cart-item-image">
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                        />
+                      </div>
+
+                      {/* Info */}
+
+                      <div className="cart-item-info">
+                        <h3>{item.name}</h3>
+
+                        <p>
+                          {item.description ||
+                            "Freshly prepared and ready to enjoy."}
+                        </p>
+
+                        <span className="cart-item-price">
+                          Rs. {item.price}
+                        </span>
+                      </div>
+
+                      {/* Quantity */}
+
+                      <div className="cart-quantity">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeFromCart(item._id)
+                          }
+                          aria-label={`Decrease ${item.name}`}
+                        >
+                          <Minus size={15} />
+                        </button>
+
+                        <span>{quantity}</span>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            addToCart(item._id)
+                          }
+                          aria-label={`Increase ${item.name}`}
+                        >
+                          <Plus size={15} />
+                        </button>
+                      </div>
+
+                      {/* Total */}
+
+                      <div className="cart-item-total">
+                        <span>Total</span>
+
+                        <strong>
+                          Rs. {itemTotal}
+                        </strong>
+                      </div>
+
+                      {/* Remove */}
+
+                      <button
+                        type="button"
+                        className="cart-remove"
+                        onClick={() => {
+                          for (let i = 0; i < quantity; i++) {
+                            removeFromCart(item._id);
+                          }
+                        }}
+                        aria-label={`Remove ${item.name} from cart`}
+                      >
+                        <Trash2 size={17} />
+                      </button>
+                    </article>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* ================= ORDER SUMMARY ================= */}
+
+            <aside className="cart-summary">
+              <div className="cart-summary-header">
+                <h2>Order summary</h2>
+
                 <p>
-                  {item.name} × {cartItems[item._id]}
-                </p>
-                <p>$ {item.price}</p>
-                <p>{cartItems[item._id]}</p>
-
-                <p> ${item.price * cartItems[item._id]}</p>
-                <p onClick={() => removeFromCart(item._id)} className="cross">
-                  X
+                  Review your total before checkout.
                 </p>
               </div>
-              <hr />
-            </div>
-          ))}
-      </div>
-      <div className="cart-bottom">
-        <div className="cart-total">
-          <h2>Cart Total</h2>
-          <div className="cart-total-detail-1">
-            <p>Subtotal</p>
-            <p>${getCartSubtotal()}</p>
-          </div>
-          <hr />
-          <div className="cart-total-detail-2">
-            <p>Delivery Fee</p>
-            <p>${getDeliveryFee()}</p>
-          </div>
-          <hr />
-          <div className="cart-total-detail-3">
-            <b>Total</b>
-            <b>${getCartTotal()}</b>
-          </div>
 
-          <div className="cart-promocode">
-            <div>
-              <p>if you have promocode, Enter it here </p>
-              <div className="cart-promocode-input">
-                <input type="text" placeholder="Enter Your Promocode Here!!" />
-                <button>Submit</button>
+              <div className="cart-summary-row">
+                <span>Subtotal</span>
+
+                <strong>
+                  Rs. {getCartSubtotal()}
+                </strong>
               </div>
-            </div>
+
+              <div className="cart-summary-row">
+                <span>Delivery fee</span>
+
+                <strong>
+                  Rs. {getDeliveryFee()}
+                </strong>
+              </div>
+
+              <div className="cart-summary-divider" />
+
+              <div className="cart-summary-total">
+                <span>Total</span>
+
+                <strong>
+                  Rs. {getCartTotal()}
+                </strong>
+              </div>
+
+              {/* Promo */}
+
+              <div className="cart-promo">
+                <label htmlFor="promoCode">
+                  Have a promo code?
+                </label>
+
+                <div className="cart-promo-input">
+                  <input
+                    id="promoCode"
+                    type="text"
+                    placeholder="Enter promo code"
+                  />
+
+                  <button type="button">
+                    Apply
+                  </button>
+                </div>
+              </div>
+
+              {/* Checkout */}
+
+              <button
+                type="button"
+                className="cart-checkout-btn"
+                onClick={() => navigate("/order")}
+              >
+                Proceed to checkout
+              </button>
+            </aside>
           </div>
-        </div>
-        <button onClick={() => navigate("/order")}>Proceed To Checkout</button>
+        )}
       </div>
     </div>
   );

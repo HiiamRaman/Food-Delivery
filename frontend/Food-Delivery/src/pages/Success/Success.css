@@ -1,127 +1,426 @@
-/* 🌍 Full Page */
+/* =========================================
+   PAGE
+========================================= */
+
 .success-page {
-  min-height: 100vh;
+  min-height: 70vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
-  font-family: "Inter", "Segoe UI", sans-serif;
+
+  padding: 48px 20px 70px;
+
+  background:
+    radial-gradient(
+      circle at top center,
+      rgba(34, 197, 94, 0.07),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at bottom left,
+      rgba(249, 115, 22, 0.05),
+      transparent 28%
+    ),
+    #f8fafc;
 }
 
-/* 📦 Container */
-.success-container {
+.success-wrapper {
   width: 100%;
-  max-width: 420px;
-  padding: 20px;
-}
+  max-width: 560px;
 
-/* 💳 Card */
-.success-card {
+  padding: 40px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 28px;
+
   background: #ffffff;
-  border-radius: 18px;
-  padding: 30px 24px;
+
   text-align: center;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
-  animation: fadeInUp 0.5s ease;
+
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.07);
 }
 
-/* ✅ Icon wrapper */
-.success-icon-wrapper {
-  margin-bottom: 16px;
+/* =========================================
+   ICON
+========================================= */
+
+.success-icon-box {
+  width: 78px;
+  height: 78px;
+
+  margin: 0 auto 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 24px;
+
+  background: #ecfdf5;
+
+  color: #16a34a;
+
+  box-shadow:
+    0 12px 28px rgba(34, 197, 94, 0.12);
 }
 
-/* ✅ Icon */
-.success-icon {
-  color: #22c55e;
+.success-icon-box.processing {
+  background: #fff7ed;
+
+  color: #f97316;
+
+  box-shadow:
+    0 12px 28px rgba(249, 115, 22, 0.12);
 }
 
-/* 🏷 Title */
-.success-title {
-  font-size: 24px;
+.success-spinner,
+.button-spinner {
+  animation: success-spin 0.8s
+    linear infinite;
+}
+
+/* =========================================
+   HEADING
+========================================= */
+
+.success-eyebrow {
+  color: #16a34a;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  letter-spacing: 1.8px;
+}
+
+.success-wrapper h1 {
+  margin: 8px 0 9px;
+
+  color: #0f172a;
+
+  font-size: 34px;
+  font-weight: 800;
+
+  letter-spacing: -0.9px;
+}
+
+.success-description {
+  max-width: 420px;
+
+  margin: 0 auto;
+
+  color: #64748b;
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* =========================================
+   ORDER CARD
+========================================= */
+
+.success-order-card {
+  margin-top: 28px;
+
+  display: grid;
+
+  grid-template-columns:
+    auto 1fr auto;
+
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 17px;
+
+  background: #f8fafc;
+
+  text-align: left;
+}
+
+.success-order-icon {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 13px;
+
+  background: #fff7ed;
+
+  color: #f97316;
+}
+
+.success-order-content {
+  min-width: 0;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.success-order-content span {
+  color: #94a3b8;
+
+  font-size: 10px;
   font-weight: 700;
-  color: #141918;
-  margin-bottom: 10px;
+
+  letter-spacing: 0.7px;
+
+  text-transform: uppercase;
 }
 
-/* 🆔 Order ID */
-.success-order-id {
-  font-size: 14px;
-  color: #374151;
-  margin-bottom: 8px;
+.success-order-content strong {
+  margin-top: 3px;
+
+  color: #0f172a;
+
+  font-size: 15px;
+  font-weight: 800;
 }
 
-.success-order-id span {
-  font-weight: 600;
-  color: #111827;
+.success-order-content small {
+  margin-top: 2px;
+
+  overflow: hidden;
+
+  color: #94a3b8;
+
+  font-size: 9px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* 📩 Message */
-.success-message {
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 20px;
+/* =========================================
+   PAYMENT STATUS
+========================================= */
+
+.success-payment-status {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 7px 9px;
+
+  border-radius: 999px;
+
+  background: #fff7ed;
+
+  color: #ea580c;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.success-payment-status span {
+  width: 7px;
+  height: 7px;
+
+  border-radius: 50%;
+
+  background: #f97316;
+}
+
+.success-payment-status.confirmed {
+  background: #ecfdf5;
+
+  color: #059669;
+}
+
+.success-payment-status.confirmed span {
+  background: #10b981;
+}
+
+/* =========================================
+   NEXT STEP
+========================================= */
+
+.success-next-step {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  margin-top: 14px;
+
+  padding: 13px 14px;
+
+  border-radius: 14px;
+
+  background: #eff6ff;
+
+  text-align: left;
+}
+
+.success-next-step > div {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #2563eb;
+}
+
+.success-next-step p {
+  margin: 0;
+
+  color: #475569;
+
+  font-size: 12px;
   line-height: 1.5;
 }
 
-/* 🔘 Buttons wrapper */
+/* =========================================
+   BUTTONS
+========================================= */
+
 .success-actions {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 11px;
+
+  margin-top: 22px;
+}
+
+.success-primary-btn,
+.success-secondary-btn {
+  height: 45px;
+
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+  align-items: center;
+  justify-content: center;
 
-/* 🔘 Base button */
-.success-button {
-  padding: 12px;
+  gap: 8px;
+
   border-radius: 12px;
-  border: none;
-  font-size: 15px;
-  font-weight: 600;
+
+  font-size: 12px;
+  font-weight: 700;
+
   cursor: pointer;
-  transition: all 0.25s ease;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-/* 🚚 Primary button */
-.primary-btn {
-  background: #dc934a;
+.success-primary-btn {
+  border: none;
+
+  background: #0f172a;
+
   color: #ffffff;
 }
 
-.primary-btn:hover {
-  background: #362818;
-  transform: translateY(-2px);
+.success-primary-btn:hover:not(:disabled) {
+  background: #f97316;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 18px rgba(249, 115, 22, 0.18);
 }
 
-/* ⬅ Secondary button */
-.secondary-btn {
-  background: #f3f4f6;
-  color: #111827;
+.success-primary-btn:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
 }
 
-.secondary-btn:hover {
-  background: #e5e7eb;
-  transform: translateY(-2px);
+.success-secondary-btn {
+  border: 1px solid #e2e8f0;
+
+  background: #ffffff;
+
+  color: #475569;
 }
 
-/* ✨ Animation */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
+.success-secondary-btn:hover {
+  border-color: #fed7aa;
+
+  background: #fff7ed;
+
+  color: #ea580c;
+
+  transform: translateY(-1px);
+}
+
+/* =========================================
+   FOOTNOTE
+========================================= */
+
+.success-footnote {
+  margin: 18px 0 0;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+}
+
+/* =========================================
+   ANIMATION
+========================================= */
+
+@keyframes success-spin {
   to {
-    opacity: 1;
-    transform: translateY(0);
+    transform: rotate(360deg);
   }
 }
 
-/* 📱 Responsive */
-@media (max-width: 480px) {
-  .success-card {
-    padding: 24px 18px;
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 560px) {
+  .success-page {
+    padding: 32px 14px 50px;
   }
 
-  .success-title {
-    font-size: 20px;
+  .success-wrapper {
+    padding: 30px 20px;
+
+    border-radius: 22px;
+  }
+
+  .success-wrapper h1 {
+    font-size: 28px;
+  }
+
+  .success-order-card {
+    grid-template-columns:
+      auto 1fr;
+  }
+
+  .success-payment-status {
+    grid-column: 1 / -1;
+
+    width: fit-content;
+
+    margin-left: 57px;
+  }
+
+  .success-actions {
+    grid-template-columns: 1fr;
   }
 }

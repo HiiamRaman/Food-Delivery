@@ -9,10 +9,10 @@ const userSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    fullname:{
-      type:String,
-      required:true,
-      trim:true
+    fullname: {
+      type: String,
+      required: true,
+      trim: true,
     },
     email: {
       type: String,
@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "admin","rider"],
+      enum: ["user", "admin", "rider"],
       default: "user",
     },
     address: [
@@ -65,26 +65,31 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: null,
     },
-    appliedCoupon:{
-      type:String,
-      default:null
+    appliedCoupon: {
+      type: String,
+      default: null,
     },
-    isVerified:{
-      type:Boolean,
-      default:false
+    favorites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Food",
+      },
+    ],
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
     resetPasswordVerified: {
-  type: Boolean,
-  default: false,
-},
+      type: Boolean,
+      default: false,
+    },
 
-resetPasswordVerifiedAt: {
-  type: Date,
-  default: null,
-},
-    
+    resetPasswordVerifiedAt: {
+      type: Date,
+      default: null,
+    },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 //The purpose we want to hash the password before saving to the database so plain texts are never stored in database
@@ -113,7 +118,7 @@ userSchema.methods.generateAccessToken = function () {
 
     {
       expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
-    }
+    },
   );
 };
 userSchema.methods.generateRefreshToken = function () {
@@ -124,11 +129,8 @@ userSchema.methods.generateRefreshToken = function () {
     process.env.REFRESH_TOKEN_SECRET,
     {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
-    }
+    },
   );
 };
 
 export const User = new mongoose.model("User", userSchema);
-
-
-
