@@ -20,6 +20,7 @@ import FoodDisplay from "./components/FoodDisplay/FoodDisplay.jsx";
 import Profile from "./components/Profile/Profile.jsx";
 import Favorites from "./pages/Favorites/Favorites.jsx";
 import MyOrders from "./pages/MyOrder/MyOrders.jsx";
+import Addresses from "./pages/Address/Address.jsx";
 function App() {
   const [showLogin, setShowLogin] = useState(false);
 
@@ -51,6 +52,7 @@ function App() {
           <Route path="/profile" element={<Profile/>}/>
           <Route path="/favorites" element={<Favorites/>}/>
           <Route path="/my-orders" element={<MyOrders/>}/>
+         <Route path="/addresses" element = {<Addresses/>} />
 
           <Route path="/cart" element={<Cart />} />
 

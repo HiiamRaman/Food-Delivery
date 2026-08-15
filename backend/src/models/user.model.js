@@ -32,17 +32,49 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin", "rider"],
       default: "user",
     },
-    address: [
-      {
-        street: String,
-        city: String,
-        zip: String,
-        isDefault: {
-          type: Boolean,
-          default: false,
-        },
-      },
-    ],
+   address: [
+  {
+    label: {
+      type: String,
+      enum: ["Home", "Work", "Other"],
+      default: "Home",
+    },
+
+    street: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    city: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    state: {
+      type: String,
+      trim: true,
+    },
+
+    zip: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    country: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+  },
+],
     isActive: {
       type: Boolean,
       default: true,
