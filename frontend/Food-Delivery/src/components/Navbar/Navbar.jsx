@@ -9,8 +9,11 @@ function Navbar({ setShowLogin }) {
   const [menu, setMenu] = useState("Home");
   const [isScrolled, setIsScrolled] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const dropdownRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   const { getCartTotal, token, setToken } = useContext(StoreContext);
   const navigate = useNavigate();
@@ -41,6 +44,12 @@ function Navbar({ setShowLogin }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (isSearchOpen) {
+      searchInputRef.current?.focus();
+    }
+  }, [isSearchOpen]);
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     setToken(null);
@@ -54,11 +63,36 @@ function Navbar({ setShowLogin }) {
   const handleHomeClick = () => {
     setMenu("Home");
     setIsDropdownOpen(false);
+    setIsSearchOpen(false);
+    setSearchValue("");
+
+    navigate("/");
 
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
+  };
+
+  const handleSearchOpen = () => {
+    setIsSearchOpen(true);
+  };
+
+  const handleSearchClose = () => {
+    setIsSearchOpen(false);
+    setSearchValue("");
+
+    navigate("/");
+  };
+
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+
+    setSearchValue(value);
+
+    if (value.trim()) {
+      navigate(`/food-display?search=${encodeURIComponent(value)}`);
+    }
   };
 
   const navItems = [
@@ -96,12 +130,12 @@ function Navbar({ setShowLogin }) {
           : "bg-white"
       }`}
     >
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <Link
           to="/"
           onClick={handleHomeClick}
-          className="group flex items-center"
+          className="group flex shrink-0 items-center"
         >
           <span className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
             Raman
@@ -160,25 +194,108 @@ function Navbar({ setShowLogin }) {
         </nav>
 
         {/* Right Controls */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           {/* Search */}
-          <button
-            type="button"
-            aria-label="Search"
-            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-600 transition hover:bg-slate-100"
-          >
-            <img
-              src={assets.search_icon}
-              alt=""
-              className="h-5 w-5 opacity-80"
-            />
-          </button>
+          {isSearchOpen ? (
+            <div className="flex items-center gap-1">
+              <div className="relative">
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchValue}
+                  placeholder="Search food..."
+                  onChange={handleSearchChange}
+                  className="
+                    h-10
+                    w-40
+                    rounded-full
+                    border
+                    border-slate-200
+                    bg-slate-50
+                    pl-10
+                    pr-4
+                    text-sm
+                    text-slate-800
+                    outline-none
+                    transition-all
+                    duration-300
+                    placeholder:text-slate-400
+                    focus:w-52
+                    focus:border-orange-400
+                    focus:bg-white
+                    focus:ring-4
+                    focus:ring-orange-500/10
+                    sm:w-52
+                    sm:focus:w-64
+                  "
+                />
+              </div>
+
+              {/* Close Search */}
+              <button
+                type="button"
+                onClick={handleSearchClose}
+                aria-label="Close search"
+                className="
+                  flex
+                  h-9
+                  w-9
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  text-lg
+                  text-slate-400
+                  transition
+                  hover:bg-slate-100
+                  hover:text-slate-700
+                "
+              >
+                ×
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              aria-label="Search"
+              onClick={handleSearchOpen}
+              className="
+                flex
+                h-10
+                w-10
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                text-slate-600
+                transition
+                hover:bg-slate-100
+              "
+            >
+              <img
+                src={assets.search_icon}
+                alt=""
+                className="h-5 w-5 opacity-80"
+              />
+            </button>
+          )}
 
           {/* Cart */}
           <Link
             to="/cart"
             aria-label="Cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-slate-100"
+            className="
+              relative
+              flex
+              h-10
+              w-10
+              shrink-0
+              items-center
+              justify-center
+              rounded-full
+              transition
+              hover:bg-slate-100
+            "
           >
             <img
               src={assets.basket_icon}
@@ -194,29 +311,30 @@ function Navbar({ setShowLogin }) {
           {/* Authentication */}
           {!token ? (
             <button
-  type="button"
-  onClick={() => setShowLogin(true)}
-  className="
-    ml-2
-    w-20
-    h-8
-
-    rounded-full
-    bg-slate-900
-    px-10 py-2.5
-    text-sm font-semibold
-    text-white
-    shadow-sm
-    transition-all duration-300
-    hover:-translate-y-0.5
-    hover:bg-orange-500
-    hover:shadow-md
-    active:translate-y-0
-    active:scale-95
-  "
->
-  Sign In
-</button>
+              type="button"
+              onClick={() => setShowLogin(true)}
+              className="
+                ml-1
+                h-10
+                rounded-full
+                bg-slate-900
+                px-5
+                text-sm
+                font-semibold
+                text-white
+                shadow-sm
+                transition-all
+                duration-300
+                hover:-translate-y-0.5
+                hover:bg-orange-500
+                hover:shadow-md
+                active:translate-y-0
+                active:scale-95
+                sm:px-6
+              "
+            >
+              Sign In
+            </button>
           ) : (
             <div ref={dropdownRef} className="relative ml-1">
               <button
@@ -235,7 +353,6 @@ function Navbar({ setShowLogin }) {
                 />
               </button>
 
-              {/* Dropdown */}
               {isDropdownOpen && (
                 <ProfileDropdown
                   onLogout={handleLogout}

@@ -44,23 +44,8 @@
 
 // export default Header;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import React from "react";
-
+import { Link } from "react-router-dom";
 export default function Hero() {
   const stats = [
     { value: "4.9/5", label: "Customer rating ⭐" },
@@ -76,12 +61,10 @@ export default function Hero() {
       <div className="pointer-events-none absolute left-1/2 top-12 h-3 w-3 animate-bounce rounded-full bg-orange-400" />
 
       <div className="relative grid w-full items-center gap-12 lg:grid-cols-2 lg:gap-16">
-
         {/* =====================================================
             LEFT CONTENT
         ===================================================== */}
         <div className="flex flex-col gap-6 text-left">
-
           {/* Eyebrow Pill */}
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-4 py-2 text-xs font-bold text-orange-600">
@@ -100,26 +83,30 @@ export default function Hero() {
             </h1>
 
             <p className="max-w-lg text-base text-slate-600 sm:text-lg sm:leading-relaxed">
-              Discover delicious meals from your favorite local restaurants
-              and get them delivered fresh and fast, right to your doorstep.
+              Discover delicious meals from your favorite local restaurants and
+              get them delivered fresh and fast, right to your doorstep.
             </p>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
-            <button className="group inline-flex items-center gap-2 rounded-full bg-orange-500 px-8 py-4 font-bold text-white shadow-lg shadow-orange-500/25 transition duration-200 hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-orange-500/35 active:scale-95">
+            <a href="#food-display" className="group inline-flex items-center gap-2 rounded-full bg-orange-500 px-8 py-4 font-bold text-white shadow-lg shadow-orange-500/25 transition duration-200 hover:-translate-y-0.5 hover:bg-orange-600 hover:shadow-orange-500/35 active:scale-95">
               Order Now
               <span className="transition-transform duration-200 group-hover:translate-x-1">
                 →
               </span>
-            </button>
+            </a>
 
-            <button className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-7 py-4 font-bold text-slate-700 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-orange-200 hover:text-orange-600 hover:shadow-md active:scale-95">
-              Explore Menu
-              <span className="transition-transform duration-200 group-hover:translate-x-1">
-                ↗
+            <a
+              href="#explore-menu"
+              className="group inline-flex items-center gap-3 rounded-full border border-slate-200 bg-white px-7 py-3.5 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:border-orange-300 hover:text-orange-600 hover:shadow-md active:scale-95"
+            >
+              <span>Explore Menu</span>
+
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-orange-50 text-orange-500 transition-all duration-300 group-hover:bg-orange-500 group-hover:text-white">
+                →
               </span>
-            </button>
+            </a>
           </div>
 
           {/* Live Delivery Info Card */}
@@ -148,20 +135,20 @@ export default function Hero() {
               <React.Fragment key={index}>
                 {index > 0 && <div className="h-8 w-px bg-slate-200" />}
                 <div>
-                  <p className="text-xl font-black text-slate-900">{stat.value}</p>
+                  <p className="text-xl font-black text-slate-900">
+                    {stat.value}
+                  </p>
                   <p className="text-xs text-slate-500">{stat.label}</p>
                 </div>
               </React.Fragment>
             ))}
           </div>
-
         </div>
 
         {/* =====================================================
             RIGHT IMAGE & FLOATING CARDS
         ===================================================== */}
         <div className="relative flex justify-center">
-
           {/* Outer Decorative Ring & Glow */}
           <div className="absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full border border-orange-100/80 bg-orange-100/30 blur-2xl" />
 
@@ -180,7 +167,9 @@ export default function Hero() {
               ⭐
             </div>
             <div>
-              <p className="text-xs font-extrabold text-slate-900">4.9 Rating</p>
+              <p className="text-xs font-extrabold text-slate-900">
+                4.9 Rating
+              </p>
               <p className="text-[11px] text-slate-500">10k+ happy buyers</p>
             </div>
           </div>
@@ -191,7 +180,9 @@ export default function Hero() {
               🚴
             </div>
             <div>
-              <p className="text-xs font-extrabold text-slate-900">On the way!</p>
+              <p className="text-xs font-extrabold text-slate-900">
+                On the way!
+              </p>
               <p className="text-[11px] text-slate-500">Live order status</p>
             </div>
           </div>
@@ -200,9 +191,7 @@ export default function Hero() {
           <div className="absolute -right-3 top-0 flex h-12 w-12 items-center justify-center rounded-full border-4 border-white bg-orange-500 text-xl shadow-lg">
             🍔
           </div>
-
         </div>
-
       </div>
     </section>
   );

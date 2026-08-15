@@ -15,6 +15,8 @@ import VerifyResetOtp from "./pages/Auth/VerifyResetOTP.jsx";
 import ResetPassword from "./pages/Auth/ResetPassword.jsx";
 import ChangePassword from "./pages/Auth/Changepassword.jsx";
 import ForgotPassword from "./pages/Auth/forgotpassword.jsx";
+import FoodDisplay from "./components/FoodDisplay/FoodDisplay.jsx";
+
 
 function App() {
   const [showLogin, setShowLogin] = useState(false);
@@ -28,7 +30,9 @@ function App() {
       <main className="min-h-[70vh]">
         <Routes>
           <Route path="/" element={<Home />} />
+
           <Route path="/cart" element={<Cart />} />
+          <Route path="/food-display" element={<FoodDisplay />} />
           <Route path="/order" element={<PlaceOrder />} />
           <Route path="/success" element={<Success />} />
           <Route path="/tracking/:id" element={<Tracking />} />
