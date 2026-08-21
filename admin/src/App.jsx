@@ -1,69 +1,76 @@
-
 import React from "react";
-import { useState, useEffect } from "react";
+import { Navigate, Outlet, Route, Routes } from "react-router-dom";
+
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
-import { Routes, Route, Navigate } from "react-router-dom";
-import Add from "./pages/Add/Add";
-import OrdersPage from "./pages/Order/Order";
-import List from "./pages/List/List";
-import { ToastContainer } from "react-toastify";
-import adminApi from "./Api/axios.admin";
-import Users from "./pages/User/Alluser";
+import AdminProtectedRoute from "./components/Auth/AdminProtectedRoute";
+
 import Dashboard from "./pages/Dashboard/Dashboard";
+import Add from "./pages/Add/Add";
+import List from "./pages/List/List";
+import OrdersPage from "./pages/Order/Order";
+import Users from "./pages/User/Alluser";
+import AdminLogin from "./components/Auth/Login";
+
+// ================= ADMIN LAYOUT =================
+
+function AdminLayout() {
+  return (
+    <div>
+      <Navbar />
+
+      <hr />
+
+      <div className="app-content">
+        <Sidebar />
+
+        <main className="admin-main-content">
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+}
+
+// ================= APP =================
+
 function App() {
-  const [checkingAuth, setCheckingAuth] = useState(true);
-
-  useEffect(() => {
-    const checkadminAccess = async () => {
-
-
-      try {
-
-
-        const res = await adminApi.get("/user/admin/me", {
-          withCredentials: true,
-        });
-
-        setCheckingAuth(false);
-      } catch (error) {
-
-
-        window.location.replace("http://localhost:5173");
-      }
-    };
-
-    checkadminAccess();
-  }, []);
-
-  if (checkingAuth) {
-
-    return <p>Checking access ....</p>;
-  }
-
-
   return (
     <>
-      <div>
+      <ToastContainer position="top-right" autoClose={3000} />
 
-        <ToastContainer />
-        <Navbar />
+      <Routes>
+        {/* Public */}
 
-        <hr />
+        <Route path="/login" element={<AdminLogin />} />
 
-        <div className="app-content">
-          <Sidebar />
+        {/* Protected */}
 
-          <Routes>
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+        <Route element={<AdminProtectedRoute />}>
+          <Route element={<AdminLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+
             <Route path="/add" element={<Add />} />
+
             <Route path="/admin/order" element={<OrdersPage />} />
+
             <Route path="/list" element={<List />} />
-            <Route path="/all-user" element={<Users/>}/>
-            <Route path='/dashboard' element={<Dashboard/>}/>
-          </Routes>
-        </div>
-      </div>
+
+            <Route path="/all-user" element={<Users />} />
+          </Route>
+        </Route>
+
+        {/* Root */}
+
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+        {/* Unknown route */}
+
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
     </>
   );
 }
