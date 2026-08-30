@@ -7,7 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Navbar from "./components/Navbar/Navbar";
 import Sidebar from "./components/Sidebar/Sidebar";
 import AdminProtectedRoute from "./components/Auth/AdminProtectedRoute";
-
+import AdminOrderDetails from "./components/Order/AdminOrderDetailPage";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Add from "./pages/Add/Add";
 import List from "./pages/List/List";
@@ -60,6 +60,10 @@ function App() {
             <Route path="/list" element={<List />} />
 
             <Route path="/all-user" element={<Users />} />
+            <Route
+              path="/admin/orders/:orderId"
+              element={<AdminOrderDetails />}
+            />
           </Route>
         </Route>
 

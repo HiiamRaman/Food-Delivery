@@ -4,24 +4,30 @@ import mongoose from "mongoose";
 import { Cart } from "../models/cart.model.js";
 import { Order } from "../models/order.model.js";
 
-import { handleOrderSideEffects } from "../Service/order.services.js";
-import { dispatchOrderByAdmin,markPreparing,confirmOrder } from "../Service/order.dispatch.service.js";
+import {
+  dispatchOrderByAdmin,
+  markPreparing,
+  confirmOrder,
+  getOrderByIdForAdmin,
+} from "../Service/order.dispatch.service.js";
 import { generateMockRoute } from "../Service/mockRoute.service.js";
 import { ApiError } from "../utils/API/apiError.js";
 import { ApiResponse } from "../utils/API/apiResponse.js";
 import { asyncHandler } from "../utils/API/asyncHandler.js";
 import { assignRiderToOrder } from "../Service/riderAssignment.service.js";
+import { cancelOrderByAdmin } from "../Service/order.dispatch.service.js";
+import { getAllOrdersForAdmin } from "../Service/order.dispatch.service.js";
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2023-10-16",
 });
 
-const FRONTEND_URL =
-  process.env.FRONTEND_URL || "http://localhost:5173";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
 
-export const createOrder = asyncHandler(async (req, res) => {  try {
-   const restaurant = { lat: 27.7172, lng: 85.324 };
-const customer = { lat: 27.723, lng: 85.335 };
-const route = generateMockRoute(restaurant, customer);
+export const createOrder = asyncHandler(async (req, res) => {
+  try {
+    const restaurant = { lat: 27.7172, lng: 85.324 };
+    const customer = { lat: 27.723, lng: 85.335 };
+    const route = generateMockRoute(restaurant, customer);
     const userId = req.user?._id;
     if (!userId) throw new ApiError(401, "Unauthorized");
 
@@ -29,10 +35,7 @@ const route = generateMockRoute(restaurant, customer);
 
     const deliveryAddress = req.body?.deliveryInfo;
 
-    if (
-      !deliveryAddress ||
-      typeof deliveryAddress !== "object"
-    ) {
+    if (!deliveryAddress || typeof deliveryAddress !== "object") {
       throw new ApiError(400, "Valid delivery info required");
     }
 
@@ -48,9 +51,7 @@ const route = generateMockRoute(restaurant, customer);
 
     /* ---------------- FILTER VALID ITEMS ---------------- */
 
-    const validItems = cart.item.filter(
-      (ci) => ci?.food && ci.quantity > 0
-    );
+    const validItems = cart.item.filter((ci) => ci?.food && ci.quantity > 0);
 
     if (validItems.length === 0) {
       throw new ApiError(400, "Cart has no purchasable items");
@@ -69,7 +70,7 @@ const route = generateMockRoute(restaurant, customer);
 
     const subTotal = orderItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
-      0
+      0,
     );
 
     const deliveryFee = subTotal >= 500 ? 0 : 50;
@@ -80,7 +81,7 @@ const route = generateMockRoute(restaurant, customer);
     }
 
     /* ---------------- CREATE ORDER ---------------- */
-     console.log("🗺 GENERATED ROUTE:", route);
+    console.log("🗺 GENERATED ROUTE:", route);
     const order = await Order.create({
       user: userId,
       items: orderItems,
@@ -145,16 +146,12 @@ const route = generateMockRoute(restaurant, customer);
       },
       message: "Order + Stripe session created",
     });
-
-
-}
-catch (error)
-{
-  console.log("error",error)
-   throw new ApiError(500,"Server Error")
-}
-  });
- export const getMyOrders = asyncHandler(async (req, res) => {
+  } catch (error) {
+    console.log("error", error);
+    throw new ApiError(500, "Server Error");
+  }
+});
+export const getMyOrders = asyncHandler(async (req, res) => {
   const userId = req.user?._id;
 
   if (!userId) {
@@ -174,16 +171,14 @@ catch (error)
         orders,
         totalOrders: orders.length,
       },
-      orders.length > 0
-        ? "Orders retrieved successfully"
-        : "No orders found",
+      orders.length > 0 ? "Orders retrieved successfully" : "No orders found",
     ),
   );
 });
 
 export const getAllOrders = async (req, res) => {
   try {
-       const orders = await Order.find()
+    const orders = await Order.find()
       .populate("user", "username fullname email")
       .sort({ createdAt: -1 })
       .lean();
@@ -192,7 +187,6 @@ export const getAllOrders = async (req, res) => {
       success: true,
       orders,
     });
-
   } catch (error) {
     console.error("Admin fetch error:", error);
     return res.status(500).json({
@@ -201,7 +195,6 @@ export const getAllOrders = async (req, res) => {
     });
   }
 };
-
 
 export const orderWorkflowController = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
@@ -223,27 +216,61 @@ export const orderWorkflowController = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Invalid workflow action");
   }
 
-  return res.status(200).json(
-    new ApiResponse(200, { order }, `Order ${action} successful`)
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { order }, `Order ${action} successful`));
 });
 
-export const adminDispatchOrder   = asyncHandler(async (req,res)=>{
-  const {orderId} = req.params;
-  const io  = req.app.get('io');
+export const adminDispatchOrder = asyncHandler(async (req, res) => {
+  const { orderId } = req.params;
+  const io = req.app.get("io");
 
+  const order = await dispatchOrderByAdmin(orderId, io);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { order }, "Order dispatched by admin"));
+});
 
-  const order = await dispatchOrderByAdmin(orderId,io)
-  return res.status(200).json(new ApiResponse(200,{order},"Order dispatched by admin"))
-
-})
-
-export const assignRider  = asyncHandler(async(req,res)=>{
-  const {orderId,riderId} = req.body;
-  if(!orderId||!riderId){
-    throw new ApiError(400,"OrderId and RiderId are required!!!")
+export const assignRider = asyncHandler(async (req, res) => {
+  const { orderId, riderId } = req.body;
+  if (!orderId || !riderId) {
+    throw new ApiError(400, "OrderId and RiderId are required!!!");
   }
-  const order = await assignRiderToOrder({orderId,riderId,assignedBy:req.user._id});
-  return res.status(200).json(new ApiResponse(200,order,"Rider Assigned SuccessFully"))
+  const order = await assignRiderToOrder({
+    orderId,
+    riderId,
+    assignedBy: req.user._id,
+  });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, order, "Rider Assigned SuccessFully"));
+});
+export const cancelOrder = async (req, res) => {
+  const { orderId } = req.params;
 
-})
+  const io = req.app.get("io");
+
+  const order = await cancelOrderByAdmin(orderId, io);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, order, "Order cancelled successfully"));
+};
+
+export const getAdminOrders = async (req, res) => {
+  const orders = await getAllOrdersForAdmin();
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, orders, "Orders fetched successfully"));
+};
+
+export const getAdminOrderById = async (req, res) => {
+  const { orderId } = req.params;
+
+  const order = await getOrderByIdForAdmin(orderId);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, order, "Order fetched successfully"));
+};

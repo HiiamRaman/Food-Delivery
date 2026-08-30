@@ -18,7 +18,7 @@ const isValidTransition = (current, next) => {
 
 
 export const handleOrderSideEffects = async ({ io, order }) => {
- const shouldStart = 
+ const shouldStart =
  order.orderStatus=== "out_for_delivery" && !order.riderStarted
  console.log("shouldStart:", shouldStart);
  if(!shouldStart) return ;
@@ -27,3 +27,4 @@ export const handleOrderSideEffects = async ({ io, order }) => {
 
   startRiderMovement(io, order._id.toString(), order.route);
 };
+

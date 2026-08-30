@@ -1,39 +1,78 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
 import { Heart } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+
 import { toast } from "react-toastify";
+
 import "./Navbar.css";
 
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../Context/StoreContext";
 
 function Navbar() {
-  const [menu, setMenu] = useState("Home");
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const {
+    getCartTotal,
+    token,
+    setToken,
+  } = useContext(StoreContext);
+
+  // Only used for homepage sections:
+  // Menu, Get App, Contact
+  const [activeSection, setActiveSection] =
+    useState(null);
+
+  const [isScrolled, setIsScrolled] =
+    useState(false);
+
+  const [isSearchOpen, setIsSearchOpen] =
+    useState(false);
+
+  const [searchValue, setSearchValue] =
+    useState("");
 
   const searchInputRef = useRef(null);
 
-  const navigate = useNavigate();
-
-  const { getCartTotal, token, setToken } = useContext(StoreContext);
-
-  // ================= SCROLL EFFECT =================
+  // =====================================
+  // SCROLL EFFECT
+  // =====================================
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 16);
     };
 
-    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+
+    window.addEventListener(
+      "scroll",
+      handleScroll
+    );
 
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener(
+        "scroll",
+        handleScroll
+      );
     };
   }, []);
 
-  // ================= SEARCH AUTO FOCUS =================
+  // =====================================
+  // SEARCH AUTO FOCUS
+  // =====================================
 
   useEffect(() => {
     if (isSearchOpen) {
@@ -41,27 +80,46 @@ function Navbar() {
     }
   }, [isSearchOpen]);
 
-  // ================= LOGOUT =================
+  // =====================================
+  // RESET ACTIVE SECTION
+  // WHEN LEAVING HOME
+  // =====================================
+
+  useEffect(() => {
+    if (location.pathname !== "/") {
+      setActiveSection(null);
+    }
+  }, [location.pathname]);
+
+  // =====================================
+  // LOGOUT
+  // =====================================
 
   const handleLogout = () => {
-    localStorage.removeItem("accessToken");
+    localStorage.removeItem(
+      "accessToken"
+    );
+
     localStorage.removeItem("user");
 
     setToken(null);
 
-    toast.success("Logged out successfully");
+    toast.success(
+      "Logged out successfully"
+    );
 
     navigate("/");
   };
 
-  // ================= HOME =================
+  // =====================================
+  // HOME
+  // =====================================
 
   const handleHomeClick = () => {
-    setMenu("Home");
+    setActiveSection(null);
+
     setIsSearchOpen(false);
     setSearchValue("");
-
-    navigate("/");
 
     window.scrollTo({
       top: 0,
@@ -69,7 +127,51 @@ function Navbar() {
     });
   };
 
-  // ================= SEARCH =================
+  // =====================================
+  // HOME SECTION NAVIGATION
+  // =====================================
+
+  const handleSectionClick = (
+    event,
+    item
+  ) => {
+    event.preventDefault();
+
+    const scrollToSection = () => {
+      const section =
+        document.querySelector(
+          item.path
+        );
+
+      if (!section) return;
+
+      section.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+
+      setActiveSection(item.id);
+    };
+
+    // Already on homepage
+    if (location.pathname === "/") {
+      scrollToSection();
+
+      return;
+    }
+
+    // Coming from food details,
+    // cart, profile, favorites, etc.
+    navigate("/");
+
+    setTimeout(() => {
+      scrollToSection();
+    }, 150);
+  };
+
+  // =====================================
+  // SEARCH
+  // =====================================
 
   const handleSearchOpen = () => {
     setIsSearchOpen(true);
@@ -82,178 +184,170 @@ function Navbar() {
     navigate("/");
   };
 
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
+  const handleSearchChange = (event) => {
+    const value =
+      event.target.value;
 
     setSearchValue(value);
 
-    if (value.trim()) {
-      navigate(
-        `/food-display?search=${encodeURIComponent(value)}`,
-      );
+    if (!value.trim()) {
+      return;
     }
+
+    navigate(
+      `/food-display?search=${encodeURIComponent(
+        value
+      )}`
+    );
   };
 
-  // ================= NAVIGATION ITEMS =================
+  // =====================================
+  // NAV ITEMS
+  // =====================================
 
   const navItems = [
     {
-      id: "Home",
-      label: "Home",
-      type: "link",
-      path: "/",
-    },
-    {
       id: "Menu",
       label: "Menu",
-      type: "anchor",
       path: "#explore-menu",
     },
+
     {
       id: "MobileApp",
       label: "Get App",
-      type: "anchor",
       path: "#app-download",
     },
+
     {
       id: "Contact",
       label: "Contact",
-      type: "anchor",
       path: "#footer",
     },
   ];
 
+  // =====================================
+  // HOME ACTIVE
+  // =====================================
+
+  const isHomePage =
+    location.pathname === "/";
+
+  /*
+    Home is active ONLY when:
+
+    1. pathname is "/"
+    2. no homepage section is active
+  */
+
+  const isHomeActive =
+    isHomePage &&
+    activeSection === null;
+
   return (
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`navbar ${
         isScrolled
-          ? "border-b border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl"
-          : "bg-white"
+          ? "navbar-scrolled"
+          : ""
       }`}
     >
-      <div className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        {/* ================= LOGO ================= */}
+      <div className="navbar-container">
+        {/* =====================================
+            LOGO
+        ===================================== */}
 
         <Link
           to="/"
           onClick={handleHomeClick}
-          className="group flex shrink-0 items-center"
+          className="navbar-logo"
         >
-          <span className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
-            Raman
-            <span className="text-orange-500 transition group-hover:text-orange-600">
-              .
-            </span>
-          </span>
+          Raman
+          <span>.</span>
         </Link>
 
-        {/* ================= DESKTOP NAVIGATION ================= */}
+        {/* =====================================
+            NAVIGATION
+        ===================================== */}
 
-        <nav className="hidden md:block">
-          <ul className="flex items-center gap-8 lg:gap-10">
+        <nav className="navbar-navigation">
+          <ul>
+            {/* HOME */}
+
+            <li>
+              <Link
+                to="/"
+                onClick={handleHomeClick}
+                className={`nav-link ${
+                  isHomeActive
+                    ? "nav-link-active"
+                    : ""
+                }`}
+              >
+                Home
+              </Link>
+            </li>
+
+            {/* HOMEPAGE SECTIONS */}
+
             {navItems.map((item) => {
-              const isActive = menu === item.id;
-
-              const navClass = `
-                relative py-2 text-sm font-medium transition-colors
-                ${
-                  isActive
-                    ? "text-slate-900"
-                    : "text-slate-500 hover:text-slate-900"
-                }
-              `;
+              const isActive =
+                isHomePage &&
+                activeSection ===
+                  item.id;
 
               return (
                 <li key={item.id}>
-                  {item.type === "link" ? (
-                    <Link
-                      to={item.path}
-                      onClick={handleHomeClick}
-                      className={navClass}
-                    >
-                      {item.label}
-
-                      {isActive && (
-                        <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-orange-500" />
-                      )}
-                    </Link>
-                  ) : (
-                    <a
-                      href={item.path}
-                      onClick={() => setMenu(item.id)}
-                      className={navClass}
-                    >
-                      {item.label}
-
-                      {isActive && (
-                        <span className="absolute bottom-0 left-0 h-0.5 w-full rounded-full bg-orange-500" />
-                      )}
-                    </a>
-                  )}
+                  <a
+                    href={item.path}
+                    onClick={(event) =>
+                      handleSectionClick(
+                        event,
+                        item
+                      )
+                    }
+                    className={`nav-link ${
+                      isActive
+                        ? "nav-link-active"
+                        : ""
+                    }`}
+                  >
+                    {item.label}
+                  </a>
                 </li>
               );
             })}
           </ul>
         </nav>
 
-        {/* ================= RIGHT CONTROLS ================= */}
+        {/* =====================================
+            RIGHT SIDE
+        ===================================== */}
 
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          {/* ================= SEARCH ================= */}
+        <div className="navbar-actions">
+          {/* =====================================
+              SEARCH
+          ===================================== */}
 
           {isSearchOpen ? (
-            <div className="flex items-center gap-1">
-              <div className="relative">
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  value={searchValue}
-                  placeholder="Search food..."
-                  onChange={handleSearchChange}
-                  className="
-                    h-10
-                    w-40
-                    rounded-full
-                    border
-                    border-slate-200
-                    bg-slate-50
-                    pl-4
-                    pr-4
-                    text-sm
-                    text-slate-800
-                    outline-none
-                    transition-all
-                    duration-300
-                    placeholder:text-slate-400
-                    focus:w-52
-                    focus:border-orange-400
-                    focus:bg-white
-                    focus:ring-4
-                    focus:ring-orange-500/10
-                    sm:w-52
-                    sm:focus:w-64
-                  "
-                />
-              </div>
+            <div className="navbar-search-open">
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchValue}
+                placeholder="Search food..."
+                onChange={
+                  handleSearchChange
+                }
+                className="navbar-search-input"
+              />
 
               <button
                 type="button"
-                onClick={handleSearchClose}
+                onClick={
+                  handleSearchClose
+                }
                 aria-label="Close search"
-                className="
-                  flex
-                  h-9
-                  w-9
-                  shrink-0
-                  items-center
-                  justify-center
-                  rounded-full
-                  text-lg
-                  text-slate-400
-                  transition
-                  hover:bg-slate-100
-                  hover:text-slate-700
-                "
+                className="navbar-close-search"
               >
                 ×
               </button>
@@ -262,147 +356,89 @@ function Navbar() {
             <button
               type="button"
               aria-label="Search"
-              onClick={handleSearchOpen}
-              className="
-                flex
-                h-10
-                w-10
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                text-slate-600
-                transition
-                hover:bg-slate-100
-              "
+              onClick={
+                handleSearchOpen
+              }
+              className="navbar-icon-button"
             >
               <img
-                src={assets.search_icon}
-                alt=""
-                className="h-5 w-5 opacity-80"
+                src={
+                  assets.search_icon
+                }
+                alt="Search"
               />
             </button>
           )}
 
-          {/* ================= FAVORITES ================= */}
+          {/* =====================================
+              FAVORITES
+          ===================================== */}
 
           {token && (
             <Link
               to="/favorites"
               aria-label="Favorites"
               title="Favorites"
-              className="
-                group
-                relative
-                flex
-                h-10
-                w-10
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                text-slate-600
-                transition-all
-                duration-200
-                hover:bg-orange-50
-                hover:text-orange-500
-              "
+              className="navbar-icon-button favorite-navbar-button"
             >
               <Heart
                 size={20}
                 strokeWidth={2}
-                className="
-                  transition-transform
-                  duration-200
-                  group-hover:scale-110
-                "
               />
             </Link>
           )}
 
-          {/* ================= CART ================= */}
+          {/* =====================================
+              CART
+          ===================================== */}
 
           <Link
             to="/cart"
             aria-label="Cart"
             title="Cart"
-            className="
-              relative
-              flex
-              h-10
-              w-10
-              shrink-0
-              items-center
-              justify-center
-              rounded-full
-              transition
-              hover:bg-slate-100
-            "
+            className="navbar-icon-button cart-navbar-button"
           >
             <img
-              src={assets.basket_icon}
-              alt=""
-              className="h-5 w-5 opacity-80"
+              src={
+                assets.basket_icon
+              }
+              alt="Cart"
             />
 
             {getCartTotal() > 0 && (
-              <span className="absolute right-1 top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-orange-500" />
+              <span className="cart-dot" />
             )}
           </Link>
 
-          {/* ================= AUTHENTICATION ================= */}
+          {/* =====================================
+              LOGIN / PROFILE
+          ===================================== */}
 
           {!token ? (
             <button
               type="button"
-              onClick={() => navigate("/login")}
-              className="
-                ml-1
-                h-8
-                w-20
-                rounded-md
-                bg-slate-600
-                px-5
-                text-sm
-                font-semibold
-                text-white
-                shadow-sm
-                transition-all
-                duration-300
-                hover:-translate-y-0.5
-                hover:bg-orange-500
-                hover:shadow-md
-                active:translate-y-0
-                active:scale-95
-                sm:px-6
-              "
+              onClick={() =>
+                navigate("/login")
+              }
+              className="navbar-login-button"
             >
               Log In
             </button>
           ) : (
             <button
               type="button"
-              onClick={() => navigate("/profile")}
+              onClick={() =>
+                navigate("/profile")
+              }
               aria-label="Profile"
               title="Profile"
-              className="
-                ml-1
-                flex
-                h-10
-                w-10
-                items-center
-                justify-center
-                rounded-full
-                border
-                border-slate-200
-                transition
-                hover:border-orange-400
-              "
+              className="navbar-profile-button"
             >
               <img
-                src={assets.profile_icon}
+                src={
+                  assets.profile_icon
+                }
                 alt="Profile"
-                className="h-8 w-8 rounded-full"
               />
             </button>
           )}

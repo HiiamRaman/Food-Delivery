@@ -1,109 +1,8 @@
-// import React from "react";
-// import "./Order.Card.css";
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
-// export default function OrderCard({ order, onWorkflow, onDispatch, updating }) {
-//   const isUpdating = updating === true;
-
-//   return (
-//     <div className="order-card">
-//       {/* =========================================
-//           ORDER HEADER
-//       ========================================= */}
-
-//       <div className="order-card-header">
-//         <h4>Order: {order._id}</h4>
-
-//         <span className={`status-badge status-${order.orderStatus}`}>
-//           {order.orderStatus}
-//         </span>
-//       </div>
-
-//       {/* =========================================
-//           ORDER STATUS
-//       ========================================= */}
-
-//       <p className="order-status">
-//         Status:
-//         <b>{order.orderStatus}</b>
-//       </p>
-
-//       {/* =========================================
-//           PLACED → CONFIRMED
-//       ========================================= */}
-
-//       {order.orderStatus === "placed" && (
-//         <button
-//           onClick={() => onWorkflow(order._id, "confirm")}
-//           disabled={isUpdating}
-//           className="workflow-btn"
-//         >
-//           {isUpdating ? "⏳ Updating..." : "🔄 Confirm Order"}
-//         </button>
-//       )}
-
-//       {/* =========================================
-//           CONFIRMED → PREPARING
-//       ========================================= */}
-
-//       {order.orderStatus === "confirmed" && (
-//         <button
-//           onClick={() => onWorkflow(order._id, "prepare")}
-//           disabled={isUpdating}
-//           className="workflow-btn"
-//         >
-//           {isUpdating ? "⏳ Updating..." : "🔄 Start Preparing"}
-//         </button>
-//       )}
-
-//       {/* =========================================
-//           PREPARING → DISPATCH
-//       ========================================= */}
-
-//       {order.orderStatus === "preparing" && (
-//         <button
-//           onClick={() => onDispatch(order._id)}
-//           disabled={isUpdating}
-//           className="dispatch-btn"
-//         >
-//           {isUpdating ? "⏳ Dispatching..." : "🚚 Dispatch Order"}
-//         </button>
-//       )}
-
-//       {/* =========================================
-//           DELIVERED
-//       ========================================= */}
-
-//       {order.orderStatus === "delivered" && (
-//         <button disabled className="done-btn">
-//           ✔ Delivered
-//         </button>
-//       )}
-
-//       {/* =========================================
-//           CANCELLED
-//       ========================================= */}
-
-//       {order.orderStatus === "cancelled" && (
-//         <button disabled className="cancelled-btn">
-//           ✕ Cancelled
-//         </button>
-//       )}
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
-
-
-
-import React from "react";
+import adminApi from "../../Api/axios.admin";
 import "./Order.Card.css";
 
 export default function OrderCard({
@@ -112,170 +11,158 @@ export default function OrderCard({
   onDispatch,
   updating,
 }) {
-  const isUpdating = updating === true;
+  const navigate = useNavigate();
+
+  const [currentStatus, setCurrentStatus] = useState(
+    order.orderStatus
+  );
+
+  const [cancelling, setCancelling] = useState(false);
+
+  const isUpdating = updating === true || cancelling;
+
+  const canCancel = [
+    "placed",
+    "confirmed",
+    "preparing",
+  ].includes(currentStatus);
+
+  const handleCancel = async () => {
+    try {
+      setCancelling(true);
+
+      const response = await adminApi.patch(
+        `/order/${order._id}/cancel`
+      );
+
+      setCurrentStatus(response.data.data.orderStatus);
+
+      toast.success("Order cancelled successfully");
+    } catch (error) {
+      console.error(
+        "CANCEL ORDER ERROR:",
+        error.response?.data || error
+      );
+
+      toast.error(
+        error.response?.data?.message ||
+          "Unable to cancel order"
+      );
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   return (
     <div className="order-card">
-
-      {/* =========================================
-          ORDER HEADER
-      ========================================= */}
-
       <div className="order-card-header">
+        <div>
+          <p className="order-label">Order ID</p>
 
-        <h4>
-          Order: {order._id}
-        </h4>
+          <h4>
+            #{order._id?.slice(-8)}
+          </h4>
+        </div>
 
         <span
-          className={`status-badge status-${order.orderStatus}`}
+          className={`status-badge status-${currentStatus}`}
         >
-          {order.orderStatus}
+          {currentStatus}
         </span>
-
       </div>
-
-
-      {/* =========================================
-          CUSTOMER INFORMATION
-      ========================================= */}
 
       <div className="customer-info">
-
         <p>
-          👤 Username:{" "}
+          👤{" "}
           <b>
-            {order.user?.username || "Unknown"}
+            {order.user?.fullname ||
+              order.user?.username ||
+              "Unknown"}
           </b>
         </p>
 
-       
-
         <p>
-          📧 Email:{" "}
-          <b>
-            {order.user?.email || "Unknown"}
-          </b>
+          📧 {order.user?.email || "Unknown"}
         </p>
-
       </div>
 
+      <div className="order-summary">
+        <p>
+          Items: <b>{order.items?.length || 0}</b>
+        </p>
 
-      {/* =========================================
-          ORDER STATUS
-      ========================================= */}
+        <p>
+          Total:{" "}
+          <b>
+            Rs. {order.pricing?.totalAmount || 0}
+          </b>
+        </p>
+      </div>
 
-      <p className="order-status">
-
-        Status:
-
-        <b>
-          {order.orderStatus}
-        </b>
-
-      </p>
-
-
-      {/* =========================================
-          PLACED → CONFIRMED
-      ========================================= */}
-
-      {order.orderStatus === "placed" && (
-
+      <div className="order-actions">
         <button
           onClick={() =>
-            onWorkflow(
-              order._id,
-              "confirm"
-            )
+            navigate(`/admin/orders/${order._id}`)
           }
-          disabled={isUpdating}
-          className="workflow-btn"
+          className="details-btn"
         >
-          {isUpdating
-            ? "⏳ Updating..."
-            : "🔄 Confirm Order"}
+          View Details →
         </button>
 
-      )}
+        {currentStatus === "placed" && (
+          <button
+            onClick={() =>
+              onWorkflow(order._id, "confirm")
+            }
+            disabled={isUpdating}
+            className="workflow-btn"
+          >
+            {isUpdating
+              ? "⏳ Updating..."
+              : "✓ Confirm"}
+          </button>
+        )}
 
+        {currentStatus === "confirmed" && (
+          <button
+            onClick={() =>
+              onWorkflow(order._id, "prepare")
+            }
+            disabled={isUpdating}
+            className="workflow-btn"
+          >
+            {isUpdating
+              ? "⏳ Updating..."
+              : "🍳 Prepare"}
+          </button>
+        )}
 
-      {/* =========================================
-          CONFIRMED → PREPARING
-      ========================================= */}
+        {currentStatus === "preparing" && (
+          <button
+            onClick={() =>
+              onDispatch(order._id)
+            }
+            disabled={isUpdating}
+            className="dispatch-btn"
+          >
+            {isUpdating
+              ? "⏳ Dispatching..."
+              : "🚚 Dispatch"}
+          </button>
+        )}
 
-      {order.orderStatus === "confirmed" && (
-
-        <button
-          onClick={() =>
-            onWorkflow(
-              order._id,
-              "prepare"
-            )
-          }
-          disabled={isUpdating}
-          className="workflow-btn"
-        >
-          {isUpdating
-            ? "⏳ Updating..."
-            : "🔄 Start Preparing"}
-        </button>
-
-      )}
-
-
-      {/* =========================================
-          PREPARING → DISPATCH
-      ========================================= */}
-
-      {order.orderStatus === "preparing" && (
-
-        <button
-          onClick={() =>
-            onDispatch(order._id)
-          }
-          disabled={isUpdating}
-          className="dispatch-btn"
-        >
-          {isUpdating
-            ? "⏳ Dispatching..."
-            : "🚚 Dispatch Order"}
-        </button>
-
-      )}
-
-
-      {/* =========================================
-          DELIVERED
-      ========================================= */}
-
-      {order.orderStatus === "delivered" && (
-
-        <button
-          disabled
-          className="done-btn"
-        >
-          ✔ Delivered
-        </button>
-
-      )}
-
-
-      {/* =========================================
-          CANCELLED
-      ========================================= */}
-
-      {order.orderStatus === "cancelled" && (
-
-        <button
-          disabled
-          className="cancelled-btn"
-        >
-          ✕ Cancelled
-        </button>
-
-      )}
-
+        {canCancel && (
+          <button
+            onClick={handleCancel}
+            disabled={isUpdating}
+            className="cancel-btn"
+          >
+            {cancelling
+              ? "⏳ Cancelling..."
+              : "✕ Cancel"}
+          </button>
+        )}
+      </div>
     </div>
   );
 }

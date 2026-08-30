@@ -1,318 +1,118 @@
-/* =========================================
-   NAVBAR SHELL
-========================================= */
+/* ==============================
+   NAVBAR
+============================== */
 
-.navbar-shell {
+.navbar {
   position: sticky;
   top: 0;
-  z-index: 50;
+
+  z-index: 100;
 
   width: 100%;
 
-  background: rgba(255, 255, 255, 0.96);
-
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: #ffffff;
 
   transition:
-    box-shadow 0.25s ease,
-    border-color 0.25s ease,
-    background 0.25s ease;
+    box-shadow 0.3s ease,
+    border-color 0.3s ease,
+    background 0.3s ease;
 }
 
-.navbar-shell.scrolled {
+.navbar-scrolled {
+  background: rgba(
+    255,
+    255,
+    255,
+    0.96
+  );
+
   border-bottom: 1px solid #e2e8f0;
 
-  box-shadow:
-    0 8px 28px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 3px 12px
+    rgba(15, 23, 42, 0.06);
+
+  backdrop-filter: blur(15px);
 }
 
-/* =========================================
+/* ==============================
+   CONTAINER
+============================== */
+
+.navbar-container {
+  width: 100%;
+  max-width: 1280px;
+
+  height: 80px;
+
+  margin: 0 auto;
+
+  padding: 0 24px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+}
+
+/* ==============================
    LOGO
-========================================= */
+============================== */
 
 .navbar-logo {
-  display: inline-flex;
-  align-items: center;
+  flex-shrink: 0;
+
+  color: #0f172a;
 
   font-size: 28px;
   font-weight: 800;
 
   letter-spacing: -1px;
 
-  color: #0f172a;
+  text-decoration: none;
 
-  transition: transform 0.2s ease;
+  transition: 0.2s ease;
 }
 
-.navbar-logo:hover {
-  transform: translateY(-1px);
-}
-
-.navbar-logo-dot {
+.navbar-logo span {
   color: #f97316;
+
+  transition: color 0.2s ease;
 }
 
-/* =========================================
-   ICON BUTTONS
-========================================= */
+.navbar-logo:hover span {
+  color: #ea580c;
+}
 
-.nav-icon-btn {
-  position: relative;
+/* ==============================
+   NAVIGATION
+============================== */
 
-  width: 40px;
-  height: 40px;
-
+.navbar-navigation ul {
   display: flex;
+
   align-items: center;
-  justify-content: center;
 
-  flex-shrink: 0;
+  gap: 34px;
 
-  border: 1px solid transparent;
-  border-radius: 50%;
+  margin: 0;
+  padding: 0;
 
-  background: transparent;
-
-  color: #64748b;
-
-  cursor: pointer;
-
-  transition:
-    color 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+  list-style: none;
 }
 
-.nav-icon-btn:hover {
-  color: #f97316;
-
-  background: #fff7ed;
-
-  border-color: #fed7aa;
-
-  transform: translateY(-1px);
-
-  box-shadow:
-    0 6px 16px rgba(249, 115, 22, 0.12);
+.navbar-navigation li {
+  margin: 0;
+  padding: 0;
 }
 
-.nav-icon-btn:active {
-  transform: scale(0.94);
-}
-
-/* =========================================
-   FAVORITES
-========================================= */
-
-.nav-favorite-btn {
+.nav-link {
   position: relative;
 
-  color: #64748b;
-}
+  display: inline-block;
 
-.nav-favorite-btn:hover {
-  color: #f97316;
-}
-
-.nav-favorite-btn svg {
-  transition:
-    transform 0.2s ease,
-    fill 0.2s ease;
-}
-
-.nav-favorite-btn:hover svg {
-  transform: scale(1.12);
-}
-
-/* Optional active favorite nav style */
-
-.nav-favorite-btn.active {
-  color: #f97316;
-
-  background: #fff7ed;
-
-  border-color: #fed7aa;
-}
-
-/* =========================================
-   CART
-========================================= */
-
-.nav-cart-btn {
-  position: relative;
-}
-
-.nav-cart-dot {
-  position: absolute;
-
-  top: 6px;
-  right: 6px;
-
-  width: 9px;
-  height: 9px;
-
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-
-  background: #f97316;
-
-  box-shadow:
-    0 0 0 2px rgba(249, 115, 22, 0.12);
-
-  animation: cart-pulse 1.8s ease-in-out infinite;
-}
-
-@keyframes cart-pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.16);
-  }
-}
-
-/* =========================================
-   PROFILE
-========================================= */
-
-.nav-profile-btn {
-  width: 40px;
-  height: 40px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 3px;
-
-  border: 1px solid #e2e8f0;
-  border-radius: 50%;
-
-  background: #ffffff;
-
-  cursor: pointer;
-
-  transition:
-    border-color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.nav-profile-btn:hover {
-  border-color: #f97316;
-
-  transform: translateY(-1px);
-
-  box-shadow:
-    0 6px 16px rgba(249, 115, 22, 0.15);
-}
-
-.nav-profile-btn img {
-  width: 100%;
-  height: 100%;
-
-  border-radius: 50%;
-
-  object-fit: cover;
-}
-
-/* =========================================
-   LOGIN BUTTON
-========================================= */
-
-.nav-login-btn {
-  height: 38px;
-
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  padding: 0 18px;
-
-  border: none;
-  border-radius: 10px;
-
-  background: #0f172a;
-
-  color: #ffffff;
-
-  font-size: 13px;
-  font-weight: 700;
-
-  cursor: pointer;
-
-  transition:
-    background 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.nav-login-btn:hover {
-  background: #f97316;
-
-  transform: translateY(-1px);
-
-  box-shadow:
-    0 8px 18px rgba(249, 115, 22, 0.18);
-}
-
-.nav-login-btn:active {
-  transform: scale(0.97);
-}
-
-/* =========================================
-   SEARCH
-========================================= */
-
-.nav-search-input {
-  height: 40px;
-
-  width: 210px;
-
-  padding: 0 14px;
-
-  border: 1px solid #e2e8f0;
-  border-radius: 999px;
-
-  background: #f8fafc;
-
-  color: #0f172a;
-
-  font-size: 13px;
-
-  outline: none;
-
-  transition:
-    width 0.25s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background 0.2s ease;
-}
-
-.nav-search-input:focus {
-  width: 250px;
-
-  border-color: #fb923c;
-
-  background: #ffffff;
-
-  box-shadow:
-    0 0 0 4px rgba(249, 115, 22, 0.1);
-}
-
-/* =========================================
-   NAV LINKS
-========================================= */
-
-.nav-main-link {
-  position: relative;
-
-  padding: 8px 0;
+  padding: 10px 0;
 
   color: #64748b;
 
@@ -324,83 +124,449 @@
   transition: color 0.2s ease;
 }
 
-.nav-main-link:hover {
+.nav-link:hover {
   color: #0f172a;
 }
 
-.nav-main-link::after {
+/* ACTIVE */
+
+.nav-link-active {
+  color: #0f172a;
+}
+
+.nav-link-active::after {
   content: "";
 
   position: absolute;
 
   left: 0;
-  bottom: 0;
+  bottom: 4px;
 
-  width: 0;
+  width: 100%;
   height: 2px;
 
-  border-radius: 999px;
+  border-radius: 10px;
 
   background: #f97316;
-
-  transition: width 0.2s ease;
 }
 
-.nav-main-link:hover::after,
-.nav-main-link.active::after {
-  width: 100%;
+/* ==============================
+   RIGHT SIDE ACTIONS
+============================== */
+
+.navbar-actions {
+  min-width: 0;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
 }
 
-.nav-main-link.active {
+/* ==============================
+   GENERIC ICON BUTTON
+============================== */
+
+.navbar-icon-button {
+  position: relative;
+
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #475569;
+
+  cursor: pointer;
+
+  text-decoration: none;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navbar-icon-button:hover {
+  background: #f1f5f9;
+
   color: #0f172a;
 }
 
-/* =========================================
-   RESPONSIVE
-========================================= */
+.navbar-icon-button:active {
+  transform: scale(0.94);
+}
+
+.navbar-icon-button img {
+  width: 20px;
+  height: 20px;
+
+  object-fit: contain;
+
+  opacity: 0.8;
+}
+
+/* ==============================
+   FAVORITE
+============================== */
+
+.favorite-navbar-button:hover {
+  background: #fff7ed;
+
+  color: #f97316;
+}
+
+.favorite-navbar-button svg {
+  transition: transform 0.2s ease;
+}
+
+.favorite-navbar-button:hover svg {
+  transform: scale(1.1);
+}
+
+/* ==============================
+   CART
+============================== */
+
+.cart-navbar-button {
+  position: relative;
+}
+
+.cart-dot {
+  position: absolute;
+
+  top: 7px;
+  right: 7px;
+
+  width: 10px;
+  height: 10px;
+
+  border: 2px solid white;
+
+  border-radius: 50%;
+
+  background: #f97316;
+}
+
+/* ==============================
+   SEARCH
+============================== */
+
+.navbar-search-open {
+  display: flex;
+
+  align-items: center;
+
+  gap: 5px;
+}
+
+.navbar-search-input {
+  width: 205px;
+  height: 40px;
+
+  padding: 0 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 999px;
+
+  background: #f8fafc;
+
+  color: #1e293b;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  outline: none;
+
+  transition:
+    width 0.3s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar-search-input::placeholder {
+  color: #94a3b8;
+}
+
+.navbar-search-input:focus {
+  width: 250px;
+
+  background: #ffffff;
+
+  border-color: #fb923c;
+
+  box-shadow: 0 0 0 4px
+    rgba(249, 115, 22, 0.1);
+}
+
+/* CLOSE SEARCH */
+
+.navbar-close-search {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: #94a3b8;
+
+  font-size: 22px;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    color 0.2s ease;
+}
+
+.navbar-close-search:hover {
+  background: #f1f5f9;
+
+  color: #334155;
+}
+
+/* ==============================
+   LOGIN
+============================== */
+
+.navbar-login-button {
+  height: 38px;
+
+  margin-left: 4px;
+
+  padding: 0 20px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #475569;
+
+  color: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  box-shadow: 0 3px 9px
+    rgba(15, 23, 42, 0.12);
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.navbar-login-button:hover {
+  background: #f97316;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 5px 14px
+    rgba(249, 115, 22, 0.2);
+}
+
+.navbar-login-button:active {
+  transform: scale(0.96);
+}
+
+/* ==============================
+   PROFILE
+============================== */
+
+.navbar-profile-button {
+  width: 40px;
+  height: 40px;
+
+  margin-left: 4px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 0;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.navbar-profile-button:hover {
+  border-color: #fb923c;
+
+  box-shadow: 0 3px 10px
+    rgba(249, 115, 22, 0.15);
+}
+
+.navbar-profile-button:active {
+  transform: scale(0.95);
+}
+
+.navbar-profile-button img {
+  width: 32px;
+  height: 32px;
+
+  border-radius: 50%;
+
+  object-fit: cover;
+}
+
+/* ==============================
+   TABLET
+============================== */
 
 @media (max-width: 900px) {
-  .nav-search-input {
-    width: 170px;
+  .navbar-container {
+    padding: 0 18px;
   }
 
-  .nav-search-input:focus {
-    width: 200px;
+  .navbar-navigation ul {
+    gap: 20px;
+  }
+
+  .navbar-search-input {
+    width: 160px;
+  }
+
+  .navbar-search-input:focus {
+    width: 190px;
   }
 }
 
-@media (max-width: 700px) {
+/* ==============================
+   MOBILE
+============================== */
+
+@media (max-width: 768px) {
+  .navbar-container {
+    height: 70px;
+
+    padding: 0 14px;
+  }
+
   .navbar-logo {
     font-size: 24px;
   }
 
-  .nav-icon-btn,
-  .nav-profile-btn {
-    width: 38px;
-    height: 38px;
+  /*
+    For now hide desktop navigation.
+
+    We can build a hamburger menu
+    separately.
+  */
+
+  .navbar-navigation {
+    display: none;
   }
 
-  .nav-login-btn {
+  .navbar-actions {
+    gap: 5px;
+  }
+
+  .navbar-search-input {
+    width: 150px;
+  }
+
+  .navbar-search-input:focus {
+    width: 170px;
+  }
+
+  .navbar-login-button {
+    padding: 0 15px;
+
     height: 36px;
-
-    padding: 0 14px;
-
-    font-size: 12px;
   }
 }
 
+/* ==============================
+   SMALL MOBILE
+============================== */
+
 @media (max-width: 520px) {
-  .nav-search-input {
-    width: 145px;
+  .navbar-container {
+    padding: 0 10px;
   }
 
-  .nav-search-input:focus {
-    width: 165px;
+  .navbar-logo {
+    font-size: 21px;
   }
 
-  .nav-icon-btn,
-  .nav-profile-btn {
+  .navbar-icon-button {
     width: 36px;
     height: 36px;
+  }
+
+  .navbar-icon-button img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .navbar-search-input {
+    width: 120px;
+
+    height: 38px;
+  }
+
+  .navbar-search-input:focus {
+    width: 140px;
+  }
+
+  .favorite-navbar-button {
+    display: none;
+  }
+
+  .navbar-login-button {
+    padding: 0 12px;
+
+    font-size: 13px;
+  }
+
+  .navbar-profile-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .navbar-profile-button img {
+    width: 28px;
+    height: 28px;
   }
 }
