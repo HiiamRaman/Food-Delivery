@@ -21,6 +21,7 @@ import Profile from "./components/Profile/Profile.jsx";
 import Favorites from "./pages/Favorites/Favorites.jsx";
 import MyOrders from "./pages/MyOrder/MyOrders.jsx";
 import Addresses from "./pages/Address/Address.jsx";
+import FoodDetail from "./pages/Food-Details/FoodDetail.jsx";
 function App() {
   const [showLogin, setShowLogin] = useState(false);
 
@@ -49,15 +50,15 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/profile" element={<Profile/>}/>
-          <Route path="/favorites" element={<Favorites/>}/>
-          <Route path="/my-orders" element={<MyOrders/>}/>
-         <Route path="/addresses" element = {<Addresses/>} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/favorites" element={<Favorites />} />
+          <Route path="/my-orders" element={<MyOrders />} />
+          <Route path="/addresses" element={<Addresses />} />
 
           <Route path="/cart" element={<Cart />} />
 
           <Route path="/food-display" element={<FoodDisplay />} />
-
+           <Route path="/food/:id" element={<FoodDetail />} />
           <Route path="/order" element={<PlaceOrder />} />
 
           <Route path="/success" element={<Success />} />

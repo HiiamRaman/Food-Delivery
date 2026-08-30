@@ -1,85 +1,27 @@
-// import React, { useState } from 'react'
-// import { assets } from '../../assets/assets'
-// import './FoodItem.css'
-// import { useContext } from 'react';
-// import { StoreContext } from '../../Context/StoreContext.jsx';
-
-// function FoodItem({id,name,price,description,image}) {
-
-//     const{cartItems,addToCart,removeFromCart}=useContext(StoreContext);
-//   return (
-//     <div className='food-item'>
-//       <div className='food-item-image-container'>
-
-//         <img  className='food-item-image' src={image} alt="" />
-//         {
-//         !cartItems[id]? <img className='add' onClick={()=>addToCart(id)} src={assets.add_icon_white} alt="" />
-//         : <div className='food-item-counter'>
-//             <img onClick={()=>addToCart(id)}  src={assets.add_icon_green}alt="" />
-//             <p>{cartItems[id]}</p>
-//             <img  onClick={()=>removeFromCart(id)} src={assets.remove_icon_red} alt="" />
-//         </div>
-
-//         }
-//       </div>
-//       <div className='food-item-info'>
-//         <div className='food-item-name-rating'>
-//             <p>{name}</p>
-//             <img src={assets.rating_starts} alt="" />
-//         </div>
-
-//         <p className='food-item-desc'>{description}</p>
-//         <p className='food-item-price'>${price}</p>
-
-//       </div>
-//     </div>
-//   )
-// }
-
-// export default FoodItem
-
-
-
-
-
-
-
-
-
-
-
-
 import React, { useContext, useState } from "react";
 import { Heart } from "lucide-react";
 import { toast } from "react-toastify";
-
+import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/assets";
 import { StoreContext } from "../../Context/StoreContext.jsx";
 import api from "../../utils/axios.client";
 
 import "./FoodItem.css";
 
-function FoodItem({
-  id,
-  name,
-  price,
-  description,
-  image,
-  isFavorite = false,
-}) {
-  const {
-    cartItems,
-    addToCart,
-    removeFromCart,
-    token,
-  } = useContext(StoreContext);
+function FoodItem({ id, name, price, description, image, isFavorite = false }) {
+  const navigate = useNavigate();
+  const { cartItems, addToCart, removeFromCart, token } =
+    useContext(StoreContext);
 
   const [favorite, setFavorite] = useState(isFavorite);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   // ================= FAVORITE =================
 
-  const handleFavorite = async () => {
+  const handleFavorite = async (e) => {
+    // Stop event from bubbling up to the card navigation
+    e.stopPropagation();
+
     if (!token) {
       toast.info("Please login to save favorites");
       return;
@@ -92,15 +34,11 @@ function FoodItem({
 
       if (favorite) {
         await api.delete(`/favorites/remove/${id}`);
-
         setFavorite(false);
-
         toast.success("Removed from favorites");
       } else {
         await api.post(`/favorites/${id}`);
-
         setFavorite(true);
-
         toast.success("Added to favorites");
       }
     } catch (error) {
@@ -117,23 +55,17 @@ function FoodItem({
   };
 
   return (
-    <div className="food-item">
+    <div className="food-item" onClick={() => navigate(`/food/${id}`)}>
       {/* ================= IMAGE ================= */}
 
       <div className="food-item-image-container">
-        <img
-          className="food-item-image"
-          src={image}
-          alt={name}
-        />
+        <img className="food-item-image" src={image} alt={name} />
 
         {/* ================= FAVORITE BUTTON ================= */}
 
         <button
           type="button"
-          className={`food-favorite-btn ${
-            favorite ? "active" : ""
-          }`}
+          className={`food-favorite-btn ${favorite ? "active" : ""}`}
           onClick={handleFavorite}
           disabled={favoriteLoading}
           aria-label={
@@ -142,14 +74,7 @@ function FoodItem({
               : `Add ${name} to favorites`
           }
         >
-          <Heart
-            size={19}
-            fill={
-              favorite
-                ? "currentColor"
-                : "none"
-            }
-          />
+          <Heart size={19} fill={favorite ? "currentColor" : "none"} />
         </button>
 
         {/* ================= CART ================= */}
@@ -157,24 +82,36 @@ function FoodItem({
         {!cartItems[id] ? (
           <img
             className="add"
-            onClick={() => addToCart(id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              addToCart(id);
+            }}
             src={assets.add_icon_white}
             alt="Add to cart"
           />
         ) : (
-          <div className="food-item-counter">
+          <div
+            className="food-item-counter"
+            onClick={(e) => e.stopPropagation()}
+          >
             <img
-              onClick={() => addToCart(id)}
-              src={assets.add_icon_green}
-              alt="Increase quantity"
+              onClick={(e) => {
+                e.stopPropagation();
+                removeFromCart(id);
+              }}
+              src={assets.remove_icon_red}
+              alt="Decrease quantity"
             />
 
             <p>{cartItems[id]}</p>
 
             <img
-              onClick={() => removeFromCart(id)}
-              src={assets.remove_icon_red}
-              alt="Decrease quantity"
+              onClick={(e) => {
+                e.stopPropagation();
+                addToCart(id);
+              }}
+              src={assets.add_icon_green}
+              alt="Increase quantity"
             />
           </div>
         )}
@@ -185,20 +122,11 @@ function FoodItem({
       <div className="food-item-info">
         <div className="food-item-name-rating">
           <p>{name}</p>
-
-          <img
-            src={assets.rating_starts}
-            alt="Rating"
-          />
+          <img src={assets.rating_starts} alt="Rating" />
         </div>
 
-        <p className="food-item-desc">
-          {description}
-        </p>
-
-        <p className="food-item-price">
-          Rs. {price}
-        </p>
+        <p className="food-item-desc">{description}</p>
+        <p className="food-item-price">Rs. {price}</p>
       </div>
     </div>
   );
