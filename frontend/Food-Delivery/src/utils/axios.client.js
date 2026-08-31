@@ -1,10 +1,10 @@
 import axios from "axios";
-
+const API_URL = import.meta.env.VITE_API_URL
 // ========================
 // MAIN API INSTANCE
 // ========================
 const api = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL:API_URL,
   withCredentials: true,
 });
 
@@ -13,7 +13,7 @@ const api = axios.create({
 // No interceptors here
 // ========================
 const refreshApi = axios.create({
-  baseURL: "http://localhost:3000/api/v1",
+  baseURL: API_URL,
   withCredentials: true,
 });
 

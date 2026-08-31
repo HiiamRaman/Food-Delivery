@@ -1,17 +1,8 @@
-import React, {
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 
 import { Heart } from "lucide-react";
 
-import {
-  Link,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import { toast } from "react-toastify";
 
@@ -24,25 +15,17 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const {
-    getCartTotal,
-    token,
-    setToken,
-  } = useContext(StoreContext);
+  const { getCartTotal, token, setToken } = useContext(StoreContext);
 
   // Only used for homepage sections:
   // Menu, Get App, Contact
-  const [activeSection, setActiveSection] =
-    useState(null);
+  const [activeSection, setActiveSection] = useState(null);
 
-  const [isScrolled, setIsScrolled] =
-    useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
 
-  const [isSearchOpen, setIsSearchOpen] =
-    useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
-  const [searchValue, setSearchValue] =
-    useState("");
+  const [searchValue, setSearchValue] = useState("");
 
   const searchInputRef = useRef(null);
 
@@ -57,16 +40,10 @@ function Navbar() {
 
     handleScroll();
 
-    window.addEventListener(
-      "scroll",
-      handleScroll
-    );
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener(
-        "scroll",
-        handleScroll
-      );
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
@@ -96,17 +73,13 @@ function Navbar() {
   // =====================================
 
   const handleLogout = () => {
-    localStorage.removeItem(
-      "accessToken"
-    );
+    localStorage.removeItem("accessToken");
 
     localStorage.removeItem("user");
 
     setToken(null);
 
-    toast.success(
-      "Logged out successfully"
-    );
+    toast.success("Logged out successfully");
 
     navigate("/");
   };
@@ -131,17 +104,11 @@ function Navbar() {
   // HOME SECTION NAVIGATION
   // =====================================
 
-  const handleSectionClick = (
-    event,
-    item
-  ) => {
+  const handleSectionClick = (event, item) => {
     event.preventDefault();
 
     const scrollToSection = () => {
-      const section =
-        document.querySelector(
-          item.path
-        );
+      const section = document.querySelector(item.path);
 
       if (!section) return;
 
@@ -185,8 +152,7 @@ function Navbar() {
   };
 
   const handleSearchChange = (event) => {
-    const value =
-      event.target.value;
+    const value = event.target.value;
 
     setSearchValue(value);
 
@@ -194,11 +160,7 @@ function Navbar() {
       return;
     }
 
-    navigate(
-      `/food-display?search=${encodeURIComponent(
-        value
-      )}`
-    );
+    navigate(`/food-display?search=${encodeURIComponent(value)}`);
   };
 
   // =====================================
@@ -229,8 +191,7 @@ function Navbar() {
   // HOME ACTIVE
   // =====================================
 
-  const isHomePage =
-    location.pathname === "/";
+  const isHomePage = location.pathname === "/";
 
   /*
     Home is active ONLY when:
@@ -239,28 +200,16 @@ function Navbar() {
     2. no homepage section is active
   */
 
-  const isHomeActive =
-    isHomePage &&
-    activeSection === null;
+  const isHomeActive = isHomePage && activeSection === null;
 
   return (
-    <header
-      className={`navbar ${
-        isScrolled
-          ? "navbar-scrolled"
-          : ""
-      }`}
-    >
+    <header className={`navbar ${isScrolled ? "navbar-scrolled" : ""}`}>
       <div className="navbar-container">
         {/* =====================================
             LOGO
         ===================================== */}
 
-        <Link
-          to="/"
-          onClick={handleHomeClick}
-          className="navbar-logo"
-        >
+        <Link to="/" onClick={handleHomeClick} className="navbar-logo">
           Raman
           <span>.</span>
         </Link>
@@ -277,11 +226,7 @@ function Navbar() {
               <Link
                 to="/"
                 onClick={handleHomeClick}
-                className={`nav-link ${
-                  isHomeActive
-                    ? "nav-link-active"
-                    : ""
-                }`}
+                className={`nav-link ${isHomeActive ? "nav-link-active" : ""}`}
               >
                 Home
               </Link>
@@ -290,26 +235,14 @@ function Navbar() {
             {/* HOMEPAGE SECTIONS */}
 
             {navItems.map((item) => {
-              const isActive =
-                isHomePage &&
-                activeSection ===
-                  item.id;
+              const isActive = isHomePage && activeSection === item.id;
 
               return (
                 <li key={item.id}>
                   <a
                     href={item.path}
-                    onClick={(event) =>
-                      handleSectionClick(
-                        event,
-                        item
-                      )
-                    }
-                    className={`nav-link ${
-                      isActive
-                        ? "nav-link-active"
-                        : ""
-                    }`}
+                    onClick={(event) => handleSectionClick(event, item)}
+                    className={`nav-link ${isActive ? "nav-link-active" : ""}`}
                   >
                     {item.label}
                   </a>
@@ -335,17 +268,13 @@ function Navbar() {
                 type="text"
                 value={searchValue}
                 placeholder="Search food..."
-                onChange={
-                  handleSearchChange
-                }
+                onChange={handleSearchChange}
                 className="navbar-search-input"
               />
 
               <button
                 type="button"
-                onClick={
-                  handleSearchClose
-                }
+                onClick={handleSearchClose}
                 aria-label="Close search"
                 className="navbar-close-search"
               >
@@ -356,17 +285,10 @@ function Navbar() {
             <button
               type="button"
               aria-label="Search"
-              onClick={
-                handleSearchOpen
-              }
+              onClick={handleSearchOpen}
               className="navbar-icon-button"
             >
-              <img
-                src={
-                  assets.search_icon
-                }
-                alt="Search"
-              />
+              <img src={assets.search_icon} alt="Search" />
             </button>
           )}
 
@@ -381,10 +303,7 @@ function Navbar() {
               title="Favorites"
               className="navbar-icon-button favorite-navbar-button"
             >
-              <Heart
-                size={20}
-                strokeWidth={2}
-              />
+              <Heart size={20} strokeWidth={2} />
             </Link>
           )}
 
@@ -398,16 +317,9 @@ function Navbar() {
             title="Cart"
             className="navbar-icon-button cart-navbar-button"
           >
-            <img
-              src={
-                assets.basket_icon
-              }
-              alt="Cart"
-            />
+            <img src={assets.basket_icon} alt="Cart" />
 
-            {getCartTotal() > 0 && (
-              <span className="cart-dot" />
-            )}
+            {getCartTotal() > 0 && <span className="cart-dot" />}
           </Link>
 
           {/* =====================================
@@ -417,9 +329,7 @@ function Navbar() {
           {!token ? (
             <button
               type="button"
-              onClick={() =>
-                navigate("/login")
-              }
+              onClick={() => navigate("/login")}
               className="navbar-login-button"
             >
               Log In
@@ -427,19 +337,12 @@ function Navbar() {
           ) : (
             <button
               type="button"
-              onClick={() =>
-                navigate("/profile")
-              }
+              onClick={() => navigate("/profile")}
               aria-label="Profile"
               title="Profile"
               className="navbar-profile-button"
             >
-              <img
-                src={
-                  assets.profile_icon
-                }
-                alt="Profile"
-              />
+              <img src={assets.profile_icon} alt="Profile" />
             </button>
           )}
         </div>
