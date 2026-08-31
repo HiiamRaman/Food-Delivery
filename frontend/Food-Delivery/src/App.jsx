@@ -15,7 +15,7 @@ import Tracking from "./pages/Tracking/tracking.jsx";
 import VerifyResetOtp from "./pages/Auth/VerifyResetOTP.jsx";
 import ResetPassword from "./pages/Auth/ResetPassword.jsx";
 import ChangePassword from "./pages/Auth/Changepassword.jsx";
-import ForgotPassword from "./pages/Auth/forgotpassword.jsx";
+import ForgotPassword from './pages/Auth/Forgotpassword.jsx';
 import FoodDisplay from "./components/FoodDisplay/FoodDisplay.jsx";
 import Profile from "./components/Profile/Profile.jsx";
 import Favorites from "./pages/Favorites/Favorites.jsx";
