@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { StoreContext } from "../../Context/StoreContext.jsx";
-import FoodItem from "../FoodItem/Fooditem.jsx";
+import FoodItem from "../FoodItem/FoodItem.jsx";
 
 function FoodDisplay() {
   const { food_list, category } = useContext(StoreContext);
