@@ -1,9 +1,11 @@
 import { createContext, useEffect, useState } from "react";
 import api from "../utils/axios.client";
 export const StoreContext = createContext(null);
+
 import React from "react";
 const StoreContextProvider = (props) => {
-  const url = "http://localhost:3000";
+  const url = import.meta.env.VITE_API_URL
+ 
   const [category, setCategory] = useState("All"); // default "All"
   const [token, setToken] = useState("");
   const [cartItems, setCartItems] = useState({});
@@ -11,21 +13,16 @@ const StoreContextProvider = (props) => {
   const fetchFoodList = async () => {
     try {
       const response = await api.get( "/allfoods");
-      
+
       setFoodList(response.data.data.foods);
     } catch (error) {
       console.error("Failed to fetch food list:", error);
     }
   };
 
-  // const loadCartData = async (token) => {
-  //   const response = // Correct
-  //     await axios.get(`${url}/api/v1/cart`, {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
 
-  //   setCartItems(response.data.data.cartData);
-  // };
+
+
 
   const loadCartData = async (token) => {
     try {
@@ -53,7 +50,7 @@ const StoreContextProvider = (props) => {
 
 
   const addToCart = async (foodId) => {
-    
+
     // Optimistic update
     setCartItems((prev) => ({
       ...prev,
@@ -66,9 +63,9 @@ const StoreContextProvider = (props) => {
       const res = await api.post(
         "/cart/add",
         { foodId, quantity: 1 },
-        
+
       );
-      
+
       const updatedCart = res.data.data.cart.item || [];
       const newCart = {};
 
@@ -144,7 +141,7 @@ const StoreContextProvider = (props) => {
 
   loadData();
 }, []);
-  
+
 
   const contextValue = {
     food_list,
@@ -169,24 +166,3 @@ const StoreContextProvider = (props) => {
   );
 };
 export default StoreContextProvider;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
