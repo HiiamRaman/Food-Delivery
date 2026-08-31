@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:3000/api/v1";
+const BASE_URL =  import.meta.env.VITE_API_URL;
 
 const adminApi = axios.create({
   baseURL: BASE_URL,
@@ -75,7 +75,7 @@ adminApi.interceptors.response.use(
     // ==================================================
 
     if (originalRequest.url?.includes("/user/refresh-token")) {
-      window.location.href = "http://localhost:5174/";
+      window.location.href = "/";
 
       return Promise.reject(error);
     }
@@ -105,7 +105,7 @@ adminApi.interceptors.response.use(
       // REFRESH FAILED
       // ==================================================
 
-      window.location.href = "http://localhost:5174/";
+      window.location.href = "/";
 
       return Promise.reject(refreshError);
     }

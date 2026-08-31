@@ -34,7 +34,7 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 // ----------------- CORS -----------------
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174","https://food-delivery-six-sigma-16.vercel.app"], // frontend URLs
+    origin: ["http://localhost:5173", "http://localhost:5174","https://food-delivery-six-sigma-16.vercel.app","admin-frontend-fooddelivery.vercel.app"], // frontend URLs
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Authorization", "Content-Type"],
