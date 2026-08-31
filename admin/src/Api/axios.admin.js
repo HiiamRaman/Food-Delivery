@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL =  import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_URL;
 
 const adminApi = axios.create({
   baseURL: BASE_URL,
@@ -13,12 +13,15 @@ const adminApi = axios.create({
 
 adminApi.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem("adminToken");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
-
-  (error) => {
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
 // ======================================================
@@ -26,63 +29,35 @@ adminApi.interceptors.request.use(
 // ======================================================
 
 adminApi.interceptors.response.use(
-  // ====================================================
-  // SUCCESS
-  // ====================================================
-
-  (response) => {
-    return response;
-  },
-
-  // ====================================================
-  // ERROR
-  // ====================================================
+  (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
 
-    // If there is no original request, stop
     if (!originalRequest) {
-      console.error("❌ No original request found");
-
       return Promise.reject(error);
     }
-
-    // ==================================================
-    // CHECK 401
-    // ==================================================
 
     if (error.response?.status !== 401) {
       return Promise.reject(error);
     }
 
-    // ==================================================
-    // PREVENT INFINITE REFRESH LOOP
-    // ==================================================
-
     if (originalRequest._retry) {
-      console.error("❌ Request already retried.");
-      console.error("❌ Not trying refresh again.");
-
       return Promise.reject(error);
     }
-
-    // Mark request as retried
-    originalRequest._retry = true;
-
-    // ==================================================
-    // NEVER REFRESH THE REFRESH REQUEST
-    // ==================================================
 
     if (originalRequest.url?.includes("/user/refresh-token")) {
-      window.location.href = "/";
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUser");
+
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
 
       return Promise.reject(error);
     }
 
-    // ==================================================
-    // REFRESH TOKEN
-    // ==================================================
+    originalRequest._retry = true;
 
     try {
       const refreshResponse = await axios.post(
@@ -93,19 +68,29 @@ adminApi.interceptors.response.use(
         },
       );
 
-      // ==================================================
-      // RETRY ORIGINAL REQUEST
-      // ==================================================
+      const newAccessToken =
+        refreshResponse.data?.data?.accessToken;
 
-      const retryResponse = await adminApi(originalRequest);
+      if (!newAccessToken) {
+        throw new Error("No new access token returned");
+      }
 
-      return retryResponse;
+      localStorage.setItem("adminToken", newAccessToken);
+
+      originalRequest.headers =
+        originalRequest.headers || {};
+
+      originalRequest.headers.Authorization =
+        `Bearer ${newAccessToken}`;
+
+      return adminApi(originalRequest);
     } catch (refreshError) {
-      // ==================================================
-      // REFRESH FAILED
-      // ==================================================
+      localStorage.removeItem("adminToken");
+      localStorage.removeItem("adminUser");
 
-      window.location.href = "/";
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
 
       return Promise.reject(refreshError);
     }
