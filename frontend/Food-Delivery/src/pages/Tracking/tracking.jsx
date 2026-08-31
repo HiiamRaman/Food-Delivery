@@ -14,7 +14,7 @@ import { toast } from "react-toastify";
 import { socket } from "../../socket/clientSocket";
 import Map from "../../socket/Map";
 
-import "./tracking.css";
+import './tracking.csss';
 
 export default function Tracking() {
   const { id: orderId } = useParams();
